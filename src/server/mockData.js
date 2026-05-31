@@ -10,7 +10,7 @@ const eventTemplates = [
   ['Substitution', '72 min', 'Fresh legs on the right wing'],
 ]
 
-const liveIndexes = [0, 1, 4, 9, 14, 21]
+const liveIndexes = [0, 1, 4, 9]
 
 export const getMockMatches = () =>
   schedule.matches.map((match, index) => {

@@ -1,6 +1,8 @@
 import { Radio } from 'lucide-react'
 
 export function LiveScoresTicker({ matches }) {
+  const visibleMatches = matches.slice(0, 4)
+
   return (
     <section
       className="overflow-hidden border-y border-twilight_indigo-900 bg-twilight_indigo text-eggshell-900"
@@ -13,7 +15,7 @@ export function LiveScoresTicker({ matches }) {
         </div>
         <div className="relative flex-1 overflow-hidden">
           <div className="flex w-max animate-[ticker_32s_linear_infinite] gap-8 pr-8 motion-reduce:animate-none">
-            {[...matches, ...matches].map((match, index) => (
+            {[...visibleMatches, ...visibleMatches].map((match, index) => (
               <div key={`${match.id}-${index}`} className="flex items-center gap-3 text-sm sm:text-base">
                 <span className="font-semibold">
                   {match.home.flag} {match.home.code}

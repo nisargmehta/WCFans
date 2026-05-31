@@ -1,7 +1,10 @@
-import { Scissors } from 'lucide-react'
+import { ChevronDown, Scissors } from 'lucide-react'
+import { useState } from 'react'
 
 export function HaircutTracker({ teams }) {
+  const [expanded, setExpanded] = useState(false)
   const sortedTeams = [...teams].sort((a, b) => b.winsInARow - a.winsInARow)
+  const visibleTeams = expanded ? sortedTeams : sortedTeams.slice(0, 4)
 
   return (
     <section className="rounded-lg bg-twilight_indigo p-5 text-eggshell shadow-panel">
@@ -10,13 +13,23 @@ export function HaircutTracker({ teams }) {
           <p className="text-sm font-bold uppercase text-apricot_cream">Fan challenge</p>
           <h2 className="mt-1 text-2xl font-black">Haircut tracker</h2>
         </div>
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-burnt_peach text-eggshell">
-          <Scissors aria-hidden="true" className="h-5 w-5" />
-        </div>
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          className="inline-flex items-center gap-2 rounded bg-eggshell px-4 py-2 text-sm font-black text-twilight_indigo transition hover:bg-eggshell-600 focus:outline-none focus:ring-2 focus:ring-apricot_cream focus:ring-offset-2 focus:ring-offset-twilight_indigo"
+          aria-expanded={expanded}
+        >
+          <Scissors aria-hidden="true" className="h-4 w-4" />
+          {expanded ? 'Show less' : 'Show all'}
+          <ChevronDown aria-hidden="true" className={`h-4 w-4 transition ${expanded ? 'rotate-180' : ''}`} />
+        </button>
       </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {sortedTeams.map((team) => (
-          <article key={team.id} className="rounded-lg bg-white/10 p-4 ring-1 ring-white/15">
+      <div className={expanded ? 'mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4' : 'mt-5 flex gap-3 overflow-x-auto pb-1'}>
+        {visibleTeams.map((team) => (
+          <article
+            key={team.id}
+            className={`rounded-lg bg-white/10 p-4 ring-1 ring-white/15 ${expanded ? '' : 'min-w-64 flex-1'}`}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="truncate text-lg font-black">

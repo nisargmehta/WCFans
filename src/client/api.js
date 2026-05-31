@@ -8,6 +8,7 @@ export const fetchDashboardData = async () => {
   return withLatency({
     liveMatches: matches.filter((match) => match.status === 'Live'),
     upcomingMatches: matches.slice(0, 10),
+    scheduleMatches: matches,
     news: getMockNews(),
     haircutTracker: getHaircutTracker(),
   })

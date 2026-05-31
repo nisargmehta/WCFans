@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import App from './App'
 
@@ -10,5 +11,15 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: /live and upcoming fixtures/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /world cup stories/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /haircut tracker/i })).toBeInTheDocument()
+  })
+
+  it('opens the full real schedule view', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(await screen.findByRole('button', { name: /full schedule/i }))
+
+    expect(screen.getByRole('heading', { name: /full world cup 2026 schedule/i })).toBeInTheDocument()
+    expect(screen.getByText('104 fixtures')).toBeInTheDocument()
   })
 })
