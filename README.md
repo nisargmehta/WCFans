@@ -32,7 +32,10 @@ The local seed is only a fallback. The production fixture source is API-Football
 Run the API-Football fixture sync once after deploying functions:
 
 ```bash
-supabase functions invoke sync-fixtures
+curl -X POST 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-fixtures' \
+  -H "Authorization: Bearer $VITE_SUPABASE_PUBLISHABLE_KEY" \
+  -H 'Content-Type: application/json' \
+  -d '{}'
 ```
 
 Run it again when the knockout bracket starts resolving after June 27, 2026.
