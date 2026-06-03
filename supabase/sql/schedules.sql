@@ -10,6 +10,9 @@ where exists (select 1 from cron.job where jobname = 'sync-rss-news-every-3-hour
 select cron.unschedule('sync-fixture-previews-every-6-hours')
 where exists (select 1 from cron.job where jobname = 'sync-fixture-previews-every-6-hours');
 
+select cron.unschedule('sync-standings-daily')
+where exists (select 1 from cron.job where jobname = 'sync-standings-daily');
+
 select cron.schedule(
   'sync-rss-news-every-3-hours',
   '0 */3 * * *',
@@ -31,6 +34,21 @@ select cron.schedule(
   $$
   select net.http_post(
     url := 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-fixture-previews',
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer YOUR_FUNCTION_BEARER_TOKEN',
+      'Content-Type', 'application/json'
+    ),
+    body := '{}'::jsonb
+  );
+  $$
+);
+
+select cron.schedule(
+  'sync-standings-daily',
+  '20 8 * * *',
+  $$
+  select net.http_post(
+    url := 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-standings',
     headers := jsonb_build_object(
       'Authorization', 'Bearer YOUR_FUNCTION_BEARER_TOKEN',
       'Content-Type', 'application/json'

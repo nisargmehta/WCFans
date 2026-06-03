@@ -3,6 +3,8 @@ import { firstEnv, jsonResponse, requireEnv } from '../_shared/http.ts'
 
 const API_FOOTBALL_BASE_URL = 'https://v3.football.api-sports.io'
 const PREVIEW_WINDOW_HOURS = 24
+const DEFAULT_LEAGUE_ID = '1'
+const DEFAULT_SEASON = '2026'
 
 type FixtureRow = {
   match_id: string
@@ -124,17 +126,8 @@ const getInjuries = async (fixture: FixtureRow, apiKey: string) => {
 }
 
 const getPlayersToWatch = async (fixture: FixtureRow, apiKey: string) => {
-  const leagueId = Deno.env.get('API_FOOTBALL_LEAGUE_ID')
-  const season = Deno.env.get('API_FOOTBALL_SEASON')
-
-  if (!leagueId || !season) {
-    return [
-      {
-        summary: 'Players to watch needs API_FOOTBALL_LEAGUE_ID and API_FOOTBALL_SEASON configured.',
-        sources: [],
-      },
-    ]
-  }
+  const leagueId = Deno.env.get('API_FOOTBALL_LEAGUE_ID') ?? DEFAULT_LEAGUE_ID
+  const season = Deno.env.get('API_FOOTBALL_SEASON') ?? DEFAULT_SEASON
 
   const endpoint = `/players/topscorers?league=${leagueId}&season=${season}`
   const data = await fetchApiFootball(endpoint, apiKey)

@@ -19,6 +19,7 @@ Apply the migration in `supabase/migrations` to create:
 - `news_articles`
 - `fixtures`
 - `fixture_previews`
+- `standings`
 
 Seed local World Cup fixtures into Supabase:
 
@@ -33,6 +34,7 @@ Deploy the Edge Functions:
 ```bash
 supabase functions deploy sync-rss-news
 supabase functions deploy sync-fixture-previews
+supabase functions deploy sync-standings
 ```
 
 Set function secrets:
@@ -45,11 +47,13 @@ supabase secrets set API_FOOTBALL_SEASON=...
 ```
 
 `API_FOOTBALL_LEAGUE_ID` and `API_FOOTBALL_SEASON` are only needed for the derived players-to-watch list. RSS feeds can be overridden with a comma-separated `RSS_FEEDS` secret.
+For World Cup 2026, the functions default to `API_FOOTBALL_LEAGUE_ID=1` and `API_FOOTBALL_SEASON=2026`.
 
 Enable schedules with `supabase/sql/schedules.sql`:
 
 - `sync-rss-news`: every 3 hours
 - `sync-fixture-previews`: every 6 hours
+- `sync-standings`: daily
 
 ## Local Development
 
