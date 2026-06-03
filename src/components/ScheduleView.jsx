@@ -1,4 +1,5 @@
 import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react'
+import { FixtureInsights } from './FixtureInsights'
 
 export function ScheduleView({ matches, onBack }) {
   const matchesByDate = matches.reduce((dates, match) => {
@@ -54,6 +55,7 @@ export function ScheduleView({ matches, onBack }) {
                     <MapPin aria-hidden="true" className="h-4 w-4" />
                     {match.ground}
                   </p>
+                  <FixtureInsights insights={match.insights} />
                 </article>
               ))}
             </div>

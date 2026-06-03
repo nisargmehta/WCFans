@@ -13,13 +13,23 @@ describe('NewsFeed', () => {
             timestamp: '12 min ago',
             image: 'https://example.com/image.jpg',
             category: 'Host Cities',
+            url: 'https://example.com/article',
           },
         ]}
       />,
     )
 
-    expect(screen.getByText('Opening week travel guide')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Opening week travel guide' })).toHaveAttribute(
+      'href',
+      'https://example.com/article',
+    )
     expect(screen.getByText('Host Cities')).toBeInTheDocument()
     expect(screen.getByText('12 min ago')).toBeInTheDocument()
+  })
+
+  it('renders an empty state when RSS articles are unavailable', () => {
+    render(<NewsFeed articles={[]} />)
+
+    expect(screen.getByText(/latest rss stories/i)).toBeInTheDocument()
   })
 })

@@ -16,6 +16,12 @@ const match = {
   away: { name: 'South Africa', code: 'RSA', flag: '🇿🇦' },
   score: { home: 1, away: 0 },
   events: [{ id: 'goal', minute: '12 min', type: 'Goal', detail: 'Finished at the near post' }],
+  insights: {
+    refreshLabel: 'Prematch preview pending',
+    headToHead: { summary: 'Head-to-head record will appear after the preview job runs.', sources: [] },
+    playersToWatch: [{ summary: 'Mexico forward listed among players to watch.', sources: [] }],
+    injuries: [{ summary: 'Injury updates will appear after the preview job runs.', sources: [] }],
+  },
 }
 
 describe('MatchCard', () => {
@@ -30,6 +36,7 @@ describe('MatchCard', () => {
 
     expect(toggle).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByText(/lineups and key events/i)).toBeInTheDocument()
+    expect(screen.getByText(/mexico forward/i)).toBeInTheDocument()
   })
 
   it('shows live score and key events by default for live matches', () => {

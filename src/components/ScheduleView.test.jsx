@@ -13,6 +13,12 @@ const matches = [
     ground: 'Mexico City',
     home: { name: 'Mexico', code: 'MEX', flag: '🇲🇽' },
     away: { name: 'South Africa', code: 'RSA', flag: '🇿🇦' },
+    insights: {
+      refreshLabel: 'Prematch preview refreshed',
+      headToHead: { summary: 'Mexico and South Africa split their previous meetings.', sources: [] },
+      playersToWatch: [{ summary: 'Mexico captain enters in strong form.', sources: [] }],
+      injuries: [{ summary: 'No reported injuries.', sources: [] }],
+    },
   },
 ]
 
@@ -24,6 +30,8 @@ describe('ScheduleView', () => {
 
     expect(screen.getByRole('heading', { name: /full world cup 2026 schedule/i })).toBeInTheDocument()
     expect(screen.getByText('Mexico City')).toBeInTheDocument()
+    expect(screen.getByText(/mexico and south africa/i)).toBeInTheDocument()
+    expect(screen.getByText(/mexico captain/i)).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /match hub/i }))
 

@@ -1,5 +1,6 @@
 import { ChevronDown, Clock, MapPin } from 'lucide-react'
 import { useId, useState } from 'react'
+import { FixtureInsights } from './FixtureInsights'
 
 export function MatchCard({ match }) {
   const [expanded, setExpanded] = useState(match.status === 'Live')
@@ -46,6 +47,7 @@ export function MatchCard({ match }) {
               {match.ground}
             </span>
           </div>
+          <FixtureInsights insights={match.insights} />
           <ul className="mt-4 space-y-2" aria-label="Key match events">
             {match.events.length > 0 ? (
               match.events.map((event) => (

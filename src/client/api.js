@@ -1,15 +1,21 @@
-import { getHaircutTracker, getMockMatches, getMockNews } from '../server/mockData'
+import { mergeMatchesWithFixturePreviews } from '../server/fixtureInsights'
+import { getHaircutTracker, getMockMatches } from '../server/mockData'
+import { fetchRssArticles } from '../server/rssNews'
+import { fetchSupabaseFixturePreviews, fetchSupabaseNews } from './supabaseApi'
 
 const withLatency = (payload) => new Promise((resolve) => setTimeout(() => resolve(payload), 120))
 
 export const fetchDashboardData = async () => {
   const matches = getMockMatches()
+  const news = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseNews().catch(() => fetchRssArticles())
+  const fixturePreviews = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseFixturePreviews().catch(() => [])
+  const enrichedMatches = mergeMatchesWithFixturePreviews(matches, fixturePreviews)
 
   return withLatency({
-    liveMatches: matches.filter((match) => match.status === 'Live'),
-    upcomingMatches: matches.slice(0, 10),
-    scheduleMatches: matches,
-    news: getMockNews(),
+    liveMatches: enrichedMatches.filter((match) => match.status === 'Live'),
+    upcomingMatches: enrichedMatches.slice(0, 10),
+    scheduleMatches: enrichedMatches,
+    news: news.slice(0, 8),
     haircutTracker: getHaircutTracker(),
   })
 }

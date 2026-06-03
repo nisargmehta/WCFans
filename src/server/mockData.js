@@ -52,41 +52,6 @@ export const getMockMatches = () =>
     }
   })
 
-export const getMockNews = () => [
-  {
-    id: 'draw-watch',
-    headline: 'Opening week travel guide: three host nations, one huge kickoff',
-    timestamp: '12 min ago',
-    image:
-      'https://images.unsplash.com/photo-1527871252447-4ce32da643c6?auto=format&fit=crop&w=900&q=80',
-    category: 'Host Cities',
-  },
-  {
-    id: 'tactical-board',
-    headline: 'Group A preview: pressure, pace, and a very loud Azteca night',
-    timestamp: '37 min ago',
-    image:
-      'https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=900&q=80',
-    category: 'Analysis',
-  },
-  {
-    id: 'fan-parks',
-    headline: 'Fan parks prepare watch parties from Vancouver to Guadalajara',
-    timestamp: '1 hr ago',
-    image:
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=900&q=80',
-    category: 'Fans',
-  },
-  {
-    id: 'young-stars',
-    headline: 'Five breakout players supporters are already tracking',
-    timestamp: '2 hrs ago',
-    image:
-      'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=900&q=80',
-    category: 'Scouting',
-  },
-]
-
 const streakSeeds = [4, 2, 5, 1, 3, 0, 4, 2, 5, 1, 3, 4]
 
 export const getHaircutTracker = () =>
