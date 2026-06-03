@@ -25,30 +25,46 @@ const kickoffAt = (match) => {
   return new Date(Date.UTC(year, month - 1, day, Number(hour) - Number(offset), Number(minute))).toISOString()
 }
 
+const chunk = (items, size) => {
+  const chunks = []
+
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size))
+  }
+
+  return chunks
+}
+
 const rows = schedule.matches.map((match) => ({
   match_id: matchId(match),
   kickoff_at: kickoffAt(match),
   home_team: match.team1,
   away_team: match.team2,
-  group_name: match.group,
-  round_name: match.round,
-  ground: match.ground,
+  group_name: match.group ?? null,
+  round_name: match.round ?? null,
+  ground: match.ground ?? null,
   updated_at: new Date().toISOString(),
 }))
 
-const response = await fetch(`${supabaseUrl}/rest/v1/fixtures?on_conflict=match_id`, {
-  method: 'POST',
-  headers: {
-    apikey: serviceRoleKey,
-    Authorization: `Bearer ${serviceRoleKey}`,
-    'Content-Type': 'application/json',
-    Prefer: 'resolution=merge-duplicates',
-  },
-  body: JSON.stringify(rows),
-})
+let upsertedCount = 0
 
-if (!response.ok) {
-  throw new Error(`Fixture seed failed: ${response.status} ${await response.text()}`)
+for (const batch of chunk(rows, 50)) {
+  const response = await fetch(`${supabaseUrl}/rest/v1/fixtures?on_conflict=match_id`, {
+    method: 'POST',
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates',
+    },
+    body: JSON.stringify(batch),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Fixture seed failed: ${response.status} ${await response.text()}`)
+  }
+
+  upsertedCount += batch.length
 }
 
-console.log(`Upserted ${rows.length} fixtures.`)
+console.log(`Upserted ${upsertedCount} fixtures.`)
