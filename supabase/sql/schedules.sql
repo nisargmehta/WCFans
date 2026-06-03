@@ -69,3 +69,12 @@ select cron.schedule(
   );
   $$
 );
+
+select jobid, jobname, schedule
+from cron.job
+where jobname in (
+  'sync-rss-news-every-3-hours',
+  'sync-fixture-previews-every-6-hours',
+  'sync-standings-daily'
+)
+order by jobname;
