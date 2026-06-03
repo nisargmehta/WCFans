@@ -29,6 +29,20 @@ type StandingRow = {
   updated_at: string
 }
 
+type HaircutTrackerRow = {
+  league_id: number
+  season: number
+  team_id: number
+  team_name: string
+  team_logo: string | null
+  group_name: string | null
+  form: string | null
+  wins_in_a_row: number
+  can_cut_hair: boolean
+  fetched_at: string
+  updated_at: string
+}
+
 const fetchApiFootball = async (endpoint: string, apiKey: string) => {
   const response = await fetch(`${API_FOOTBALL_BASE_URL}${endpoint}`, {
     headers: {
@@ -46,6 +60,25 @@ const fetchApiFootball = async (endpoint: string, apiKey: string) => {
 const asNumber = (value: unknown) => (typeof value === 'number' ? value : null)
 
 const asString = (value: unknown) => (typeof value === 'string' ? value : null)
+
+const getCurrentWinStreak = (form: string | null) => {
+  if (!form) {
+    return 0
+  }
+
+  const results = form.toUpperCase().replace(/[^WDL]/g, '').split('')
+  let streak = 0
+
+  for (let index = results.length - 1; index >= 0; index -= 1) {
+    if (results[index] !== 'W') {
+      break
+    }
+
+    streak += 1
+  }
+
+  return streak
+}
 
 const toStandingRows = (data: Record<string, any>, leagueId: number, season: number, fetchedAt: string): StandingRow[] => {
   const standings = data.response?.[0]?.league?.standings ?? []
@@ -77,6 +110,25 @@ const toStandingRows = (data: Record<string, any>, leagueId: number, season: num
   )
 }
 
+const toHaircutTrackerRows = (standings: StandingRow[], fetchedAt: string): HaircutTrackerRow[] =>
+  standings.map((standing) => {
+    const winsInARow = getCurrentWinStreak(standing.form)
+
+    return {
+      league_id: standing.league_id,
+      season: standing.season,
+      team_id: standing.team_id,
+      team_name: standing.team_name,
+      team_logo: standing.team_logo,
+      group_name: standing.group_name,
+      form: standing.form,
+      wins_in_a_row: winsInARow,
+      can_cut_hair: winsInARow >= 5,
+      fetched_at: fetchedAt,
+      updated_at: fetchedAt,
+    }
+  })
+
 Deno.serve(async () => {
   try {
     const supabase = createClient(requireEnv('SUPABASE_URL'), firstEnv('SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY'))
@@ -93,6 +145,15 @@ Deno.serve(async () => {
 
       if (error) {
         throw error
+      }
+
+      const trackerRows = toHaircutTrackerRows(rows, fetchedAt)
+      const { error: trackerError } = await supabase
+        .from('haircut_tracker')
+        .upsert(trackerRows, { onConflict: 'league_id,season,team_id' })
+
+      if (trackerError) {
+        throw trackerError
       }
     }
 

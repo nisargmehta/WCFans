@@ -51,16 +51,3 @@ export const getMockMatches = () =>
         : [],
     }
   })
-
-const streakSeeds = [4, 2, 5, 1, 3, 0, 4, 2, 5, 1, 3, 4]
-
-export const getHaircutTracker = () =>
-  teams.slice(0, 12).map((team, index) => ({
-    id: team.fifa_code,
-    team: team.name,
-    code: team.fifa_code,
-    flag: team.flag_icon,
-    group: team.group,
-    winsInARow: streakSeeds[index],
-    canCutHair: streakSeeds[index] >= 5,
-  }))

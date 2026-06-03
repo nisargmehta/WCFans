@@ -57,6 +57,23 @@ export const fetchSupabaseStandings = async () =>
     'standings?select=league_id,season,team_id,team_name,team_logo,group_name,rank,points,goals_diff,form,status,description,all_played,all_win,all_draw,all_lose,goals_for,goals_against,fetched_at&league_id=eq.1&season=eq.2026&order=group_name.asc.nullslast,rank.asc.nullslast',
   )
 
+export const fetchSupabaseHaircutTracker = async () => {
+  const rows = await get(
+    'haircut_tracker?select=team_id,team_name,team_logo,group_name,form,wins_in_a_row,can_cut_hair,fetched_at&league_id=eq.1&season=eq.2026&order=wins_in_a_row.desc,team_name.asc',
+  )
+
+  return rows.map((row) => ({
+    id: String(row.team_id),
+    team: row.team_name,
+    logo: row.team_logo,
+    group: row.group_name?.replace(/^Group\s+/i, '') ?? 'TBD',
+    form: row.form,
+    winsInARow: row.wins_in_a_row,
+    canCutHair: row.can_cut_hair,
+    fetchedAt: row.fetched_at,
+  }))
+}
+
 const formatTimestamp = (publishedAt) => {
   if (!publishedAt) {
     return 'Latest'

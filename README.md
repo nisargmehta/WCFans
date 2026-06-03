@@ -20,6 +20,7 @@ Apply the migration in `supabase/migrations` to create:
 - `fixtures`
 - `fixture_previews`
 - `standings`
+- `haircut_tracker`
 
 Seed local World Cup fixtures into Supabase:
 
@@ -60,6 +61,7 @@ supabase secrets set API_FOOTBALL_SEASON=...
 
 `API_FOOTBALL_LEAGUE_ID` and `API_FOOTBALL_SEASON` are only needed for the derived players-to-watch list. RSS feeds can be overridden with a comma-separated `RSS_FEEDS` secret.
 For World Cup 2026, the functions default to `API_FOOTBALL_LEAGUE_ID=1` and `API_FOOTBALL_SEASON=2026`.
+`sync-standings` also derives the haircut challenge streaks from standings form and stores them in `haircut_tracker`.
 
 Enable schedules with `supabase/sql/schedules.sql`:
 
