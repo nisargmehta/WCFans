@@ -9,7 +9,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "preview": "vite preview",
-    "supabase:seed-fixtures": "node scripts/seed-supabase-fixtures.mjs"
+    "supabase:seed-fixtures": "node scripts/seed-supabase-fixtures.mjs",
+    "supabase:backfill-fixture-ids": "node scripts/backfill-api-football-fixture-ids.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

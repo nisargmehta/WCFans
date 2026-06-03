@@ -29,6 +29,14 @@ SERVICE_ROLE_KEY=... npm run supabase:seed-fixtures
 
 After seeding, fill `fixtures.api_football_fixture_id`, `home_api_football_team_id`, and `away_api_football_team_id` so the preview job can call API-Football.
 
+The fastest path is the API-Football backfill helper:
+
+```bash
+SERVICE_ROLE_KEY=... API_FOOTBALL_KEY=... npm run supabase:backfill-fixture-ids
+```
+
+It fetches `league=1&season=2026`, matches fixtures by teams and kickoff time, updates confident matches, and prints any unmatched rows for manual review.
+
 Deploy the Edge Functions:
 
 ```bash
