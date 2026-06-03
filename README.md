@@ -27,20 +27,21 @@ Seed local World Cup fixtures into Supabase:
 SERVICE_ROLE_KEY=... npm run supabase:seed-fixtures
 ```
 
-After seeding, fill `fixtures.api_football_fixture_id`, `home_api_football_team_id`, and `away_api_football_team_id` so the preview job can call API-Football.
+The local seed is only a fallback. The production fixture source is API-Football, synced into `fixtures` with `source='api-football'`.
 
-The fastest path is the API-Football backfill helper:
+Run the API-Football fixture sync once after deploying functions:
 
 ```bash
-SERVICE_ROLE_KEY=... API_FOOTBALL_KEY=... npm run supabase:backfill-fixture-ids
+supabase functions invoke sync-fixtures
 ```
 
-It fetches `league=1&season=2026`, matches fixtures by teams and kickoff time, updates confident matches, and prints any unmatched rows for manual review.
+Run it again when the knockout bracket starts resolving after June 27, 2026.
 
 Deploy the Edge Functions:
 
 ```bash
 supabase functions deploy sync-rss-news
+supabase functions deploy sync-fixtures
 supabase functions deploy sync-fixture-previews
 supabase functions deploy sync-standings
 ```
@@ -62,6 +63,8 @@ Enable schedules with `supabase/sql/schedules.sql`:
 - `sync-rss-news`: every 3 hours
 - `sync-fixture-previews`: every 6 hours
 - `sync-standings`: daily
+
+Do not schedule `sync-fixtures` daily during group-stage setup. If you want automated fixture refreshes once knockout teams start resolving, use `supabase/sql/knockout-fixture-refresh.sql` near June 27, 2026.
 
 ## Local Development
 

@@ -43,6 +43,7 @@ const rows = schedule.matches.map((match) => ({
   group_name: match.group ?? null,
   round_name: match.round ?? null,
   ground: match.ground ?? null,
+  source: 'local',
   updated_at: new Date().toISOString(),
 }))
 

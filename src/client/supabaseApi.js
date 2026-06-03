@@ -47,6 +47,11 @@ export const fetchSupabaseFixturePreviews = async () =>
     'fixture_previews?select=match_id,generated_at,refresh_label,head_to_head_summary,head_to_head_sources,players_to_watch,injuries,updated_at&order=updated_at.desc&limit=200',
   )
 
+export const fetchSupabaseFixtures = async () =>
+  get(
+    'fixtures?select=match_id,kickoff_at,home_team,away_team,group_name,round_name,ground,api_football_fixture_id,home_api_football_team_id,away_api_football_team_id,source&source=eq.api-football&order=kickoff_at.asc&limit=200',
+  )
+
 export const fetchSupabaseStandings = async () =>
   get(
     'standings?select=league_id,season,team_id,team_name,team_logo,group_name,rank,points,goals_diff,form,status,description,all_played,all_win,all_draw,all_lose,goals_for,goals_against,fetched_at&league_id=eq.1&season=eq.2026&order=group_name.asc.nullslast,rank.asc.nullslast',
