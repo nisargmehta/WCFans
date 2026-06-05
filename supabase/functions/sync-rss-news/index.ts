@@ -10,47 +10,68 @@ const DEFAULT_RSS_FEEDS = [
 const DEFAULT_ARTICLE_IMAGE =
   'https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=900&q=80'
 
-const textFrom = (node: Element, selector: string) => node.querySelector(selector)?.textContent?.trim() ?? ''
-
-const attrFrom = (node: Element, selector: string, attr: string) =>
-  node.querySelector(selector)?.getAttribute(attr)?.trim() ?? ''
-
 const normalizeId = (value: string) =>
   value
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
 
-const stripMarkup = (value: string) => value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+const decodeXmlEntities = (value: string) =>
+  value
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .trim()
 
-const getFeedTitle = (document: Document, feedUrl: string) =>
-  textFrom(document.documentElement, 'channel > title') ||
-  textFrom(document.documentElement, 'feed > title') ||
-  new URL(feedUrl).hostname
+const stripMarkup = (value: string) => decodeXmlEntities(value).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
 
-const getArticleUrl = (item: Element) =>
-  attrFrom(item, 'link', 'href') || textFrom(item, 'link') || textFrom(item, 'guid') || '#'
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-const getArticleImage = (item: Element) =>
-  attrFrom(item, 'media\\:content, content', 'url') ||
-  attrFrom(item, 'media\\:thumbnail, thumbnail', 'url') ||
-  attrFrom(item, 'enclosure', 'url') ||
+const tagPattern = (tagNames: string[]) => tagNames.map(escapeRegExp).join('|')
+
+const textFrom = (xml: string, tagNames: string[]) => {
+  const pattern = new RegExp(`<(?:${tagPattern(tagNames)})\\b[^>]*>([\\s\\S]*?)<\\/(?:${tagPattern(tagNames)})>`, 'i')
+  const match = xml.match(pattern)
+
+  return match ? stripMarkup(match[1]) : ''
+}
+
+const attrFrom = (xml: string, tagNames: string[], attr: string) => {
+  const tagMatch = xml.match(new RegExp(`<(?:${tagPattern(tagNames)})\\b([^>]*)>`, 'i'))
+
+  if (!tagMatch) {
+    return ''
+  }
+
+  const attrMatch = tagMatch[1].match(new RegExp(`\\s${escapeRegExp(attr)}=["']([^"']+)["']`, 'i'))
+  return attrMatch ? decodeXmlEntities(attrMatch[1]) : ''
+}
+
+const getFeedTitle = (xml: string, feedUrl: string) => textFrom(xml, ['title']) || new URL(feedUrl).hostname
+
+const getArticleUrl = (item: string) => attrFrom(item, ['link'], 'href') || textFrom(item, ['link']) || textFrom(item, ['guid']) || '#'
+
+const getArticleImage = (item: string) =>
+  attrFrom(item, ['media:content'], 'url') ||
+  attrFrom(item, ['media:thumbnail', 'thumbnail'], 'url') ||
+  attrFrom(item, ['enclosure'], 'url') ||
   DEFAULT_ARTICLE_IMAGE
 
-const getPublishedAt = (item: Element) =>
-  textFrom(item, 'pubDate') || textFrom(item, 'published') || textFrom(item, 'updated') || null
+const getPublishedAt = (item: string) => textFrom(item, ['pubDate', 'published', 'updated']) || null
 
 const parseRssArticles = (xml: string, feedUrl: string) => {
-  const document = new DOMParser().parseFromString(xml, 'application/xml')
-  const source = getFeedTitle(document, feedUrl)
-  const items = [...document.querySelectorAll('item, entry')]
+  const source = getFeedTitle(xml, feedUrl)
+  const items = [...xml.matchAll(/<(item|entry)\b[\s\S]*?<\/\1>/gi)].map((match) => match[0])
   const now = new Date().toISOString()
 
   return items
     .map((item, index) => {
-      const headline = textFrom(item, 'title')
+      const headline = textFrom(item, ['title'])
       const url = getArticleUrl(item)
-      const summary = stripMarkup(textFrom(item, 'description') || textFrom(item, 'summary') || textFrom(item, 'content'))
+      const summary = textFrom(item, ['description', 'summary', 'content:encoded', 'content'])
 
       return {
         id: normalizeId(`${source}-${headline || url || index}`),
