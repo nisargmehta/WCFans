@@ -1,6 +1,7 @@
 const DEFAULT_RSS_FEEDS = [
-  'https://api.foxsports.com/v2/content/optimized-rss',
-  'https://rss.feedspot.com/soccer_rss_feeds/',
+  'https://www.espn.com/espn/rss/soccer/news',
+  'https://www.theguardian.com/football/rss',
+  'https://feeds.bbci.co.uk/sport/football/rss.xml',
 ]
 
 const DEFAULT_TIMEOUT_MS = 3000

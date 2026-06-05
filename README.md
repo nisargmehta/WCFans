@@ -62,6 +62,7 @@ supabase secrets set API_FOOTBALL_SEASON=...
 `API_FOOTBALL_LEAGUE_ID` and `API_FOOTBALL_SEASON` are only needed for the derived players-to-watch list. RSS feeds can be overridden with a comma-separated `RSS_FEEDS` secret.
 For World Cup 2026, the functions default to `API_FOOTBALL_LEAGUE_ID=1` and `API_FOOTBALL_SEASON=2026`.
 `sync-standings` also derives the haircut challenge streaks from standings form and stores them in `haircut_tracker`.
+The default RSS feeds are public ESPN, Guardian, and BBC football feeds. Fox Sports requires a partner key, and Feedspot is a feed directory page unless you configure a specific listed feed.
 
 Enable schedules with `supabase/sql/schedules.sql`:
 

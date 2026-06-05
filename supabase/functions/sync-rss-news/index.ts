@@ -2,8 +2,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { firstEnv, jsonResponse, requireEnv } from '../_shared/http.ts'
 
 const DEFAULT_RSS_FEEDS = [
-  'https://api.foxsports.com/v2/content/optimized-rss',
-  'https://rss.feedspot.com/soccer_rss_feeds/',
+  'https://www.espn.com/espn/rss/soccer/news',
+  'https://www.theguardian.com/football/rss',
+  'https://feeds.bbci.co.uk/sport/football/rss.xml',
 ]
 
 const DEFAULT_ARTICLE_IMAGE =
@@ -71,23 +72,27 @@ Deno.serve(async () => {
     const supabase = createClient(requireEnv('SUPABASE_URL'), firstEnv('SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY'))
     const feeds = (Deno.env.get('RSS_FEEDS')?.split(',').map((feed) => feed.trim()).filter(Boolean) ?? DEFAULT_RSS_FEEDS)
 
-    const articleGroups = await Promise.all(
+    const feedResults = await Promise.all(
       feeds.map(async (feedUrl) => {
         try {
           const response = await fetch(feedUrl)
 
           if (!response.ok) {
-            return []
+            return { feedUrl, articles: [], error: `HTTP ${response.status}` }
           }
 
-          return parseRssArticles(await response.text(), feedUrl)
-        } catch {
-          return []
+          return { feedUrl, articles: parseRssArticles(await response.text(), feedUrl), error: null }
+        } catch (error) {
+          return {
+            feedUrl,
+            articles: [],
+            error: error instanceof Error ? error.message : 'Unknown feed error',
+          }
         }
       }),
     )
 
-    const articles = articleGroups.flat()
+    const articles = feedResults.flatMap((result) => result.articles)
 
     if (articles.length > 0) {
       const { error } = await supabase.from('news_articles').upsert(articles, { onConflict: 'url' })
@@ -97,7 +102,15 @@ Deno.serve(async () => {
       }
     }
 
-    return jsonResponse({ ok: true, count: articles.length })
+    return jsonResponse({
+      ok: true,
+      count: articles.length,
+      feeds: feedResults.map((result) => ({
+        feedUrl: result.feedUrl,
+        count: result.articles.length,
+        error: result.error,
+      })),
+    })
   } catch (error) {
     return jsonResponse({ ok: false, error: error instanceof Error ? error.message : 'Unknown error' }, 500)
   }
