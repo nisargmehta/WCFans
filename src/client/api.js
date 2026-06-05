@@ -1,5 +1,5 @@
 import { mergeMatchesWithFixturePreviews } from '../server/fixtureInsights'
-import { mapFixtureRowsToMatches } from '../server/fixtureRows'
+import { mapFixtureRowsToMatches, sortMatchesByKickoff } from '../server/fixtureRows'
 import { getMockMatches } from '../server/mockData'
 import { fetchRssArticles } from '../server/rssNews'
 import {
@@ -17,7 +17,7 @@ export const fetchDashboardData = async () => {
   const news = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseNews().catch(() => fetchRssArticles())
   const fixturePreviews = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseFixturePreviews().catch(() => [])
   const haircutTracker = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseHaircutTracker().catch(() => [])
-  const enrichedMatches = mergeMatchesWithFixturePreviews(matches, fixturePreviews)
+  const enrichedMatches = sortMatchesByKickoff(mergeMatchesWithFixturePreviews(matches, fixturePreviews))
 
   return withLatency({
     liveMatches: enrichedMatches.filter((match) => match.status === 'Live'),

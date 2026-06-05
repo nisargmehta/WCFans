@@ -9,6 +9,9 @@ const DEFAULT_TIMEOUT_MS = 3000
 const DEFAULT_ARTICLE_IMAGE =
   'https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=900&q=80'
 
+const WORLD_CUP_PATTERN =
+  /\b(world cup|fifa world cup|fifa|2026|wc\s?2026|wc sendoff|world cup sendoff|squad|roster|knockout|group stage)\b/i
+
 const textFrom = (node, selector) => node.querySelector(selector)?.textContent?.trim() ?? ''
 
 const attrFrom = (node, selector, attr) => node.querySelector(selector)?.getAttribute(attr)?.trim() ?? ''
@@ -35,6 +38,9 @@ const getArticleImage = (item) =>
 
 const getPublishedAt = (item) =>
   textFrom(item, 'pubDate') || textFrom(item, 'published') || textFrom(item, 'updated') || ''
+
+export const isWorldCupArticle = (article) =>
+  WORLD_CUP_PATTERN.test([article.headline, article.summary, article.category, article.source].filter(Boolean).join(' '))
 
 const formatTimestamp = (publishedAt) => {
   if (!publishedAt) {
@@ -90,7 +96,7 @@ export const parseRssArticles = (xml, feedUrl) => {
         source,
       }
     })
-    .filter((article) => article.headline)
+    .filter((article) => article.headline && isWorldCupArticle(article))
 }
 
 const fetchWithTimeout = async (feedUrl, fetcher, timeoutMs) => {
@@ -129,5 +135,6 @@ export const fetchRssArticles = async ({
 
   return articleGroups
     .flat()
+    .filter(isWorldCupArticle)
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
 }

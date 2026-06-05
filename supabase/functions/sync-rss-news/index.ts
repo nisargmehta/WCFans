@@ -10,6 +10,9 @@ const DEFAULT_RSS_FEEDS = [
 const DEFAULT_ARTICLE_IMAGE =
   'https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=900&q=80'
 
+const WORLD_CUP_PATTERN =
+  /\b(world cup|fifa world cup|fifa|2026|wc\s?2026|wc sendoff|world cup sendoff|squad|roster|knockout|group stage)\b/i
+
 const normalizeId = (value: string) =>
   value
     .toLowerCase()
@@ -74,6 +77,9 @@ const getArticleImage = (item: string) =>
 
 const getPublishedAt = (item: string) => textFrom(item, ['pubDate', 'published', 'updated']) || null
 
+const isWorldCupArticle = (article: { headline: string; summary: string; category: string; source: string }) =>
+  WORLD_CUP_PATTERN.test([article.headline, article.summary, article.category, article.source].filter(Boolean).join(' '))
+
 const parseRssArticles = (xml: string, feedUrl: string) => {
   const source = getFeedTitle(xml, feedUrl)
   const items = [...xml.matchAll(/<(item|entry)\b[\s\S]*?<\/\1>/gi)].map((match) => match[0])
@@ -97,7 +103,7 @@ const parseRssArticles = (xml: string, feedUrl: string) => {
         updated_at: now,
       }
     })
-    .filter((article) => article.headline && article.url !== '#')
+    .filter((article) => article.headline && article.url !== '#' && isWorldCupArticle(article))
 }
 
 Deno.serve(async () => {

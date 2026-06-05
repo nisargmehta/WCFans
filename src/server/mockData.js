@@ -3,14 +3,19 @@ import teams from '../data/worldcupTeams2026.json'
 
 const teamMetaByName = new Map(teams.map((team) => [team.name, team]))
 
-const eventTemplates = [
-  ['Goal', '12 min', 'Fast break finished at the near post'],
-  ['Yellow card', '31 min', 'Late challenge in midfield'],
-  ['Goal', '58 min', 'Header from a corner'],
-  ['Substitution', '72 min', 'Fresh legs on the right wing'],
-]
-
 const liveIndexes = [0, 1, 4, 9]
+
+const getKickoffAt = ({ date, time }) => {
+  const match = time.match(/^(\d{1,2}):(\d{2})\s+UTC([+-]\d+)?$/)
+
+  if (!match) {
+    return `${date}T00:00:00Z`
+  }
+
+  const [, hour, minute, offset = '+0'] = match
+  const utcHour = Number(hour) - Number(offset)
+  return new Date(Date.UTC(...date.split('-').map(Number).map((value, index) => (index === 1 ? value - 1 : value)), utcHour, Number(minute))).toISOString()
+}
 
 export const getMockMatches = () =>
   schedule.matches.map((match, index) => {
@@ -26,6 +31,7 @@ export const getMockMatches = () =>
       round: match.round,
       date: match.date,
       time: match.time,
+      kickoffAt: getKickoffAt(match),
       group: match.group,
       ground: match.ground,
       minute: isLive ? 16 + liveSeed * 11 : null,
@@ -41,13 +47,6 @@ export const getMockMatches = () =>
         flag: team2?.flag_icon ?? '',
       },
       score: { home: homeScore, away: awayScore },
-      events: isLive
-        ? eventTemplates.slice(0, 2 + (index % 3)).map(([type, minute, detail], eventIndex) => ({
-            id: `${index}-${eventIndex}`,
-            type,
-            minute,
-            detail,
-          }))
-        : [],
+      events: [],
     }
   })

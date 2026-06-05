@@ -1,3 +1,5 @@
+import { isWorldCupArticle } from '../server/rssNews'
+
 const DEFAULT_SUPABASE_URL = 'https://qhkglztddsowhgjqskqz.supabase.co'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL
@@ -26,20 +28,24 @@ const get = async (path) => {
 
 export const fetchSupabaseNews = async () => {
   const rows = await get(
-    'news_articles?select=id,headline,summary,image_url,category,source,url,published_at&order=published_at.desc.nullslast&limit=8',
+    'news_articles?select=id,headline,summary,image_url,category,source,url,published_at&order=published_at.desc.nullslast&limit=80',
   )
 
-  return rows.map((row) => ({
-    id: row.id,
-    headline: row.headline,
-    summary: row.summary,
-    image: row.image_url,
-    category: row.category || row.source || 'News',
-    source: row.source,
-    url: row.url,
-    timestamp: formatTimestamp(row.published_at),
-    publishedAt: row.published_at,
-  }))
+  return limitPerSource(
+    rows
+      .map((row) => ({
+        id: row.id,
+        headline: row.headline,
+        summary: row.summary,
+        image: row.image_url,
+        category: row.category || row.source || 'News',
+        source: row.source,
+        url: row.url,
+        timestamp: formatTimestamp(row.published_at),
+        publishedAt: row.published_at,
+      }))
+      .filter(isWorldCupArticle),
+  ).slice(0, 8)
 }
 
 export const fetchSupabaseFixturePreviews = async () =>
@@ -96,4 +102,20 @@ const formatTimestamp = (publishedAt) => {
 
   const diffDays = Math.round(diffHours / 24)
   return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
+}
+
+const limitPerSource = (articles, maxPerSource = 3) => {
+  const sourceCounts = new Map()
+
+  return articles.filter((article) => {
+    const source = article.source || article.category || 'News'
+    const count = sourceCounts.get(source) ?? 0
+
+    if (count >= maxPerSource) {
+      return false
+    }
+
+    sourceCounts.set(source, count + 1)
+    return true
+  })
 }

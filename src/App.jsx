@@ -77,9 +77,11 @@ function App() {
               Full schedule
             </button>
           </div>
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="mt-4 columns-1 gap-4 lg:columns-2">
             {visibleMatches.map((match) => (
-              <MatchCard key={match.id} match={match} />
+              <div key={match.id} className="mb-4 break-inside-avoid">
+                <MatchCard match={match} />
+              </div>
             ))}
           </div>
           <div className="mt-4 flex justify-center">

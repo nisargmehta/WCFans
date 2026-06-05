@@ -2,7 +2,14 @@ import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react'
 import { FixtureInsights } from './FixtureInsights'
 
 export function ScheduleView({ matches, onBack }) {
-  const matchesByDate = matches.reduce((dates, match) => {
+  const sortedMatches = [...matches].sort((first, second) => {
+    const firstTime = new Date(first.kickoffAt ?? `${first.date}T00:00:00Z`).getTime()
+    const secondTime = new Date(second.kickoffAt ?? `${second.date}T00:00:00Z`).getTime()
+
+    return firstTime - secondTime
+  })
+
+  const matchesByDate = sortedMatches.reduce((dates, match) => {
     dates[match.date] = dates[match.date] ? [...dates[match.date], match] : [match]
     return dates
   }, {})
@@ -37,9 +44,12 @@ export function ScheduleView({ matches, onBack }) {
               <CalendarDays aria-hidden="true" className="h-5 w-5 text-muted_teal-300" />
               {formatDate(date)}
             </h2>
-            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+            <div className="mt-3 columns-1 gap-3 lg:columns-2">
               {dateMatches.map((match) => (
-                <article key={match.id} className="rounded-lg bg-white p-4 shadow-panel ring-1 ring-twilight_indigo-900">
+                <article
+                  key={match.id}
+                  className="mb-3 break-inside-avoid rounded-lg bg-white p-4 shadow-panel ring-1 ring-twilight_indigo-900"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <p className="text-xs font-black uppercase text-twilight_indigo-600">
                       {match.group} / {match.round}

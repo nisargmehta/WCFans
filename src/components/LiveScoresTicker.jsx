@@ -13,23 +13,27 @@ export function LiveScoresTicker({ matches }) {
           <Radio aria-hidden="true" className="h-4 w-4" />
           Live
         </div>
-        <div className="relative flex-1 overflow-hidden">
-          <div className="flex w-max animate-[ticker_32s_linear_infinite] gap-8 pr-8 motion-reduce:animate-none">
-            {[...visibleMatches, ...visibleMatches].map((match, index) => (
-              <div key={`${match.id}-${index}`} className="flex items-center gap-3 text-sm sm:text-base">
-                <span className="font-semibold">
-                  {match.home.flag} {match.home.code}
-                </span>
-                <span className="rounded bg-eggshell px-2 py-1 font-black text-twilight_indigo">
-                  {match.score.home} - {match.score.away}
-                </span>
-                <span className="font-semibold">
-                  {match.away.code} {match.away.flag}
-                </span>
-                <span className="text-eggshell-600">{match.minute}'</span>
-              </div>
-            ))}
-          </div>
+        <div className="relative flex-1 overflow-x-auto">
+          {visibleMatches.length > 0 ? (
+            <div className="flex min-w-max gap-8 pr-2">
+              {visibleMatches.map((match) => (
+                <div key={match.id} className="flex items-center gap-3 text-sm sm:text-base">
+                  <span className="font-semibold">
+                    {match.home.flag} {match.home.code}
+                  </span>
+                  <span className="rounded bg-eggshell px-2 py-1 font-black text-twilight_indigo">
+                    {match.score.home} - {match.score.away}
+                  </span>
+                  <span className="font-semibold">
+                    {match.away.code} {match.away.flag}
+                  </span>
+                  <span className="text-eggshell-600">{match.minute}'</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm font-semibold text-eggshell-600">No live matches right now</p>
+          )}
         </div>
       </div>
     </section>

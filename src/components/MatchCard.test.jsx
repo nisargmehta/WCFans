@@ -15,7 +15,7 @@ const match = {
   home: { name: 'Mexico', code: 'MEX', flag: '🇲🇽' },
   away: { name: 'South Africa', code: 'RSA', flag: '🇿🇦' },
   score: { home: 1, away: 0 },
-  events: [{ id: 'goal', minute: '12 min', type: 'Goal', detail: 'Finished at the near post' }],
+  events: [],
   insights: {
     refreshLabel: 'Prematch preview pending',
     headToHead: { summary: 'Head-to-head record will appear after the preview job runs.', sources: [] },
@@ -25,7 +25,7 @@ const match = {
 }
 
 describe('MatchCard', () => {
-  it('expands and collapses match events', async () => {
+  it('expands and collapses match details', async () => {
     const user = userEvent.setup()
     render(<MatchCard match={{ ...match, status: 'Scheduled', events: [] }} />)
 
@@ -35,14 +35,14 @@ describe('MatchCard', () => {
     await user.click(toggle)
 
     expect(toggle).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText(/lineups and key events/i)).toBeInTheDocument()
+    expect(screen.getByText('Mexico City')).toBeInTheDocument()
     expect(screen.getByText(/mexico forward/i)).toBeInTheDocument()
   })
 
-  it('shows live score and key events by default for live matches', () => {
+  it('shows live score and details by default for live matches', () => {
     render(<MatchCard match={match} />)
 
     expect(screen.getByText('1 - 0')).toBeInTheDocument()
-    expect(screen.getByText(/goal: finished at the near post/i)).toBeInTheDocument()
+    expect(screen.getByText('Mexico City')).toBeInTheDocument()
   })
 })

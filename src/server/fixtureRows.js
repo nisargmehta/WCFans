@@ -28,6 +28,7 @@ export const mapFixtureRowsToMatches = (fixtures) =>
       round: fixture.round_name ?? 'World Cup',
       date: kickoff.toISOString().slice(0, 10),
       time: formatTime(fixture.kickoff_at),
+      kickoffAt: kickoff.toISOString(),
       group: fixture.group_name ?? fixture.round_name ?? 'World Cup',
       ground: fixture.ground ?? 'Venue TBA',
       minute: null,
@@ -37,4 +38,16 @@ export const mapFixtureRowsToMatches = (fixtures) =>
       score: { home: null, away: null },
       events: [],
     }
+  })
+
+export const sortMatchesByKickoff = (matches) =>
+  [...matches].sort((first, second) => {
+    const firstTime = new Date(first.kickoffAt ?? `${first.date}T00:00:00Z`).getTime()
+    const secondTime = new Date(second.kickoffAt ?? `${second.date}T00:00:00Z`).getTime()
+
+    if (firstTime !== secondTime) {
+      return firstTime - secondTime
+    }
+
+    return first.id.localeCompare(second.id)
   })

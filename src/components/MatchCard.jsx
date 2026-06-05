@@ -48,19 +48,6 @@ export function MatchCard({ match }) {
             </span>
           </div>
           <FixtureInsights insights={match.insights} />
-          <ul className="mt-4 space-y-2" aria-label="Key match events">
-            {match.events.length > 0 ? (
-              match.events.map((event) => (
-                <li key={event.id} className="rounded bg-eggshell-800 px-3 py-2 text-sm text-twilight_indigo">
-                  <span className="font-bold">{event.minute}</span> {event.type}: {event.detail}
-                </li>
-              ))
-            ) : (
-              <li className="rounded bg-eggshell-800 px-3 py-2 text-sm text-twilight_indigo">
-                Lineups and key events will appear once the match starts.
-              </li>
-            )}
-          </ul>
         </div>
       ) : null}
     </article>
