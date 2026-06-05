@@ -29,6 +29,8 @@ describe('ScheduleView', () => {
     render(<ScheduleView matches={matches} onBack={onBack} />)
 
     expect(screen.getByRole('heading', { name: /full world cup 2026 schedule/i })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /mexico/i }))
+
     expect(screen.getByText('Mexico City')).toBeInTheDocument()
     expect(screen.getByText(/mexico and south africa/i)).toBeInTheDocument()
     expect(screen.getByText(/mexico captain/i)).toBeInTheDocument()

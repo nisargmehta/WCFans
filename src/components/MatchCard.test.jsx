@@ -25,9 +25,17 @@ const match = {
 }
 
 describe('MatchCard', () => {
-  it('expands and collapses match details', async () => {
-    const user = userEvent.setup()
+  it('renders a summary card without expansion by default', () => {
     render(<MatchCard match={{ ...match, status: 'Scheduled', events: [] }} />)
+
+    expect(screen.queryByRole('button', { name: /mexico/i })).not.toBeInTheDocument()
+    expect(screen.getByText('13:00 UTC-6')).toBeInTheDocument()
+    expect(screen.queryByText('Mexico City')).not.toBeInTheDocument()
+  })
+
+  it('expands and collapses match details when enabled', async () => {
+    const user = userEvent.setup()
+    render(<MatchCard match={{ ...match, status: 'Scheduled', events: [] }} expandable />)
 
     const toggle = screen.getByRole('button', { name: /mexico/i })
     expect(toggle).toHaveAttribute('aria-expanded', 'false')
@@ -39,10 +47,10 @@ describe('MatchCard', () => {
     expect(screen.getByText(/mexico forward/i)).toBeInTheDocument()
   })
 
-  it('shows live score and details by default for live matches', () => {
+  it('shows live score without expanding live matches by default', () => {
     render(<MatchCard match={match} />)
 
     expect(screen.getByText('1 - 0')).toBeInTheDocument()
-    expect(screen.getByText('Mexico City')).toBeInTheDocument()
+    expect(screen.queryByText('Mexico City')).not.toBeInTheDocument()
   })
 })

@@ -2,25 +2,42 @@ import { ChevronDown, Clock, MapPin } from 'lucide-react'
 import { useId, useState } from 'react'
 import { FixtureInsights } from './FixtureInsights'
 
-export function MatchCard({ match }) {
-  const [expanded, setExpanded] = useState(match.status === 'Live')
+export function MatchCard({ match, expandable = false, defaultExpanded = false }) {
+  const [expanded, setExpanded] = useState(defaultExpanded)
   const panelId = useId()
   const isLive = match.status === 'Live'
+  const isExpanded = expandable && expanded
+  const Summary = expandable ? 'button' : 'div'
+  const summaryProps = expandable
+    ? {
+        type: 'button',
+        'aria-expanded': expanded,
+        'aria-controls': panelId,
+        onClick: () => setExpanded((current) => !current),
+      }
+    : {}
 
   return (
     <article className="rounded-lg border border-twilight_indigo-900 bg-white shadow-panel">
-      <button
-        type="button"
-        className="flex w-full items-center justify-between gap-3 rounded-lg p-4 text-left transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach focus:ring-offset-2"
-        aria-expanded={expanded}
-        aria-controls={panelId}
-        onClick={() => setExpanded((current) => !current)}
+      <Summary
+        className={`flex w-full items-center justify-between gap-3 rounded-lg p-4 text-left ${
+          expandable
+            ? 'transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach focus:ring-offset-2'
+            : ''
+        }`}
+        {...summaryProps}
       >
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase text-twilight_indigo-600">
-            <span>{match.group}</span>
-            <span aria-hidden="true">/</span>
-            <span>{match.round}</span>
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold uppercase text-twilight_indigo-600">
+            <span className="inline-flex items-center gap-2">
+              <span>{match.group}</span>
+              <span aria-hidden="true">/</span>
+              <span>{match.round}</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-burnt_peach-300">
+              <Clock aria-hidden="true" className="h-3.5 w-3.5" />
+              {match.time}
+            </span>
           </div>
           <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
             <TeamBlock team={match.home} align="left" />
@@ -30,12 +47,14 @@ export function MatchCard({ match }) {
             <TeamBlock team={match.away} align="right" />
           </div>
         </div>
-        <ChevronDown
-          aria-hidden="true"
-          className={`h-5 w-5 shrink-0 text-twilight_indigo transition ${expanded ? 'rotate-180' : ''}`}
-        />
-      </button>
-      {expanded ? (
+        {expandable ? (
+          <ChevronDown
+            aria-hidden="true"
+            className={`h-5 w-5 shrink-0 text-twilight_indigo transition ${expanded ? 'rotate-180' : ''}`}
+          />
+        ) : null}
+      </Summary>
+      {isExpanded ? (
         <div id={panelId} className="border-t border-twilight_indigo-900 px-4 pb-4 pt-3">
           <div className="flex flex-wrap gap-4 text-sm text-twilight_indigo-600">
             <span className="inline-flex items-center gap-1.5">

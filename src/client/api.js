@@ -23,7 +23,7 @@ export const fetchDashboardData = async () => {
     liveMatches: enrichedMatches.filter((match) => match.status === 'Live'),
     upcomingMatches: enrichedMatches.slice(0, 10),
     scheduleMatches: enrichedMatches,
-    news: news.slice(0, 8),
+    news: news.slice(0, 25),
     haircutTracker,
   })
 }

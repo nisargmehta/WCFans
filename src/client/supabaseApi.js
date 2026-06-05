@@ -31,7 +31,7 @@ export const fetchSupabaseNews = async () => {
     'news_articles?select=id,headline,summary,image_url,category,source,url,published_at&order=published_at.desc.nullslast&limit=80',
   )
 
-  return limitPerSource(
+  return balanceBySource(
     rows
       .map((row) => ({
         id: row.id,
@@ -45,7 +45,7 @@ export const fetchSupabaseNews = async () => {
         publishedAt: row.published_at,
       }))
       .filter(isWorldCupArticle),
-  ).slice(0, 8)
+  ).slice(0, 25)
 }
 
 export const fetchSupabaseFixturePreviews = async () =>
@@ -104,18 +104,26 @@ const formatTimestamp = (publishedAt) => {
   return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
 }
 
-const limitPerSource = (articles, maxPerSource = 3) => {
-  const sourceCounts = new Map()
+const balanceBySource = (articles) => {
+  const sourceGroups = new Map()
 
-  return articles.filter((article) => {
+  articles.forEach((article) => {
     const source = article.source || article.category || 'News'
-    const count = sourceCounts.get(source) ?? 0
-
-    if (count >= maxPerSource) {
-      return false
-    }
-
-    sourceCounts.set(source, count + 1)
-    return true
+    sourceGroups.set(source, [...(sourceGroups.get(source) ?? []), article])
   })
+
+  const balancedArticles = []
+  const groups = [...sourceGroups.values()]
+
+  while (balancedArticles.length < articles.length && groups.some((group) => group.length > 0)) {
+    groups.forEach((group) => {
+      const nextArticle = group.shift()
+
+      if (nextArticle) {
+        balancedArticles.push(nextArticle)
+      }
+    })
+  }
+
+  return balancedArticles
 }

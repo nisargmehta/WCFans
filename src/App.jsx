@@ -11,6 +11,7 @@ function App() {
   const [dashboard, setDashboard] = useState(null)
   const [view, setView] = useState('home')
   const [matchesExpanded, setMatchesExpanded] = useState(false)
+  const [storiesExpanded, setStoriesExpanded] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -46,6 +47,7 @@ function App() {
   }
 
   const visibleMatches = matchesExpanded ? dashboard.upcomingMatches : dashboard.upcomingMatches.slice(0, 4)
+  const visibleStories = storiesExpanded ? dashboard.news.slice(0, 25) : dashboard.news.slice(0, 8)
 
   return (
     <div className="min-h-screen bg-eggshell text-twilight_indigo">
@@ -54,7 +56,7 @@ function App() {
           <div>
             <p className="text-sm font-black uppercase text-burnt_peach-300">FIFA World Cup 2026</p>
             <h1 className="mt-2 max-w-3xl text-3xl font-black leading-tight text-twilight_indigo sm:text-4xl">
-              News, live scores, and fan rituals.
+              News, live scores, & fan rituals.
             </h1>
           </div>
         </div>
@@ -100,8 +102,21 @@ function App() {
         <section aria-labelledby="news-heading">
           <SectionTitle id="news-heading" eyebrow="News feed" title="World Cup stories" />
           <div className="mt-4">
-            <NewsFeed articles={dashboard.news} />
+            <NewsFeed articles={visibleStories} />
           </div>
+          {dashboard.news.length > 8 ? (
+            <div className="mt-4 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setStoriesExpanded((current) => !current)}
+                className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
+                aria-expanded={storiesExpanded}
+              >
+                {storiesExpanded ? 'Show fewer stories' : `See more stories (${Math.min(dashboard.news.length, 25)})`}
+                <ChevronDown aria-hidden="true" className={`h-4 w-4 transition ${storiesExpanded ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+          ) : null}
         </section>
       </main>
     </div>

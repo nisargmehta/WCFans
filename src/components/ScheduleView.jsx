@@ -1,5 +1,5 @@
-import { ArrowLeft, CalendarDays, MapPin } from 'lucide-react'
-import { FixtureInsights } from './FixtureInsights'
+import { ArrowLeft, CalendarDays } from 'lucide-react'
+import { MatchCard } from './MatchCard'
 
 export function ScheduleView({ matches, onBack }) {
   const sortedMatches = [...matches].sort((first, second) => {
@@ -46,44 +46,15 @@ export function ScheduleView({ matches, onBack }) {
             </h2>
             <div className="mt-3 columns-1 gap-3 lg:columns-2">
               {dateMatches.map((match) => (
-                <article
-                  key={match.id}
-                  className="mb-3 break-inside-avoid rounded-lg bg-white p-4 shadow-panel ring-1 ring-twilight_indigo-900"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-xs font-black uppercase text-twilight_indigo-600">
-                      {match.group} / {match.round}
-                    </p>
-                    <p className="text-sm font-bold text-burnt_peach-300">{match.time}</p>
-                  </div>
-                  <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-                    <Team team={match.home} />
-                    <span className="rounded bg-twilight_indigo px-3 py-2 text-sm font-black text-eggshell">vs</span>
-                    <Team team={match.away} align="right" />
-                  </div>
-                  <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-twilight_indigo-600">
-                    <MapPin aria-hidden="true" className="h-4 w-4" />
-                    {match.ground}
-                  </p>
-                  <FixtureInsights insights={match.insights} />
-                </article>
+                <div key={match.id} className="mb-3 break-inside-avoid">
+                  <MatchCard match={match} expandable />
+                </div>
               ))}
             </div>
           </section>
         ))}
       </div>
     </main>
-  )
-}
-
-function Team({ team, align }) {
-  return (
-    <div className={`min-w-0 ${align === 'right' ? 'text-right' : ''}`}>
-      <p className="truncate text-base font-black">
-        <span aria-hidden="true">{team.flag}</span> {team.name}
-      </p>
-      <p className="text-xs font-black uppercase text-muted_teal-300">{team.code}</p>
-    </div>
   )
 }
 
