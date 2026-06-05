@@ -28,6 +28,18 @@ const decodeXmlEntities = (value: string) =>
 
 const stripMarkup = (value: string) => decodeXmlEntities(value).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
 
+const errorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    return JSON.stringify(error)
+  }
+
+  return String(error)
+}
+
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 const tagPattern = (tagNames: string[]) => tagNames.map(escapeRegExp).join('|')
@@ -107,13 +119,13 @@ Deno.serve(async () => {
           return {
             feedUrl,
             articles: [],
-            error: error instanceof Error ? error.message : 'Unknown feed error',
+            error: errorMessage(error),
           }
         }
       }),
     )
 
-    const articles = feedResults.flatMap((result) => result.articles)
+    const articles = [...new Map(feedResults.flatMap((result) => result.articles).map((article) => [article.url, article])).values()]
 
     if (articles.length > 0) {
       const { error } = await supabase.from('news_articles').upsert(articles, { onConflict: 'url' })
@@ -133,6 +145,6 @@ Deno.serve(async () => {
       })),
     })
   } catch (error) {
-    return jsonResponse({ ok: false, error: error instanceof Error ? error.message : 'Unknown error' }, 500)
+    return jsonResponse({ ok: false, error: errorMessage(error) }, 500)
   }
 })
