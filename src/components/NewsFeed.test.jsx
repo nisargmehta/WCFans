@@ -23,6 +23,8 @@ describe('NewsFeed', () => {
       'href',
       'https://example.com/article',
     )
+    expect(screen.getByRole('link', { name: 'Opening week travel guide' })).toHaveAttribute('target', '_blank')
+    expect(screen.getByRole('link', { name: 'Opening week travel guide' })).toHaveAttribute('rel', 'noreferrer')
     expect(screen.getByText('Host Cities')).toBeInTheDocument()
     expect(screen.getByText('12 min ago')).toBeInTheDocument()
   })

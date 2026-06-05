@@ -21,7 +21,7 @@ export function NewsFeed({ articles }) {
               <time>{article.timestamp}</time>
             </div>
             <h3 className="mt-3 text-lg font-black leading-snug text-twilight_indigo">
-              <a className="hover:text-burnt_peach-300" href={article.url}>
+              <a className="hover:text-burnt_peach-300" href={article.url} target="_blank" rel="noreferrer">
                 {article.headline}
               </a>
             </h3>

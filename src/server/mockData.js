@@ -1,5 +1,6 @@
 import schedule from '../data/worldcup2026.json'
 import teams from '../data/worldcupTeams2026.json'
+import { formatKickoffTime } from './timeFormat'
 
 const teamMetaByName = new Map(teams.map((team) => [team.name, team]))
 
@@ -25,13 +26,14 @@ export const getMockMatches = () =>
     const isLive = liveSeed >= 0
     const homeScore = isLive ? (index + 1) % 3 : null
     const awayScore = isLive ? (index + 2) % 2 : null
+    const kickoffAt = getKickoffAt(match)
 
     return {
       id: `${match.date}-${match.team1}-${match.team2}`.toLowerCase().replaceAll(' ', '-'),
       round: match.round,
       date: match.date,
-      time: match.time,
-      kickoffAt: getKickoffAt(match),
+      time: formatKickoffTime(kickoffAt),
+      kickoffAt,
       group: match.group,
       ground: match.ground,
       minute: isLive ? 16 + liveSeed * 11 : null,
