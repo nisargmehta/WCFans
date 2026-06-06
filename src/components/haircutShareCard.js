@@ -99,6 +99,10 @@ export const createHaircutShareCard = (team) =>
     context.font = '800 38px Inter, Arial, sans-serif'
     context.fillText(getHaircutPunchline(team.winsInARow), 96, 540)
 
+    context.fillStyle = colors.cream
+    context.font = '800 28px Inter, Arial, sans-serif'
+    context.fillText('wc-fans.vercel.app', 96, 592)
+
     canvas.toBlob((blob) => {
       if (!blob) {
         resolve(null)

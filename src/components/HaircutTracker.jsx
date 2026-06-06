@@ -1,9 +1,12 @@
 import { ChevronDown, Scissors, Share2 } from 'lucide-react'
 import { useState } from 'react'
-import { createHaircutShareCard } from './haircutShareCard'
 import { buildHaircutShareText, CUT_THRESHOLD, getHaircutPunchline } from './haircutTrackerCopy'
 
-export function HaircutTracker({ teams, createShareCard = createHaircutShareCard }) {
+const WCFANS_URL = 'https://wc-fans.vercel.app'
+
+const copyShareText = (text) => window.navigator.clipboard?.writeText(text)
+
+export function HaircutTracker({ teams, copyText = copyShareText }) {
   const [expanded, setExpanded] = useState(false)
   const [sharedTeam, setSharedTeam] = useState(null)
   const sortedTeams = [...teams].sort((a, b) => b.winsInARow - a.winsInARow)
@@ -12,21 +15,14 @@ export function HaircutTracker({ teams, createShareCard = createHaircutShareCard
 
   const shareTeam = async (team) => {
     const browserNavigator = window.navigator
-    const shareText = buildHaircutShareText(team)
-    const shareCard = await createShareCard(team)
-    const files = shareCard ? [shareCard] : []
-    const shareData = {
-      title: `${team.team} haircut tracker`,
-      text: shareText,
-      url: window.location.href,
-    }
+    const shareText = `${buildHaircutShareText(team)}\n${WCFANS_URL}`
+    const title = `${team.team} haircut tracker`
 
     try {
       if (browserNavigator.share) {
-        const canShareFiles = files.length > 0 && browserNavigator.canShare?.({ files })
-        await browserNavigator.share(canShareFiles ? { ...shareData, files } : shareData)
+        await browserNavigator.share({ title, text: shareText })
       } else {
-        await browserNavigator.clipboard.writeText(`${shareText} ${window.location.href}`)
+        await copyText(shareText)
       }
 
       setSharedTeam(team.id)

@@ -32,16 +32,12 @@ describe('HaircutTracker', () => {
     expect(screen.getByRole('button', { name: /share mexico haircut tracker/i })).toBeInTheDocument()
   })
 
-  it('shares a generated PNG card with the tracker URL when supported', async () => {
+  it('shares the tracker caption and link as text', async () => {
     const share = vi.fn().mockResolvedValue(undefined)
-    const canShare = vi.fn().mockReturnValue(true)
-    const shareCard = new File(['card'], 'mexico-haircut-tracker.png', { type: 'image/png' })
-    const createShareCard = vi.fn().mockResolvedValue(shareCard)
     Object.defineProperty(window, 'navigator', {
       configurable: true,
       value: {
         ...window.navigator,
-        canShare,
         share,
       },
     })
@@ -53,23 +49,47 @@ describe('HaircutTracker', () => {
     const user = userEvent.setup()
     render(
       <HaircutTracker
-        teams={[{ id: 'MEX', team: 'Mexico', flag: '🇲🇽', group: 'A', winsInARow: 5, canCutHair: true }]}
-        createShareCard={createShareCard}
+        teams={[{ id: 'USA', team: 'Team USA', flag: '🇺🇸', group: 'D', winsInARow: 4, canCutHair: false }]}
       />,
     )
 
-    await user.click(screen.getByRole('button', { name: /share mexico haircut tracker/i }))
+    await user.click(screen.getByRole('button', { name: /share team usa haircut tracker/i }))
 
-    expect(createShareCard).toHaveBeenCalledWith(expect.objectContaining({ team: 'Mexico' }))
-    expect(canShare).toHaveBeenCalledWith({ files: [shareCard] })
-    expect(share).toHaveBeenCalledWith(
-      expect.objectContaining({
-        text: expect.stringContaining('Mexico just hit 5 straight wins'),
-        url: expect.any(String),
-        files: [shareCard],
-      }),
+    expect(share).toHaveBeenCalledWith({
+      title: 'Team USA haircut tracker',
+      text: 'Haircut tracker: Team USA 🇺🇸 at 4/5 wins. One more and it\'s chair time!! check it out here:\nhttps://wc-fans.vercel.app',
+    })
+    expect(screen.getByRole('button', { name: /share team usa haircut tracker/i })).toHaveTextContent('Shared')
+  })
+
+  it('copies the tracker caption and link when native share is unavailable', async () => {
+    const copyText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(window, 'navigator', {
+      configurable: true,
+      value: {
+        ...window.navigator,
+        share: undefined,
+      },
+    })
+    Object.defineProperty(globalThis, 'navigator', {
+      configurable: true,
+      value: window.navigator,
+    })
+
+    const user = userEvent.setup()
+    render(
+      <HaircutTracker
+        teams={[{ id: 'USA', team: 'Team USA', flag: '🇺🇸', group: 'D', winsInARow: 4, canCutHair: false }]}
+        copyText={copyText}
+      />,
     )
-    expect(screen.getByRole('button', { name: /share mexico haircut tracker/i })).toHaveTextContent('Shared')
+
+    await user.click(screen.getByRole('button', { name: /share team usa haircut tracker/i }))
+
+    expect(copyText).toHaveBeenCalledWith(
+      'Haircut tracker: Team USA 🇺🇸 at 4/5 wins. One more and it\'s chair time!! check it out here:\nhttps://wc-fans.vercel.app',
+    )
+    expect(screen.getByRole('button', { name: /share team usa haircut tracker/i })).toHaveTextContent('Shared')
   })
 
   it('returns punchlines for each streak stage', () => {

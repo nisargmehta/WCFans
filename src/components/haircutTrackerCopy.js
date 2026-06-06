@@ -17,11 +17,12 @@ export function getHaircutPunchline(winsInARow) {
 }
 
 export function buildHaircutShareText(team) {
-  const punchline = getHaircutPunchline(team.winsInARow)
+  const teamLabel = team.flag ? `${team.team} ${team.flag}` : team.team
+  const punchline = getHaircutPunchline(team.winsInARow).replace(/\.$/, '')
 
   if (team.canCutHair) {
-    return `${team.team} just hit ${team.winsInARow} straight wins. ${punchline} Track it on WCFans.`
+    return `Haircut tracker: ${teamLabel} at ${team.winsInARow}/${CUT_THRESHOLD} wins. ${punchline}!! check it out here:`
   }
 
-  return `${team.team} is at ${team.winsInARow}/${CUT_THRESHOLD} wins. ${punchline} Track it on WCFans.`
+  return `Haircut tracker: ${teamLabel} at ${team.winsInARow}/${CUT_THRESHOLD} wins. ${punchline}!! check it out here:`
 }
