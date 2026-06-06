@@ -20,6 +20,7 @@ describe('App', () => {
     await user.click(await screen.findByRole('button', { name: /full schedule/i }))
 
     expect(screen.getByRole('heading', { name: /full world cup 2026 schedule/i })).toBeInTheDocument()
-    expect(screen.getByText('104 fixtures')).toBeInTheDocument()
+    expect(screen.getByText('0 fixtures')).toBeInTheDocument()
+    expect(screen.getByText(/fixtures will appear here/i)).toBeInTheDocument()
   })
 })

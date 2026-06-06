@@ -3,6 +3,16 @@ import { Radio } from 'lucide-react'
 export function LiveScoresTicker({ matches }) {
   const visibleMatches = matches.slice(0, 4)
 
+  if (visibleMatches.length === 0) {
+    return (
+      <section className="border-b border-twilight_indigo-900 bg-white text-twilight_indigo" aria-label="Live scores">
+        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+          <p className="text-sm font-semibold text-twilight_indigo-600">No live matches right now.</p>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section
       className="overflow-hidden border-y border-twilight_indigo-900 bg-twilight_indigo text-eggshell-900"
@@ -14,26 +24,22 @@ export function LiveScoresTicker({ matches }) {
           Live
         </div>
         <div className="relative flex-1 overflow-x-auto">
-          {visibleMatches.length > 0 ? (
-            <div className="flex min-w-max gap-8 pr-2">
-              {visibleMatches.map((match) => (
-                <div key={match.id} className="flex items-center gap-3 text-sm sm:text-base">
-                  <span className="font-semibold">
-                    {match.home.flag} {match.home.code}
-                  </span>
-                  <span className="rounded bg-eggshell px-2 py-1 font-black text-twilight_indigo">
-                    {match.score.home} - {match.score.away}
-                  </span>
-                  <span className="font-semibold">
-                    {match.away.code} {match.away.flag}
-                  </span>
-                  <span className="text-eggshell-600">{match.minute}'</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm font-semibold text-eggshell-600">No live matches right now</p>
-          )}
+          <div className="flex min-w-max gap-8 pr-2">
+            {visibleMatches.map((match) => (
+              <div key={match.id} className="flex items-center gap-3 text-sm sm:text-base">
+                <span className="font-semibold">
+                  {match.home.flag} {match.home.code}
+                </span>
+                <span className="rounded bg-eggshell px-2 py-1 font-black text-twilight_indigo">
+                  {match.score.home} - {match.score.away}
+                </span>
+                <span className="font-semibold">
+                  {match.away.code} {match.away.flag}
+                </span>
+                <span className="text-eggshell-600">{match.minute}'</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -55,7 +55,7 @@ export const fetchSupabaseFixturePreviews = async () =>
 
 export const fetchSupabaseFixtures = async () =>
   get(
-    'fixtures?select=match_id,kickoff_at,home_team,away_team,group_name,round_name,ground,api_football_fixture_id,home_api_football_team_id,away_api_football_team_id,source&source=eq.api-football&order=kickoff_at.asc&limit=200',
+    'fixtures?select=match_id,kickoff_at,home_team,away_team,group_name,round_name,ground,api_football_fixture_id,home_api_football_team_id,away_api_football_team_id,source&order=kickoff_at.asc&limit=200',
   )
 
 export const fetchSupabaseStandings = async () =>

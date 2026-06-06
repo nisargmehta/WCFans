@@ -29,7 +29,7 @@ describe('MatchCard', () => {
     render(<MatchCard match={{ ...match, status: 'Scheduled', events: [] }} />)
 
     expect(screen.queryByRole('button', { name: /mexico/i })).not.toBeInTheDocument()
-    expect(screen.getByText('13:00 UTC-6')).toBeInTheDocument()
+    expect(screen.getByText('Jun 11 / 13:00 UTC-6')).toBeInTheDocument()
     expect(screen.queryByText('Mexico City')).not.toBeInTheDocument()
   })
 

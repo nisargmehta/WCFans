@@ -11,6 +11,14 @@ const liveMatch = {
 }
 
 describe('LiveScoresTicker', () => {
+  it('renders a placeholder instead of the live banner when there are no live matches', () => {
+    render(<LiveScoresTicker matches={[]} />)
+
+    expect(screen.getByLabelText(/live scores/i)).toBeInTheDocument()
+    expect(screen.getByText(/no live matches right now/i)).toBeInTheDocument()
+    expect(screen.queryByText(/^live$/i)).not.toBeInTheDocument()
+  })
+
   it('renders live match score and minute', () => {
     render(<LiveScoresTicker matches={[liveMatch]} />)
 

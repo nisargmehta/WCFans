@@ -2,7 +2,7 @@
 
 WCFans is a responsive FIFA World Cup 2026 fan hub built with React and Tailwind CSS. It includes a live scores ticker, expandable match cards, an RSS-powered World Cup news feed, and a playful haircut tracker that follows the five-wins-in-a-row fan challenge.
 
-The app keeps the 2026 schedule and teams sourced from the `openfootball/worldcup.json` project. News comes from Supabase `news_articles`, populated by an RSS sync job. Fixture cards read Supabase `fixture_previews`, populated by a separate API-Football preview job.
+The app reads fixtures, news, and tracker data from Supabase at runtime. The bundled `openfootball/worldcup.json` data is only used for seeding Supabase, not as a browser fallback. News comes from Supabase `news_articles`, populated by an RSS sync job. Fixture cards read Supabase `fixture_previews`, populated by a separate API-Football preview job.
 
 ## Supabase
 
@@ -28,7 +28,7 @@ Seed local World Cup fixtures into Supabase:
 SERVICE_ROLE_KEY=... npm run supabase:seed-fixtures
 ```
 
-The local seed is only a fallback. The production fixture source is API-Football, synced into `fixtures` with `source='api-football'`.
+The local seed can bootstrap the `fixtures` table while API-Football data is unavailable. The app renders real rows from Supabase and does not synthesize fixture cards when the table is empty.
 
 Run the API-Football fixture sync once after deploying functions:
 

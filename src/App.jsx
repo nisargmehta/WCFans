@@ -56,7 +56,7 @@ function App() {
           <div>
             <p className="text-sm font-black uppercase text-burnt_peach-300">FIFA World Cup 2026</p>
             <h1 className="mt-2 max-w-3xl text-3xl font-black leading-tight text-twilight_indigo sm:text-4xl">
-              News, live scores, & fan rituals.
+              News, scores & fan rituals.
             </h1>
           </div>
         </div>
@@ -80,23 +80,34 @@ function App() {
             </button>
           </div>
           <div className="mt-4 columns-1 gap-4 lg:columns-2">
-            {visibleMatches.map((match) => (
-              <div key={match.id} className="mb-4 break-inside-avoid">
-                <MatchCard match={match} />
+            {visibleMatches.length > 0 ? (
+              visibleMatches.map((match) => (
+                <div key={match.id} className="mb-4 break-inside-avoid">
+                  <MatchCard match={match} />
+                </div>
+              ))
+            ) : (
+              <div className="mb-4 break-inside-avoid rounded-lg border border-twilight_indigo-900 bg-white p-6 text-sm font-bold text-twilight_indigo-600 shadow-panel">
+                Fixtures will appear here once Supabase has schedule rows.
               </div>
-            ))}
+            )}
           </div>
-          <div className="mt-4 flex justify-center">
-            <button
-              type="button"
-              onClick={() => setMatchesExpanded((current) => !current)}
-              className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
-              aria-expanded={matchesExpanded}
-            >
-              {matchesExpanded ? 'Show fewer matches' : 'Show more matches'}
-              <ChevronDown aria-hidden="true" className={`h-4 w-4 transition ${matchesExpanded ? 'rotate-180' : ''}`} />
-            </button>
-          </div>
+          {dashboard.upcomingMatches.length > 4 ? (
+            <div className="mt-4 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setMatchesExpanded((current) => !current)}
+                className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
+                aria-expanded={matchesExpanded}
+              >
+                {matchesExpanded ? 'Show fewer matches' : 'Show more matches'}
+                <ChevronDown
+                  aria-hidden="true"
+                  className={`h-4 w-4 transition ${matchesExpanded ? 'rotate-180' : ''}`}
+                />
+              </button>
+            </div>
+          ) : null}
         </section>
 
         <section aria-labelledby="news-heading">

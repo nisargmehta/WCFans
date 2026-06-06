@@ -34,26 +34,32 @@ export function ScheduleView({ matches, onBack }) {
         </p>
       </div>
 
-      <div className="mt-6 space-y-6">
-        {Object.entries(matchesByDate).map(([date, dateMatches]) => (
-          <section key={date} aria-labelledby={`schedule-${date}`}>
-            <h2
-              id={`schedule-${date}`}
-              className="sticky top-0 z-10 flex items-center gap-2 border-y border-twilight_indigo-900 bg-eggshell py-3 text-xl font-black"
-            >
-              <CalendarDays aria-hidden="true" className="h-5 w-5 text-muted_teal-300" />
-              {formatDate(date)}
-            </h2>
-            <div className="mt-3 columns-1 gap-3 lg:columns-2">
-              {dateMatches.map((match) => (
-                <div key={match.id} className="mb-3 break-inside-avoid">
-                  <MatchCard match={match} expandable />
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
+      {matches.length === 0 ? (
+        <div className="mt-6 rounded-lg border border-twilight_indigo-900 bg-white p-6 text-sm font-bold text-twilight_indigo-600 shadow-panel">
+          Fixtures will appear here once Supabase has schedule rows.
+        </div>
+      ) : (
+        <div className="mt-6 space-y-6">
+          {Object.entries(matchesByDate).map(([date, dateMatches]) => (
+            <section key={date} aria-labelledby={`schedule-${date}`}>
+              <h2
+                id={`schedule-${date}`}
+                className="sticky top-0 z-10 flex items-center gap-2 border-y border-twilight_indigo-900 bg-eggshell py-3 text-xl font-black"
+              >
+                <CalendarDays aria-hidden="true" className="h-5 w-5 text-muted_teal-300" />
+                {formatDate(date)}
+              </h2>
+              <div className="mt-3 columns-1 gap-3 lg:columns-2">
+                {dateMatches.map((match) => (
+                  <div key={match.id} className="mb-3 break-inside-avoid">
+                    <MatchCard match={match} expandable />
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
     </main>
   )
 }
