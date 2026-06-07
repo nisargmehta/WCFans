@@ -9,6 +9,7 @@ const matches = [
     round: 'Matchday 1',
     date: '2026-06-11',
     time: '13:00 UTC-6',
+    kickoffAt: '2026-06-11T19:00:00.000Z',
     group: 'Group A',
     ground: 'Mexico City',
     home: { name: 'Mexico', code: 'MEX', flag: '🇲🇽' },
@@ -38,5 +39,34 @@ describe('ScheduleView', () => {
     await user.click(screen.getByRole('button', { name: /match hub/i }))
 
     expect(onBack).toHaveBeenCalledOnce()
+  })
+
+  it('keeps same-day fixtures in kickoff order', () => {
+    const sameDayMatches = [
+      {
+        ...matches[0],
+        id: 'late-match',
+        date: '2026-06-12',
+        time: '7:00 PM',
+        kickoffAt: '2026-06-12T19:00:00.000Z',
+        home: { name: 'Late Home', code: 'LTH', flag: '' },
+        away: { name: 'Late Away', code: 'LTA', flag: '' },
+      },
+      {
+        ...matches[0],
+        id: 'early-match',
+        date: '2026-06-12',
+        time: '12:00 PM',
+        kickoffAt: '2026-06-12T12:00:00.000Z',
+        home: { name: 'Early Home', code: 'ERH', flag: '' },
+        away: { name: 'Early Away', code: 'ERA', flag: '' },
+      },
+    ]
+
+    render(<ScheduleView matches={sameDayMatches} onBack={vi.fn()} />)
+
+    const scheduleText = screen.getByRole('heading', { name: /fri, jun 12/i }).parentElement.textContent
+
+    expect(scheduleText.indexOf('Early Home')).toBeLessThan(scheduleText.indexOf('Late Home'))
   })
 })

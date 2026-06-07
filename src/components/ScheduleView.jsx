@@ -49,9 +49,9 @@ export function ScheduleView({ matches, onBack }) {
                 <CalendarDays aria-hidden="true" className="h-5 w-5 text-muted_teal-300" />
                 {formatDate(date)}
               </h2>
-              <div className="mt-3 columns-1 gap-3 lg:columns-2">
+              <div className="mt-3 grid gap-3 lg:grid-cols-2">
                 {dateMatches.map((match) => (
-                  <div key={match.id} className="mb-3 break-inside-avoid">
+                  <div key={match.id}>
                     <MatchCard match={match} expandable />
                   </div>
                 ))}

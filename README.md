@@ -30,7 +30,7 @@ SERVICE_ROLE_KEY=... npm run supabase:seed-fixtures
 
 The local seed can bootstrap the `fixtures` table while API-Football data is unavailable. The app renders real rows from Supabase and does not synthesize fixture cards when the table is empty.
 
-Run the API-Football fixture sync once after deploying functions:
+Run the football-data.org fixture sync once after deploying functions:
 
 ```bash
 curl -X POST 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-fixtures' \
@@ -53,18 +53,19 @@ supabase functions deploy sync-standings
 Set function secrets:
 
 ```bash
-supabase secrets set API_FOOTBALL_KEY=...
+supabase secrets set FOOTBALL_DATA_API_KEY=...
 supabase secrets set SERVICE_ROLE_KEY=...
-supabase secrets set API_FOOTBALL_LEAGUE_ID=...
-supabase secrets set API_FOOTBALL_SEASON=...
+supabase secrets set FOOTBALL_DATA_COMPETITION_CODE=WC
+supabase secrets set FOOTBALL_DATA_COMPETITION_ID=2000
+supabase secrets set FOOTBALL_DATA_SEASON=2026
 ```
 
-`API_FOOTBALL_LEAGUE_ID` and `API_FOOTBALL_SEASON` are only needed for the derived players-to-watch list. RSS feeds can be overridden with a comma-separated `RSS_FEEDS` secret.
-For World Cup 2026, the functions default to `API_FOOTBALL_LEAGUE_ID=1` and `API_FOOTBALL_SEASON=2026`.
+`FOOTBALL_DATA_COMPETITION_CODE`, `FOOTBALL_DATA_COMPETITION_ID`, and `FOOTBALL_DATA_SEASON` are optional for World Cup 2026 because the functions default to `WC`, `2000`, and `2026`.
+`API_FOOTBALL_LEAGUE_ID` and `API_FOOTBALL_SEASON` are still used by `sync-fixture-previews` for the derived players-to-watch list. RSS feeds can be overridden with a comma-separated `RSS_FEEDS` secret.
 `sync-standings` also derives the haircut challenge streaks from standings form and stores them in `haircut_tracker`.
 The default RSS feeds are public ESPN, Guardian, and BBC football feeds. Fox Sports requires a partner key, and Feedspot is a feed directory page unless you configure a specific listed feed.
 
-Enable schedules with `supabase/sql/schedules.sql`:
+Enable schedules with `supabase/sql/schedules.sql`, replacing `YOUR_SUPABASE_FUNCTION_JWT` with the project's anon JWT or service-role JWT:
 
 - `sync-rss-news`: every 3 hours
 - `sync-fixture-previews`: every 6 hours

@@ -6,6 +6,7 @@ import {
   fetchSupabaseFixtures,
   fetchSupabaseHaircutTracker,
   fetchSupabaseNews,
+  fetchSupabaseStandings,
 } from './supabaseApi'
 
 const withLatency = (payload) => new Promise((resolve) => setTimeout(() => resolve(payload), 120))
@@ -16,6 +17,7 @@ export const fetchDashboardData = async () => {
   const news = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseNews().catch(() => fetchRssArticles())
   const fixturePreviews = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseFixturePreviews().catch(() => [])
   const haircutTracker = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseHaircutTracker().catch(() => [])
+  const standings = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseStandings().catch(() => [])
   const enrichedMatches = sortMatchesByKickoff(mergeMatchesWithFixturePreviews(matches, fixturePreviews))
 
   return withLatency({
@@ -24,5 +26,6 @@ export const fetchDashboardData = async () => {
     scheduleMatches: enrichedMatches,
     news: news.slice(0, 25),
     haircutTracker,
+    standings,
   })
 }

@@ -55,17 +55,17 @@ export const fetchSupabaseFixturePreviews = async () =>
 
 export const fetchSupabaseFixtures = async () =>
   get(
-    'fixtures?select=match_id,kickoff_at,home_team,away_team,group_name,round_name,ground,api_football_fixture_id,home_api_football_team_id,away_api_football_team_id,source&order=kickoff_at.asc&limit=200',
+    'fixtures?select=match_id,kickoff_at,home_team,away_team,group_name,round_name,ground,api_football_fixture_id,football_data_match_id,home_api_football_team_id,away_api_football_team_id,home_football_data_team_id,away_football_data_team_id,status,minute,home_score,away_score,score_winner,source&source=eq.football-data&order=kickoff_at.asc&limit=200',
   )
 
 export const fetchSupabaseStandings = async () =>
   get(
-    'standings?select=league_id,season,team_id,team_name,team_logo,group_name,rank,points,goals_diff,form,status,description,all_played,all_win,all_draw,all_lose,goals_for,goals_against,fetched_at&league_id=eq.1&season=eq.2026&order=group_name.asc.nullslast,rank.asc.nullslast',
+    'standings?select=league_id,season,team_id,team_name,team_logo,group_name,rank,points,goals_diff,form,status,description,all_played,all_win,all_draw,all_lose,goals_for,goals_against,fetched_at&league_id=eq.2000&season=eq.2026&order=group_name.asc.nullslast,rank.asc.nullslast',
   )
 
 export const fetchSupabaseHaircutTracker = async () => {
   const rows = await get(
-    'haircut_tracker?select=team_id,team_name,team_logo,group_name,form,wins_in_a_row,can_cut_hair,fetched_at&league_id=eq.1&season=eq.2026&order=wins_in_a_row.desc,team_name.asc',
+    'haircut_tracker?select=team_id,team_name,team_logo,group_name,form,wins_in_a_row,can_cut_hair,fetched_at&league_id=eq.2000&season=eq.2026&order=wins_in_a_row.desc,team_name.asc',
   )
 
   return rows.map((row) => ({

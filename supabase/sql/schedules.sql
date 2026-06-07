@@ -1,5 +1,6 @@
--- Run this after deploying the Edge Functions and replacing YOUR_FUNCTION_BEARER_TOKEN.
--- Use a token authorized to invoke Edge Functions. Keep it in a secured SQL editor session, not in git.
+-- Run this after deploying the Edge Functions and replacing YOUR_SUPABASE_FUNCTION_JWT.
+-- Use the project's anon JWT or service-role JWT so pg_cron can invoke Edge Functions.
+-- Keep that token in a secured SQL editor session, not in git.
 
 create extension if not exists pg_cron with schema extensions;
 create extension if not exists pg_net with schema extensions;
@@ -32,7 +33,7 @@ select cron.schedule(
   select net.http_post(
     url := 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-rss-news',
     headers := jsonb_build_object(
-      'Authorization', 'Bearer YOUR_FUNCTION_BEARER_TOKEN',
+      'Authorization', 'Bearer YOUR_SUPABASE_FUNCTION_JWT',
       'Content-Type', 'application/json'
     ),
     body := '{}'::jsonb
@@ -47,7 +48,7 @@ select cron.schedule(
   select net.http_post(
     url := 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-fixture-previews',
     headers := jsonb_build_object(
-      'Authorization', 'Bearer YOUR_FUNCTION_BEARER_TOKEN',
+      'Authorization', 'Bearer YOUR_SUPABASE_FUNCTION_JWT',
       'Content-Type', 'application/json'
     ),
     body := '{}'::jsonb
@@ -62,7 +63,7 @@ select cron.schedule(
   select net.http_post(
     url := 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-standings',
     headers := jsonb_build_object(
-      'Authorization', 'Bearer YOUR_FUNCTION_BEARER_TOKEN',
+      'Authorization', 'Bearer YOUR_SUPABASE_FUNCTION_JWT',
       'Content-Type', 'application/json'
     ),
     body := '{}'::jsonb
@@ -78,3 +79,10 @@ where jobname in (
   'sync-standings-daily'
 )
 order by jobname;
+
+-- Use this to confirm the RSS job is actually firing and whether authorization failed.
+select jobid, runid, job_pid, database, username, command, status, return_message, start_time, end_time
+from cron.job_run_details
+where command like '%/functions/v1/sync-rss-news%'
+order by start_time desc
+limit 10;

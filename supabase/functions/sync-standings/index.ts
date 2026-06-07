@@ -1,8 +1,9 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { firstEnv, jsonResponse, requireEnv } from '../_shared/http.ts'
 
-const API_FOOTBALL_BASE_URL = 'https://v3.football.api-sports.io'
-const DEFAULT_LEAGUE_ID = '1'
+const FOOTBALL_DATA_BASE_URL = 'https://api.football-data.org/v4'
+const DEFAULT_COMPETITION_CODE = 'WC'
+const DEFAULT_COMPETITION_ID = '2000'
 const DEFAULT_SEASON = '2026'
 
 type StandingRow = {
@@ -43,15 +44,17 @@ type HaircutTrackerRow = {
   updated_at: string
 }
 
-const fetchApiFootball = async (endpoint: string, apiKey: string) => {
-  const response = await fetch(`${API_FOOTBALL_BASE_URL}${endpoint}`, {
+type TeamGroupMap = Map<number, string>
+
+const fetchFootballData = async (endpoint: string, apiKey: string) => {
+  const response = await fetch(`${FOOTBALL_DATA_BASE_URL}${endpoint}`, {
     headers: {
-      'x-apisports-key': apiKey,
+      'X-Auth-Token': apiKey,
     },
   })
 
   if (!response.ok) {
-    throw new Error(`API-Football request failed: ${endpoint}`)
+    throw new Error(`football-data request failed: ${endpoint} (${response.status})`)
   }
 
   return response.json()
@@ -60,6 +63,30 @@ const fetchApiFootball = async (endpoint: string, apiKey: string) => {
 const asNumber = (value: unknown) => (typeof value === 'number' ? value : null)
 
 const asString = (value: unknown) => (typeof value === 'string' ? value : null)
+
+const normalizeForm = (form: string | null) => (form ? form.replace(/,/g, '') : null)
+
+const errorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    return JSON.stringify(error)
+  }
+
+  return String(error)
+}
+
+const numberEnv = (name: string, defaultValue: string) => {
+  const value = Number(Deno.env.get(name) ?? defaultValue)
+
+  if (!Number.isFinite(value)) {
+    return Number(defaultValue)
+  }
+
+  return value
+}
 
 const getCurrentWinStreak = (form: string | null) => {
   if (!form) {
@@ -80,30 +107,73 @@ const getCurrentWinStreak = (form: string | null) => {
   return streak
 }
 
-const toStandingRows = (data: Record<string, any>, leagueId: number, season: number, fetchedAt: string): StandingRow[] => {
-  const standings = data.response?.[0]?.league?.standings ?? []
+const toGroupName = (group: unknown) => {
+  if (typeof group !== 'string' || group.length === 0) {
+    return null
+  }
 
-  return standings.flatMap((group: Array<Record<string, any>>) =>
-    group.map((standing) => ({
+  return group.replace(/^GROUP_/, 'Group ').replace(/_/g, ' ')
+}
+
+const toTeamGroupMap = (data: Record<string, any>): TeamGroupMap => {
+  const groups: TeamGroupMap = new Map()
+
+  ;(data.matches ?? []).forEach((match: Record<string, any>) => {
+    const groupName = toGroupName(match.group)
+
+    if (!groupName) {
+      return
+    }
+
+    if (typeof match.homeTeam?.id === 'number') {
+      groups.set(match.homeTeam.id, groupName)
+    }
+
+    if (typeof match.awayTeam?.id === 'number') {
+      groups.set(match.awayTeam.id, groupName)
+    }
+  })
+
+  return groups
+}
+
+const toStandingRows = (
+  data: Record<string, any>,
+  leagueId: number,
+  season: number,
+  fetchedAt: string,
+  teamGroupMap: TeamGroupMap,
+): StandingRow[] => {
+  const standings = (data.standings ?? []).filter((standingGroup: Record<string, any>) => standingGroup.type === 'TOTAL')
+
+  return standings.flatMap((standingGroup: Record<string, any>) =>
+    (standingGroup.table ?? []).map((standing: Record<string, any>) => ({
       league_id: leagueId,
       season,
       team_id: standing.team?.id,
       team_name: standing.team?.name,
-      team_logo: standing.team?.logo ?? null,
-      group_name: standing.group ?? null,
-      rank: asNumber(standing.rank),
+      team_logo: standing.team?.crest ?? null,
+      group_name: toGroupName(standingGroup.group) ?? teamGroupMap.get(standing.team?.id) ?? null,
+      rank: asNumber(standing.position),
       points: asNumber(standing.points),
-      goals_diff: asNumber(standing.goalsDiff),
-      form: asString(standing.form),
-      status: asString(standing.status),
-      description: asString(standing.description),
-      all_played: asNumber(standing.all?.played),
-      all_win: asNumber(standing.all?.win),
-      all_draw: asNumber(standing.all?.draw),
-      all_lose: asNumber(standing.all?.lose),
-      goals_for: asNumber(standing.all?.goals?.for),
-      goals_against: asNumber(standing.all?.goals?.against),
-      raw_payload: standing,
+      goals_diff: asNumber(standing.goalDifference),
+      form: normalizeForm(asString(standing.form)),
+      status: asString(standingGroup.type),
+      description: asString(standingGroup.stage),
+      all_played: asNumber(standing.playedGames),
+      all_win: asNumber(standing.won),
+      all_draw: asNumber(standing.draw),
+      all_lose: asNumber(standing.lost),
+      goals_for: asNumber(standing.goalsFor),
+      goals_against: asNumber(standing.goalsAgainst),
+      raw_payload: {
+        entry: standing,
+        standing: {
+          stage: standingGroup.stage,
+          type: standingGroup.type,
+          group: standingGroup.group,
+        },
+      },
       fetched_at: fetchedAt,
       updated_at: fetchedAt,
     })),
@@ -129,36 +199,99 @@ const toHaircutTrackerRows = (standings: StandingRow[], fetchedAt: string): Hair
     }
   })
 
+const uniqueStandingRows = (rows: StandingRow[]) =>
+  [...new Map(rows.map((row) => [`${row.league_id}:${row.season}:${row.team_id}`, row])).values()]
+
+const rankWithinGroups = (rows: StandingRow[]) => {
+  const groupedRows = new Map<string, StandingRow[]>()
+
+  rows.forEach((row) => {
+    const groupName = row.group_name ?? 'Overall'
+    groupedRows.set(groupName, [...(groupedRows.get(groupName) ?? []), row])
+  })
+
+  return [...groupedRows.values()].flatMap((groupRows) =>
+    groupRows
+      .sort((first, second) => {
+        if ((first.points ?? 0) !== (second.points ?? 0)) {
+          return (second.points ?? 0) - (first.points ?? 0)
+        }
+
+        if ((first.goals_diff ?? 0) !== (second.goals_diff ?? 0)) {
+          return (second.goals_diff ?? 0) - (first.goals_diff ?? 0)
+        }
+
+        if ((first.goals_for ?? 0) !== (second.goals_for ?? 0)) {
+          return (second.goals_for ?? 0) - (first.goals_for ?? 0)
+        }
+
+        return (first.rank ?? 999) - (second.rank ?? 999)
+      })
+      .map((row, index) => ({
+        ...row,
+        rank: index + 1,
+      })),
+  )
+}
+
 Deno.serve(async () => {
   try {
     const supabase = createClient(requireEnv('SUPABASE_URL'), firstEnv('SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY'))
-    const apiKey = requireEnv('API_FOOTBALL_KEY')
-    const leagueId = Number(Deno.env.get('API_FOOTBALL_LEAGUE_ID') ?? DEFAULT_LEAGUE_ID)
-    const season = Number(Deno.env.get('API_FOOTBALL_SEASON') ?? DEFAULT_SEASON)
-    const endpoint = `/standings?league=${leagueId}&season=${season}`
+    const apiKey = requireEnv('FOOTBALL_DATA_API_KEY')
+    const competitionCode = Deno.env.get('FOOTBALL_DATA_COMPETITION_CODE') ?? DEFAULT_COMPETITION_CODE
+    const leagueId = numberEnv('FOOTBALL_DATA_COMPETITION_ID', DEFAULT_COMPETITION_ID)
+    const season = numberEnv('FOOTBALL_DATA_SEASON', DEFAULT_SEASON)
+    const endpoint = `/competitions/${competitionCode}/standings?season=${season}`
+    const matchesEndpoint = `/competitions/${competitionCode}/matches?season=${season}`
     const fetchedAt = new Date().toISOString()
-    const data = await fetchApiFootball(endpoint, apiKey)
-    const rows = toStandingRows(data, leagueId, season, fetchedAt).filter((row) => row.team_id && row.team_name)
+    const data = await fetchFootballData(endpoint, apiKey)
+    const matchesData = await fetchFootballData(matchesEndpoint, apiKey)
+    const teamGroupMap = toTeamGroupMap(matchesData)
+    const rows = rankWithinGroups(
+      uniqueStandingRows(
+        toStandingRows(data, leagueId, season, fetchedAt, teamGroupMap).filter((row) => row.team_id && row.team_name),
+      ),
+    )
 
     if (rows.length > 0) {
       const { error } = await supabase.from('standings').upsert(rows, { onConflict: 'league_id,season,team_id' })
 
       if (error) {
-        throw error
+        throw new Error(`standings upsert failed: ${errorMessage(error)}`)
       }
 
-      const trackerRows = toHaircutTrackerRows(rows, fetchedAt)
-      const { error: trackerError } = await supabase
+      const { error: trackerDeleteError } = await supabase
         .from('haircut_tracker')
-        .upsert(trackerRows, { onConflict: 'league_id,season,team_id' })
+        .delete()
+        .eq('league_id', leagueId)
+        .eq('season', season)
 
-      if (trackerError) {
-        throw trackerError
+      if (trackerDeleteError) {
+        throw new Error(`haircut tracker cleanup failed: ${errorMessage(trackerDeleteError)}`)
+      }
+
+      const trackerRows = toHaircutTrackerRows(rows.filter((row) => (row.all_played ?? 0) > 0), fetchedAt)
+
+      if (trackerRows.length > 0) {
+        const { error: trackerError } = await supabase
+          .from('haircut_tracker')
+          .upsert(trackerRows, { onConflict: 'league_id,season,team_id' })
+
+        if (trackerError) {
+          throw new Error(`haircut tracker upsert failed: ${errorMessage(trackerError)}`)
+        }
       }
     }
 
-    return jsonResponse({ ok: true, count: rows.length, leagueId, season })
+    return jsonResponse({
+      ok: true,
+      count: rows.length,
+      trackerCount: rows.filter((row) => (row.all_played ?? 0) > 0).length,
+      competitionCode,
+      leagueId,
+      season,
+    })
   } catch (error) {
-    return jsonResponse({ ok: false, error: error instanceof Error ? error.message : 'Unknown error' }, 500)
+    return jsonResponse({ ok: false, error: errorMessage(error) }, 500)
   }
 })

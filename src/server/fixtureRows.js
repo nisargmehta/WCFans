@@ -13,6 +13,18 @@ const getTeam = (name) => {
   }
 }
 
+const toMatchStatus = (status) => {
+  if (status === 'IN_PLAY' || status === 'PAUSED') {
+    return 'Live'
+  }
+
+  if (status === 'FINISHED') {
+    return 'Final'
+  }
+
+  return 'Scheduled'
+}
+
 export const mapFixtureRowsToMatches = (fixtures) =>
   fixtures.map((fixture) => {
     const kickoff = new Date(fixture.kickoff_at)
@@ -25,11 +37,11 @@ export const mapFixtureRowsToMatches = (fixtures) =>
       kickoffAt: kickoff.toISOString(),
       group: fixture.group_name ?? fixture.round_name ?? 'World Cup',
       ground: fixture.ground ?? 'Venue TBA',
-      minute: null,
-      status: 'Scheduled',
+      minute: fixture.minute,
+      status: toMatchStatus(fixture.status),
       home: getTeam(fixture.home_team),
       away: getTeam(fixture.away_team),
-      score: { home: null, away: null },
+      score: { home: fixture.home_score, away: fixture.away_score },
       events: [],
     }
   })

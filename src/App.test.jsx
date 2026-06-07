@@ -23,4 +23,15 @@ describe('App', () => {
     expect(screen.getByText('0 fixtures')).toBeInTheDocument()
     expect(screen.getByText(/fixtures will appear here/i)).toBeInTheDocument()
   })
+
+  it('opens the standings view', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(await screen.findByRole('button', { name: /standings/i }))
+
+    expect(screen.getByRole('heading', { name: /world cup 2026 standings/i })).toBeInTheDocument()
+    expect(screen.getByText('0 teams')).toBeInTheDocument()
+    expect(screen.getByText(/standings will appear here/i)).toBeInTheDocument()
+  })
 })

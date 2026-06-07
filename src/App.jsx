@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronDown } from 'lucide-react'
+import { CalendarDays, ChevronDown, Trophy } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { fetchDashboardData } from './client/api'
 import { HaircutTracker } from './components/HaircutTracker'
@@ -6,6 +6,7 @@ import { LiveScoresTicker } from './components/LiveScoresTicker'
 import { MatchCard } from './components/MatchCard'
 import { NewsFeed } from './components/NewsFeed'
 import { ScheduleView } from './components/ScheduleView'
+import { StandingsView } from './components/StandingsView'
 
 function App() {
   const [dashboard, setDashboard] = useState(null)
@@ -46,6 +47,14 @@ function App() {
     )
   }
 
+  if (view === 'standings') {
+    return (
+      <div className="min-h-screen bg-eggshell text-twilight_indigo">
+        <StandingsView standings={dashboard.standings} onBack={() => setView('home')} />
+      </div>
+    )
+  }
+
   const visibleMatches = matchesExpanded ? dashboard.upcomingMatches : dashboard.upcomingMatches.slice(0, 4)
   const visibleStories = storiesExpanded ? dashboard.news.slice(0, 25) : dashboard.news.slice(0, 8)
 
@@ -70,14 +79,24 @@ function App() {
         <section aria-labelledby="matches-heading">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <SectionTitle id="matches-heading" eyebrow="Match center" title="Live and upcoming fixtures" />
-            <button
-              type="button"
-              onClick={() => setView('schedule')}
-              className="inline-flex items-center gap-2 rounded bg-twilight_indigo px-4 py-2 text-sm font-black text-eggshell transition hover:bg-twilight_indigo-400 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
-            >
-              <CalendarDays aria-hidden="true" className="h-4 w-4" />
-              Full schedule
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setView('standings')}
+                className="inline-flex h-11 items-center gap-2 rounded bg-white px-4 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
+              >
+                <Trophy aria-hidden="true" className="h-4 w-4" />
+                Standings
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('schedule')}
+                className="inline-flex h-11 items-center gap-2 rounded bg-twilight_indigo px-4 text-sm font-black text-eggshell transition hover:bg-twilight_indigo-400 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
+              >
+                <CalendarDays aria-hidden="true" className="h-4 w-4" />
+                Full schedule
+              </button>
+            </div>
           </div>
           <div className="mt-4 columns-1 gap-4 lg:columns-2">
             {visibleMatches.length > 0 ? (
