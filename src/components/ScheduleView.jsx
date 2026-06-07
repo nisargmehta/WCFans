@@ -2,17 +2,15 @@ import { ArrowLeft, CalendarDays } from 'lucide-react'
 import { MatchCard } from './MatchCard'
 
 export function ScheduleView({ matches, onBack }) {
-  const sortedMatches = [...matches].sort((first, second) => {
-    const firstTime = new Date(first.kickoffAt ?? `${first.date}T00:00:00Z`).getTime()
-    const secondTime = new Date(second.kickoffAt ?? `${second.date}T00:00:00Z`).getTime()
-
-    return firstTime - secondTime
-  })
+  const sortedMatches = [...matches].sort(compareMatchesByKickoff)
 
   const matchesByDate = sortedMatches.reduce((dates, match) => {
-    dates[match.date] = dates[match.date] ? [...dates[match.date], match] : [match]
+    const dateKey = getMatchDateKey(match)
+    dates[dateKey] = dates[dateKey] ? [...dates[dateKey], match] : [match]
     return dates
   }, {})
+
+  const dateEntries = Object.entries(matchesByDate).sort(([firstDate], [secondDate]) => firstDate.localeCompare(secondDate))
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -40,7 +38,7 @@ export function ScheduleView({ matches, onBack }) {
         </div>
       ) : (
         <div className="mt-6 space-y-6">
-          {Object.entries(matchesByDate).map(([date, dateMatches]) => (
+          {dateEntries.map(([date, dateMatches]) => (
             <section key={date} aria-labelledby={`schedule-${date}`}>
               <h2
                 id={`schedule-${date}`}
@@ -49,8 +47,8 @@ export function ScheduleView({ matches, onBack }) {
                 <CalendarDays aria-hidden="true" className="h-5 w-5 text-muted_teal-300" />
                 {formatDate(date)}
               </h2>
-              <div className="mt-3 grid gap-3 lg:grid-cols-2">
-                {dateMatches.map((match) => (
+              <div className="mt-3 grid gap-3">
+                {[...dateMatches].sort(compareMatchesByKickoff).map((match) => (
                   <div key={match.id}>
                     <MatchCard match={match} expandable />
                   </div>
@@ -64,12 +62,46 @@ export function ScheduleView({ matches, onBack }) {
   )
 }
 
+function compareMatchesByKickoff(first, second) {
+  const firstTime = getKickoffTime(first)
+  const secondTime = getKickoffTime(second)
+
+  if (firstTime !== secondTime) {
+    return firstTime - secondTime
+  }
+
+  return first.id.localeCompare(second.id)
+}
+
+function getKickoffTime(match) {
+  return new Date(match.kickoffAt ?? `${match.date}T00:00:00Z`).getTime()
+}
+
+function getMatchDateKey(match) {
+  if (!match.kickoffAt) {
+    return match.date
+  }
+
+  const kickoff = new Date(match.kickoffAt)
+
+  if (Number.isNaN(kickoff.getTime())) {
+    return match.date
+  }
+
+  const year = kickoff.getFullYear()
+  const month = String(kickoff.getMonth() + 1).padStart(2, '0')
+  const day = String(kickoff.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 function formatDate(date) {
+  const [year, month, day] = date.split('-').map(Number)
+
   return new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(`${date}T12:00:00Z`))
+  }).format(new Date(year, month - 1, day))
 }

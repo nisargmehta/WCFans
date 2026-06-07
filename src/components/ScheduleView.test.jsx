@@ -45,28 +45,39 @@ describe('ScheduleView', () => {
     const sameDayMatches = [
       {
         ...matches[0],
-        id: 'late-match',
-        date: '2026-06-12',
-        time: '7:00 PM',
-        kickoffAt: '2026-06-12T19:00:00.000Z',
-        home: { name: 'Late Home', code: 'LTH', flag: '' },
-        away: { name: 'Late Away', code: 'LTA', flag: '' },
+        id: 'six-pm-match',
+        date: '2026-06-13',
+        time: '6:00 PM PDT',
+        kickoffAt: '2026-06-14T01:00:00.000Z',
+        home: { name: 'Six PM Home', code: 'SPH', flag: '' },
+        away: { name: 'Six PM Away', code: 'SPA', flag: '' },
       },
       {
         ...matches[0],
-        id: 'early-match',
-        date: '2026-06-12',
-        time: '12:00 PM',
-        kickoffAt: '2026-06-12T12:00:00.000Z',
-        home: { name: 'Early Home', code: 'ERH', flag: '' },
-        away: { name: 'Early Away', code: 'ERA', flag: '' },
+        id: 'noon-match',
+        date: '2026-06-13',
+        time: '12:00 PM PDT',
+        kickoffAt: '2026-06-13T19:00:00.000Z',
+        home: { name: 'Noon Home', code: 'NOH', flag: '' },
+        away: { name: 'Noon Away', code: 'NOA', flag: '' },
+      },
+      {
+        ...matches[0],
+        id: 'three-pm-match',
+        date: '2026-06-13',
+        time: '3:00 PM PDT',
+        kickoffAt: '2026-06-13T22:00:00.000Z',
+        home: { name: 'Three PM Home', code: 'TPH', flag: '' },
+        away: { name: 'Three PM Away', code: 'TPA', flag: '' },
       },
     ]
 
     render(<ScheduleView matches={sameDayMatches} onBack={vi.fn()} />)
 
-    const scheduleText = screen.getByRole('heading', { name: /fri, jun 12/i }).parentElement.textContent
+    const scheduleText = screen.getByRole('heading', { name: /sat, jun 13/i }).parentElement.textContent
 
-    expect(scheduleText.indexOf('Early Home')).toBeLessThan(scheduleText.indexOf('Late Home'))
+    expect(screen.queryByRole('heading', { name: /sun, jun 14/i })).not.toBeInTheDocument()
+    expect(scheduleText.indexOf('Noon Home')).toBeLessThan(scheduleText.indexOf('Three PM Home'))
+    expect(scheduleText.indexOf('Three PM Home')).toBeLessThan(scheduleText.indexOf('Six PM Home'))
   })
 })
