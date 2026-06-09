@@ -80,6 +80,8 @@ describe('ScheduleView', () => {
     const scheduleText = screen.getByRole('heading', { name: /sat, jun 13/i }).parentElement.textContent
 
     expect(screen.queryByRole('heading', { name: /sun, jun 14/i })).not.toBeInTheDocument()
+    expect(screen.getByText('Jun 13 / 6:00 PM PDT')).toBeInTheDocument()
+    expect(screen.queryByText('Jun 14 / 6:00 PM PDT')).not.toBeInTheDocument()
     expect(scheduleText.indexOf('Noon Home')).toBeLessThan(scheduleText.indexOf('Three PM Home'))
     expect(scheduleText.indexOf('Three PM Home')).toBeLessThan(scheduleText.indexOf('Six PM Home'))
   })

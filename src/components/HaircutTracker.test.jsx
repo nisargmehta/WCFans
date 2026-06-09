@@ -10,7 +10,8 @@ describe('HaircutTracker', () => {
 
     expect(screen.getByText('Haircut tracker')).toBeInTheDocument()
     expect(screen.getByText('No streak data')).toBeInTheDocument()
-    expect(screen.getByText(/streaks will appear/i)).toBeInTheDocument()
+    expect(screen.getByText(/haircut streaks update after standings refresh/i)).toBeInTheDocument()
+    expect(screen.queryByText(/until then/i)).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /show all/i })).not.toBeInTheDocument()
   })
 

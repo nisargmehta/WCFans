@@ -30,7 +30,7 @@ export function MatchCard({ match, onMatchSelect }) {
             </span>
             <span className="inline-flex items-center gap-1.5 text-burnt_peach-300">
               <Clock aria-hidden="true" className="h-3.5 w-3.5" />
-              {formatCardDate(match.date)} / {match.time}
+              {formatCardDate(match)} / {match.time}
             </span>
           </div>
           <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:mt-3 sm:gap-3">
@@ -68,10 +68,11 @@ function formatScore(score) {
   return `${score.home} - ${score.away}`
 }
 
-function formatCardDate(date) {
+function formatCardDate(match) {
+  const date = match.kickoffAt ? new Date(match.kickoffAt) : new Date(`${match.date}T12:00:00Z`)
+
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(`${date}T12:00:00Z`))
+  }).format(date)
 }

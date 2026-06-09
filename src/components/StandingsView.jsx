@@ -46,37 +46,37 @@ export function StandingsView({ standings, onBack }) {
             >
               <h2
                 id={`standings-${groupName}`}
-                className="flex items-center gap-2 border-b border-twilight_indigo-900 bg-twilight_indigo px-3 py-2.5 text-base font-black text-eggshell sm:px-4 sm:py-3 sm:text-lg"
+                className="flex items-center gap-2 border-b border-twilight_indigo-900 bg-twilight_indigo px-3 py-2 text-sm font-black text-eggshell sm:px-4 sm:py-3 sm:text-lg"
               >
-                <Trophy aria-hidden="true" className="h-5 w-5 text-apricot_cream" />
+                <Trophy aria-hidden="true" className="h-4 w-4 text-apricot_cream sm:h-5 sm:w-5" />
                 {groupName}
               </h2>
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-left text-sm">
-                  <thead className="bg-eggshell-800 text-xs font-black uppercase text-twilight_indigo-600">
+              <div>
+                <table className="w-full table-fixed text-left text-[0.68rem] sm:text-sm">
+                  <thead className="bg-eggshell-800 text-[0.62rem] font-black uppercase text-twilight_indigo-600 sm:text-xs">
                     <tr>
-                      <th scope="col" className="w-12 px-3 py-2">
+                      <th scope="col" className="w-7 px-1 py-1.5 sm:w-10 sm:px-3 sm:py-2">
                         #
                       </th>
-                      <th scope="col" className="min-w-44 px-3 py-2">
+                      <th scope="col" className="px-1 py-1.5 sm:px-3 sm:py-2">
                         Team
                       </th>
-                      <th scope="col" className="px-3 py-2 text-center">
+                      <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
                         P
                       </th>
-                      <th scope="col" className="px-3 py-2 text-center">
+                      <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
                         W
                       </th>
-                      <th scope="col" className="px-3 py-2 text-center">
+                      <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
                         D
                       </th>
-                      <th scope="col" className="px-3 py-2 text-center">
+                      <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
                         L
                       </th>
-                      <th scope="col" className="px-3 py-2 text-center">
+                      <th scope="col" className="w-8 px-1 py-1.5 text-center sm:w-11 sm:px-3 sm:py-2">
                         GD
                       </th>
-                      <th scope="col" className="px-3 py-2 text-center">
+                      <th scope="col" className="w-8 px-1 py-1.5 text-center sm:w-11 sm:px-3 sm:py-2">
                         Pts
                       </th>
                     </tr>
@@ -86,21 +86,21 @@ export function StandingsView({ standings, onBack }) {
                       .sort((first, second) => (first.rank ?? 999) - (second.rank ?? 999))
                       .map((row) => (
                         <tr key={row.team_id} className="text-twilight_indigo">
-                          <td className="px-3 py-3 text-sm font-black">{row.rank ?? '-'}</td>
-                          <td className="px-3 py-3">
-                            <div className="flex min-w-0 items-center gap-2">
+                          <td className="px-1 py-2 font-black sm:px-3 sm:py-3">{row.rank ?? '-'}</td>
+                          <td className="px-1 py-2 sm:px-3 sm:py-3">
+                            <div className="flex min-w-0 items-center gap-1 sm:gap-2">
                               {row.team_logo ? (
-                                <img className="h-6 w-6 shrink-0 rounded-full bg-eggshell object-contain" src={row.team_logo} alt="" />
+                                <img className="h-4 w-4 shrink-0 rounded-full bg-eggshell object-contain sm:h-6 sm:w-6" src={row.team_logo} alt="" />
                               ) : null}
                               <span className="truncate font-black">{row.team_name}</span>
                             </div>
                           </td>
-                          <td className="px-3 py-3 text-center font-bold">{row.all_played ?? 0}</td>
-                          <td className="px-3 py-3 text-center font-bold">{row.all_win ?? 0}</td>
-                          <td className="px-3 py-3 text-center font-bold">{row.all_draw ?? 0}</td>
-                          <td className="px-3 py-3 text-center font-bold">{row.all_lose ?? 0}</td>
-                          <td className="px-3 py-3 text-center font-bold">{formatGoalDiff(row.goals_diff)}</td>
-                          <td className="px-3 py-3 text-center text-base font-black">{row.points ?? 0}</td>
+                          <td className="px-1 py-2 text-center font-bold sm:px-3 sm:py-3">{row.all_played ?? 0}</td>
+                          <td className="px-1 py-2 text-center font-bold sm:px-3 sm:py-3">{row.all_win ?? 0}</td>
+                          <td className="px-1 py-2 text-center font-bold sm:px-3 sm:py-3">{row.all_draw ?? 0}</td>
+                          <td className="px-1 py-2 text-center font-bold sm:px-3 sm:py-3">{row.all_lose ?? 0}</td>
+                          <td className="px-1 py-2 text-center font-bold sm:px-3 sm:py-3">{formatGoalDiff(row.goals_diff)}</td>
+                          <td className="px-1 py-2 text-center text-xs font-black sm:px-3 sm:py-3 sm:text-base">{row.points ?? 0}</td>
                         </tr>
                       ))}
                   </tbody>

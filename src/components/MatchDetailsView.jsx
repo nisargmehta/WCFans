@@ -32,7 +32,7 @@ export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
         <div className="mt-4 flex flex-wrap gap-4 border-t border-twilight_indigo-900 pt-3 text-sm font-semibold text-twilight_indigo-600">
           <span className="inline-flex items-center gap-1.5">
             <Clock aria-hidden="true" className="h-4 w-4" />
-            {isLive && typeof match.minute === 'number' ? `${match.minute}'` : `${match.date} / ${match.time}`}
+            {isLive && typeof match.minute === 'number' ? `${match.minute}'` : `${formatMatchDate(match)} / ${match.time}`}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <MapPin aria-hidden="true" className="h-4 w-4" />
@@ -68,4 +68,13 @@ function formatScore(match) {
   }
 
   return `${match.score.home} - ${match.score.away}`
+}
+
+function formatMatchDate(match) {
+  const date = match.kickoffAt ? new Date(match.kickoffAt) : new Date(`${match.date}T12:00:00Z`)
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+  }).format(date)
 }
