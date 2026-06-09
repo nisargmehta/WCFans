@@ -32,11 +32,11 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
   }
 
   return (
-    <section className="rounded-lg bg-twilight_indigo p-5 text-eggshell shadow-panel">
+    <section className="rounded-lg bg-twilight_indigo p-4 text-eggshell shadow-panel sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-bold uppercase text-apricot_cream">Fan challenge</p>
-          <h2 className="mt-1 text-2xl font-black">Haircut tracker</h2>
+          <p className="text-xs font-bold uppercase text-apricot_cream sm:text-sm">Fan challenge</p>
+          <h2 className="mt-1 text-xl font-black sm:text-2xl">Haircut tracker</h2>
         </div>
         {hasTeams ? (
           <button
@@ -62,13 +62,11 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
         </div>
       ) : null}
       {hasTeams ? (
-        <div
-          className={expanded ? 'mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4' : 'mt-5 flex gap-3 overflow-x-auto pb-1'}
-        >
+        <div className={expanded ? 'mt-4 grid gap-3 sm:mt-5 sm:grid-cols-2 xl:grid-cols-4' : 'mt-4 flex gap-3 overflow-x-auto pb-1 sm:mt-5'}>
           {visibleTeams.map((team) => (
             <article
               key={team.id}
-              className={`rounded-lg bg-white/10 p-4 ring-1 ring-white/15 ${expanded ? '' : 'min-w-64 flex-1'}`}
+              className={`rounded-lg bg-white/10 p-3 ring-1 ring-white/15 sm:p-4 ${expanded ? '' : 'min-w-56 flex-1 sm:min-w-64'}`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -93,7 +91,7 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
                 <p className="mt-2 text-sm font-semibold text-eggshell-600">
                   {team.winsInARow}/{CUT_THRESHOLD} wins in a row
                 </p>
-                <p className="mt-2 text-base font-black text-apricot_cream">{getHaircutPunchline(team.winsInARow)}</p>
+                <p className="mt-2 text-sm font-black text-apricot_cream sm:text-base">{getHaircutPunchline(team.winsInARow)}</p>
               </div>
               <button
                 type="button"
@@ -114,8 +112,8 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
 
 function TeamName({ team }) {
   return (
-    <h3 className="flex min-w-0 items-center gap-2 text-lg font-black">
-      {team.logo ? <img className="h-6 w-6 shrink-0 rounded-full bg-white object-contain" src={team.logo} alt="" /> : null}
+    <h3 className="flex min-w-0 items-center gap-2 text-base font-black sm:text-lg">
+      {team.logo ? <img className="h-5 w-5 shrink-0 rounded-full bg-white object-contain sm:h-6 sm:w-6" src={team.logo} alt="" /> : null}
       {team.flag ? <span aria-hidden="true">{team.flag}</span> : null}
       <span className="truncate">{team.team}</span>
     </h3>

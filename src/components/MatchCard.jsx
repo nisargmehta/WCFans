@@ -20,7 +20,7 @@ export function MatchCard({ match, expandable = false, defaultExpanded = false }
   return (
     <article className="rounded-lg border border-twilight_indigo-900 bg-white shadow-panel">
       <Summary
-        className={`flex w-full items-center justify-between gap-3 rounded-lg p-4 text-left ${
+        className={`flex w-full items-center justify-between gap-3 rounded-lg p-3 text-left sm:p-4 ${
           expandable
             ? 'transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach focus:ring-offset-2'
             : ''
@@ -28,7 +28,7 @@ export function MatchCard({ match, expandable = false, defaultExpanded = false }
         {...summaryProps}
       >
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold uppercase text-twilight_indigo-600">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[0.7rem] font-semibold uppercase text-twilight_indigo-600 sm:text-xs">
             <span className="inline-flex items-center gap-2">
               <span>{match.group}</span>
               <span aria-hidden="true">/</span>
@@ -39,9 +39,9 @@ export function MatchCard({ match, expandable = false, defaultExpanded = false }
               {formatCardDate(match.date)} / {match.time}
             </span>
           </div>
-          <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
+          <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:mt-3 sm:gap-3">
             <TeamBlock team={match.home} align="left" />
-            <div className="rounded bg-twilight_indigo px-3 py-2 text-center text-lg font-black text-eggshell">
+            <div className="rounded bg-twilight_indigo px-2 py-1.5 text-center text-sm font-black text-eggshell sm:px-3 sm:py-2 sm:text-lg">
               {isLive ? `${match.score.home} - ${match.score.away}` : 'vs'}
             </div>
             <TeamBlock team={match.away} align="right" />
@@ -55,7 +55,7 @@ export function MatchCard({ match, expandable = false, defaultExpanded = false }
         ) : null}
       </Summary>
       {isExpanded ? (
-        <div id={panelId} className="border-t border-twilight_indigo-900 px-4 pb-4 pt-3">
+        <div id={panelId} className="border-t border-twilight_indigo-900 px-3 pb-3 pt-3 sm:px-4 sm:pb-4">
           <div className="flex flex-wrap gap-4 text-sm text-twilight_indigo-600">
             <span className="inline-flex items-center gap-1.5">
               <Clock aria-hidden="true" className="h-4 w-4" />
@@ -76,10 +76,10 @@ export function MatchCard({ match, expandable = false, defaultExpanded = false }
 function TeamBlock({ team, align }) {
   return (
     <div className={`min-w-0 ${align === 'right' ? 'text-right' : ''}`}>
-      <p className="break-words text-base font-black leading-tight text-twilight_indigo sm:text-lg">
+      <p className="break-words text-sm font-black leading-tight text-twilight_indigo sm:text-lg">
         <span aria-hidden="true">{team.flag}</span> {team.name}
       </p>
-      <p className="text-xs font-bold uppercase text-muted_teal-300">{team.code}</p>
+      <p className="text-[0.7rem] font-bold uppercase text-muted_teal-300 sm:text-xs">{team.code}</p>
     </div>
   )
 }

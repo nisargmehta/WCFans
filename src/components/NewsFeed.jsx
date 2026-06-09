@@ -14,13 +14,13 @@ export function NewsFeed({ articles }) {
           key={article.id}
           className="overflow-hidden rounded-lg border border-twilight_indigo-900 bg-white shadow-panel"
         >
-          <img className="h-40 w-full object-cover" src={article.image} alt="" loading="lazy" />
-          <div className="p-4">
+          <img className="h-32 w-full object-cover sm:h-40" src={article.image} alt="" loading="lazy" />
+          <div className="p-3 sm:p-4">
             <div className="flex items-center justify-between gap-3 text-xs font-bold uppercase text-muted_teal-300">
               <span>{article.category}</span>
               <time>{article.timestamp}</time>
             </div>
-            <h3 className="mt-3 text-lg font-black leading-snug text-twilight_indigo">
+            <h3 className="mt-2 text-base font-black leading-snug text-twilight_indigo sm:mt-3 sm:text-lg">
               <a className="hover:text-burnt_peach-300" href={article.url} target="_blank" rel="noreferrer">
                 {article.headline}
               </a>

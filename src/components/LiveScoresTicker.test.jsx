@@ -24,7 +24,8 @@ describe('LiveScoresTicker', () => {
 
     expect(screen.getByLabelText(/live scores ticker/i)).toBeInTheDocument()
     expect(screen.getAllByText(/MEX/i)[0]).toBeInTheDocument()
-    expect(screen.getAllByText('1 - 0')[0]).toBeInTheDocument()
-    expect(screen.getAllByText("27'")[0]).toBeInTheDocument()
+    expect(screen.getByText('RSA')).toBeInTheDocument()
+    expect(screen.getByText('1')).toBeInTheDocument()
+    expect(screen.getByText("27' played")).toBeInTheDocument()
   })
 })

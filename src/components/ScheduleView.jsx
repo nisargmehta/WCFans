@@ -13,7 +13,7 @@ export function ScheduleView({ matches, onBack }) {
   const dateEntries = Object.entries(matchesByDate).sort(([firstDate], [secondDate]) => firstDate.localeCompare(secondDate))
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
       <button
         type="button"
         onClick={onBack}
@@ -22,10 +22,10 @@ export function ScheduleView({ matches, onBack }) {
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         Match hub
       </button>
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
+      <div className="mt-5 flex flex-wrap items-end justify-between gap-4 sm:mt-6">
         <div>
-          <p className="text-sm font-black uppercase text-burnt_peach-300">Real schedule</p>
-          <h1 className="mt-2 text-4xl font-black text-twilight_indigo">Full World Cup 2026 schedule</h1>
+          <p className="text-xs font-black uppercase text-burnt_peach-300 sm:text-sm">Real schedule</p>
+          <h1 className="mt-1 text-2xl font-black text-twilight_indigo sm:mt-2 sm:text-4xl">Full World Cup 2026 schedule</h1>
         </div>
         <p className="rounded bg-muted_teal-900 px-3 py-2 text-sm font-black text-muted_teal-300">
           {matches.length} fixtures
@@ -37,12 +37,12 @@ export function ScheduleView({ matches, onBack }) {
           Fixtures will appear here once Supabase has schedule rows.
         </div>
       ) : (
-        <div className="mt-6 space-y-6">
+        <div className="mt-5 space-y-5 sm:mt-6 sm:space-y-6">
           {dateEntries.map(([date, dateMatches]) => (
             <section key={date} aria-labelledby={`schedule-${date}`}>
               <h2
                 id={`schedule-${date}`}
-                className="sticky top-0 z-10 flex items-center gap-2 border-y border-twilight_indigo-900 bg-eggshell py-3 text-xl font-black"
+                className="sticky top-0 z-10 flex items-center gap-2 border-y border-twilight_indigo-900 bg-eggshell py-2 text-lg font-black sm:py-3 sm:text-xl"
               >
                 <CalendarDays aria-hidden="true" className="h-5 w-5 text-muted_teal-300" />
                 {formatDate(date)}

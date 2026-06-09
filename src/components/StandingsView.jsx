@@ -10,7 +10,7 @@ export function StandingsView({ standings, onBack }) {
   const groupEntries = Object.entries(standingsByGroup).sort(([first], [second]) => first.localeCompare(second))
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
       <button
         type="button"
         onClick={onBack}
@@ -19,10 +19,10 @@ export function StandingsView({ standings, onBack }) {
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         Match hub
       </button>
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
+      <div className="mt-5 flex flex-wrap items-end justify-between gap-4 sm:mt-6">
         <div>
-          <p className="text-sm font-black uppercase text-burnt_peach-300">Group tables</p>
-          <h1 className="mt-2 text-4xl font-black text-twilight_indigo">World Cup 2026 standings</h1>
+          <p className="text-xs font-black uppercase text-burnt_peach-300 sm:text-sm">Group tables</p>
+          <h1 className="mt-1 text-2xl font-black text-twilight_indigo sm:mt-2 sm:text-4xl">World Cup 2026 standings</h1>
         </div>
         <p className="rounded bg-muted_teal-900 px-3 py-2 text-sm font-black text-muted_teal-300">
           {standings.length} teams
@@ -34,7 +34,7 @@ export function StandingsView({ standings, onBack }) {
           Standings will appear here once Supabase has group table rows.
         </div>
       ) : (
-        <div className="mt-6 grid gap-5 lg:grid-cols-2">
+        <div className="mt-5 grid gap-4 sm:mt-6 sm:gap-5 lg:grid-cols-2">
           {groupEntries.map(([groupName, rows]) => (
             <section
               key={groupName}
@@ -43,7 +43,7 @@ export function StandingsView({ standings, onBack }) {
             >
               <h2
                 id={`standings-${groupName}`}
-                className="flex items-center gap-2 border-b border-twilight_indigo-900 bg-twilight_indigo px-4 py-3 text-lg font-black text-eggshell"
+                className="flex items-center gap-2 border-b border-twilight_indigo-900 bg-twilight_indigo px-3 py-2.5 text-base font-black text-eggshell sm:px-4 sm:py-3 sm:text-lg"
               >
                 <Trophy aria-hidden="true" className="h-5 w-5 text-apricot_cream" />
                 {groupName}
