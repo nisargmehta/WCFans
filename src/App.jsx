@@ -91,7 +91,7 @@ function App() {
               <button
                 type="button"
                 onClick={() => setView('schedule')}
-                className="inline-flex h-11 items-center gap-2 rounded bg-twilight_indigo px-4 text-sm font-black text-eggshell transition hover:bg-twilight_indigo-400 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
+                className="inline-flex h-11 items-center gap-2 rounded bg-white px-4 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
               >
                 <CalendarDays aria-hidden="true" className="h-4 w-4" />
                 Full schedule
