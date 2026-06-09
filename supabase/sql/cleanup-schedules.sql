@@ -12,7 +12,8 @@ begin
       'sync-fixtures-daily',
       'sync-match-details-every-minute',
       'sync-fixture-previews-every-6-hours',
-      'sync-standings-daily'
+      'sync-standings-daily',
+      'sync-standings-every-10-minutes'
     )
     or command like '%/functions/v1/sync-rss-news%'
     or command like '%/functions/v1/sync-fixtures%'

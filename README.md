@@ -70,7 +70,7 @@ Enable schedules with `supabase/sql/schedules.sql`, replacing `YOUR_SUPABASE_FUN
 
 - `sync-rss-news`: every 3 hours
 - `sync-match-details`: every minute; internally calls football-data.org only at 55 minutes before kickoff, 30 minutes before kickoff, and once per minute after kickoff until the match is terminal or outside the live window
-- `sync-standings`: daily
+- `sync-standings`: every 10 minutes
 
 Do not schedule `sync-fixtures` daily during group-stage setup. If you want automated fixture refreshes once knockout teams start resolving, use `supabase/sql/knockout-fixture-refresh.sql` near June 27, 2026.
 

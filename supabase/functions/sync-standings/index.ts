@@ -202,38 +202,6 @@ const toHaircutTrackerRows = (standings: StandingRow[], fetchedAt: string): Hair
 const uniqueStandingRows = (rows: StandingRow[]) =>
   [...new Map(rows.map((row) => [`${row.league_id}:${row.season}:${row.team_id}`, row])).values()]
 
-const rankWithinGroups = (rows: StandingRow[]) => {
-  const groupedRows = new Map<string, StandingRow[]>()
-
-  rows.forEach((row) => {
-    const groupName = row.group_name ?? 'Overall'
-    groupedRows.set(groupName, [...(groupedRows.get(groupName) ?? []), row])
-  })
-
-  return [...groupedRows.values()].flatMap((groupRows) =>
-    groupRows
-      .sort((first, second) => {
-        if ((first.points ?? 0) !== (second.points ?? 0)) {
-          return (second.points ?? 0) - (first.points ?? 0)
-        }
-
-        if ((first.goals_diff ?? 0) !== (second.goals_diff ?? 0)) {
-          return (second.goals_diff ?? 0) - (first.goals_diff ?? 0)
-        }
-
-        if ((first.goals_for ?? 0) !== (second.goals_for ?? 0)) {
-          return (second.goals_for ?? 0) - (first.goals_for ?? 0)
-        }
-
-        return (first.rank ?? 999) - (second.rank ?? 999)
-      })
-      .map((row, index) => ({
-        ...row,
-        rank: index + 1,
-      })),
-  )
-}
-
 Deno.serve(async () => {
   try {
     const supabase = createClient(requireEnv('SUPABASE_URL'), firstEnv('SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY'))
@@ -247,10 +215,8 @@ Deno.serve(async () => {
     const data = await fetchFootballData(endpoint, apiKey)
     const matchesData = await fetchFootballData(matchesEndpoint, apiKey)
     const teamGroupMap = toTeamGroupMap(matchesData)
-    const rows = rankWithinGroups(
-      uniqueStandingRows(
-        toStandingRows(data, leagueId, season, fetchedAt, teamGroupMap).filter((row) => row.team_id && row.team_name),
-      ),
+    const rows = uniqueStandingRows(
+      toStandingRows(data, leagueId, season, fetchedAt, teamGroupMap).filter((row) => row.team_id && row.team_name),
     )
 
     if (rows.length > 0) {

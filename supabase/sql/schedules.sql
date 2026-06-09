@@ -16,7 +16,8 @@ begin
       'sync-rss-news-every-3-hours',
       'sync-match-details-every-minute',
       'sync-fixture-previews-every-6-hours',
-      'sync-standings-daily'
+      'sync-standings-daily',
+      'sync-standings-every-10-minutes'
     )
     or command like '%/functions/v1/sync-rss-news%'
     or command like '%/functions/v1/sync-match-details%'
@@ -59,8 +60,8 @@ select cron.schedule(
 );
 
 select cron.schedule(
-  'sync-standings-daily',
-  '20 8 * * *',
+  'sync-standings-every-10-minutes',
+  '*/10 * * * *',
   $$
   select net.http_post(
     url := 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-standings',
@@ -78,7 +79,7 @@ from cron.job
 where jobname in (
   'sync-rss-news-every-3-hours',
   'sync-match-details-every-minute',
-  'sync-standings-daily'
+  'sync-standings-every-10-minutes'
 )
 order by jobname;
 
