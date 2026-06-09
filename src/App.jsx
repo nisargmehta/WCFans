@@ -33,7 +33,7 @@ function App() {
       <main className="grid min-h-screen place-items-center bg-eggshell px-4 text-twilight_indigo">
         <div className="text-center">
           <p className="text-xs font-bold uppercase text-burnt_peach-300 sm:text-sm">WCFans</p>
-          <h1 className="mt-2 text-2xl font-black sm:text-3xl">Loading the match hub</h1>
+          <h1 className="mt-2 text-2xl font-black">Loading the match hub</h1>
         </div>
       </main>
     )
@@ -78,7 +78,7 @@ function App() {
 
         <section aria-labelledby="matches-heading">
           <div className="flex flex-wrap items-end justify-between gap-3">
-            <SectionTitle id="matches-heading" eyebrow="Match center" title="" />
+            <SectionTitle id="matches-heading" eyebrow="Match center" title="Live and upcoming fixtures" />
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
@@ -130,7 +130,7 @@ function App() {
         </section>
 
         <section aria-labelledby="news-heading">
-          <SectionTitle id="news-heading" eyebrow="News feed" title="" />
+          <SectionTitle id="news-heading" eyebrow="News feed" title="World Cup stories" />
           <div className="mt-4">
             <NewsFeed articles={visibleStories} />
           </div>
@@ -157,9 +157,9 @@ function SectionTitle({ id, eyebrow, title }) {
   return (
     <div>
       <p className="text-xs font-black uppercase text-burnt_peach-300 sm:text-sm">{eyebrow}</p>
-      <h3 id={id} className="mt-1 text-2xl font-black text-twilight_indigo sm:text-3xl">
+      <h2 id={id} className="mt-1 text-2xl font-black text-twilight_indigo">
         {title}
-      </h3>
+      </h2>
     </div>
   )
 }

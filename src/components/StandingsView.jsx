@@ -22,7 +22,7 @@ export function StandingsView({ standings, onBack }) {
       <div className="mt-5 flex flex-wrap items-end justify-between gap-4 sm:mt-6">
         <div>
           <p className="text-xs font-black uppercase text-burnt_peach-300 sm:text-sm">Group tables</p>
-          <h1 className="mt-1 text-2xl font-black text-twilight_indigo sm:mt-2 sm:text-4xl">World Cup 2026 standings</h1>
+          <h1 className="mt-1 text-2xl font-black text-twilight_indigo sm:mt-2 sm:text-2xl">World Cup 2026 standings</h1>
         </div>
         <p className="rounded bg-muted_teal-900 px-3 py-2 text-sm font-black text-muted_teal-300">
           {standings.length} teams

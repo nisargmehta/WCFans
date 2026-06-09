@@ -11,6 +11,19 @@ import {
 
 const withLatency = (payload) => new Promise((resolve) => setTimeout(() => resolve(payload), 120))
 
+export const buildDashboardPayload = ({ matches, news, fixturePreviews, haircutTracker, standings }) => {
+  const enrichedMatches = sortMatchesByKickoff(mergeMatchesWithFixturePreviews(matches, fixturePreviews))
+
+  return {
+    liveMatches: enrichedMatches.filter((match) => match.status === 'Live'),
+    upcomingMatches: enrichedMatches.filter((match) => match.status === 'Scheduled').slice(0, 10),
+    scheduleMatches: enrichedMatches,
+    news: news.slice(0, 25),
+    haircutTracker,
+    standings,
+  }
+}
+
 export const fetchDashboardData = async () => {
   const supabaseFixtures = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseFixtures().catch(() => [])
   const matches = mapFixtureRowsToMatches(supabaseFixtures)
@@ -18,14 +31,12 @@ export const fetchDashboardData = async () => {
   const fixturePreviews = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseFixturePreviews().catch(() => [])
   const haircutTracker = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseHaircutTracker().catch(() => [])
   const standings = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseStandings().catch(() => [])
-  const enrichedMatches = sortMatchesByKickoff(mergeMatchesWithFixturePreviews(matches, fixturePreviews))
 
-  return withLatency({
-    liveMatches: enrichedMatches.filter((match) => match.status === 'Live'),
-    upcomingMatches: enrichedMatches.slice(0, 10),
-    scheduleMatches: enrichedMatches,
-    news: news.slice(0, 25),
+  return withLatency(buildDashboardPayload({
+    matches,
+    news,
+    fixturePreviews,
     haircutTracker,
     standings,
-  })
+  }))
 }
