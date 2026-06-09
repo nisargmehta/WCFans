@@ -1,7 +1,7 @@
 import { ArrowLeft, CalendarDays } from 'lucide-react'
 import { MatchCard } from './MatchCard'
 
-export function ScheduleView({ matches, onBack }) {
+export function ScheduleView({ matches, onBack, onMatchSelect }) {
   const sortedMatches = [...matches].sort(compareMatchesByKickoff)
 
   const matchesByDate = sortedMatches.reduce((dates, match) => {
@@ -50,7 +50,7 @@ export function ScheduleView({ matches, onBack }) {
               <div className="mt-3 grid gap-3">
                 {[...dateMatches].sort(compareMatchesByKickoff).map((match) => (
                   <div key={match.id}>
-                    <MatchCard match={match} expandable />
+                    <MatchCard match={match} onMatchSelect={onMatchSelect} />
                   </div>
                 ))}
               </div>

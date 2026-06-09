@@ -14,10 +14,12 @@ begin
     from cron.job
     where jobname in (
       'sync-rss-news-every-3-hours',
+      'sync-match-details-every-minute',
       'sync-fixture-previews-every-6-hours',
       'sync-standings-daily'
     )
     or command like '%/functions/v1/sync-rss-news%'
+    or command like '%/functions/v1/sync-match-details%'
     or command like '%/functions/v1/sync-fixtures%'
     or command like '%/functions/v1/sync-fixture-previews%'
     or command like '%/functions/v1/sync-standings%'
@@ -42,11 +44,11 @@ select cron.schedule(
 );
 
 select cron.schedule(
-  'sync-fixture-previews-every-6-hours',
-  '0 */6 * * *',
+  'sync-match-details-every-minute',
+  '* * * * *',
   $$
   select net.http_post(
-    url := 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-fixture-previews',
+    url := 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-match-details',
     headers := jsonb_build_object(
       'Authorization', 'Bearer YOUR_SUPABASE_FUNCTION_JWT',
       'Content-Type', 'application/json'
@@ -75,7 +77,7 @@ select jobid, jobname, schedule
 from cron.job
 where jobname in (
   'sync-rss-news-every-3-hours',
-  'sync-fixture-previews-every-6-hours',
+  'sync-match-details-every-minute',
   'sync-standings-daily'
 )
 order by jobname;

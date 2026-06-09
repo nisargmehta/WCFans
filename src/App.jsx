@@ -4,6 +4,7 @@ import { fetchDashboardData } from './client/api'
 import { HaircutTracker } from './components/HaircutTracker'
 import { LiveScoresTicker } from './components/LiveScoresTicker'
 import { MatchCard } from './components/MatchCard'
+import { MatchDetailsView } from './components/MatchDetailsView'
 import { NewsFeed } from './components/NewsFeed'
 import { ScheduleView } from './components/ScheduleView'
 import { StandingsView } from './components/StandingsView'
@@ -11,8 +12,16 @@ import { StandingsView } from './components/StandingsView'
 function App() {
   const [dashboard, setDashboard] = useState(null)
   const [view, setView] = useState('home')
+  const [selectedMatch, setSelectedMatch] = useState(null)
+  const [matchBackView, setMatchBackView] = useState('home')
   const [matchesExpanded, setMatchesExpanded] = useState(false)
   const [storiesExpanded, setStoriesExpanded] = useState(false)
+
+  const openMatch = (match, backView) => {
+    setSelectedMatch(match)
+    setMatchBackView(backView)
+    setView('match')
+  }
 
   useEffect(() => {
     let active = true
@@ -42,7 +51,23 @@ function App() {
   if (view === 'schedule') {
     return (
       <div className="min-h-screen bg-eggshell text-twilight_indigo">
-        <ScheduleView matches={dashboard.scheduleMatches} onBack={() => setView('home')} />
+        <ScheduleView
+          matches={dashboard.scheduleMatches}
+          onBack={() => setView('home')}
+          onMatchSelect={(match) => openMatch(match, 'schedule')}
+        />
+      </div>
+    )
+  }
+
+  if (view === 'match' && selectedMatch) {
+    return (
+      <div className="min-h-screen bg-eggshell text-twilight_indigo">
+        <MatchDetailsView
+          match={selectedMatch}
+          onBack={() => setView(matchBackView)}
+          backLabel={matchBackView === 'schedule' ? 'Full schedule' : 'Match hub'}
+        />
       </div>
     )
   }
@@ -56,7 +81,7 @@ function App() {
   }
 
   const visibleMatches = matchesExpanded ? dashboard.upcomingMatches : dashboard.upcomingMatches.slice(0, 4)
-  const visibleStories = storiesExpanded ? dashboard.news.slice(0, 25) : dashboard.news.slice(0, 8)
+  const visibleStories = storiesExpanded ? dashboard.news.slice(0, 30) : dashboard.news.slice(0, 8)
 
   return (
     <div className="min-h-screen bg-eggshell text-twilight_indigo">
@@ -71,7 +96,7 @@ function App() {
         </div>
       </header>
 
-      <LiveScoresTicker matches={dashboard.liveMatches} />
+      <LiveScoresTicker matches={dashboard.liveMatches} onMatchSelect={(match) => openMatch(match, 'home')} />
 
       <main className="mx-auto max-w-7xl space-y-7 px-4 py-5 sm:space-y-10 sm:px-6 sm:py-8 lg:px-8">
         <HaircutTracker teams={dashboard.haircutTracker} />
@@ -142,7 +167,7 @@ function App() {
                 className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
                 aria-expanded={storiesExpanded}
               >
-                {storiesExpanded ? 'Show fewer stories' : `See more stories (${Math.min(dashboard.news.length, 25)})`}
+                {storiesExpanded ? 'Show fewer stories' : `See more stories (${Math.min(dashboard.news.length, 30)})`}
                 <ChevronDown aria-hidden="true" className={`h-4 w-4 transition ${storiesExpanded ? 'rotate-180' : ''}`} />
               </button>
             </div>

@@ -42,6 +42,22 @@ export const mapFixtureRowsToMatches = (fixtures) =>
       home: getTeam(fixture.home_team),
       away: getTeam(fixture.away_team),
       score: { home: fixture.home_score, away: fixture.away_score },
+      details: {
+        syncedAt: fixture.match_details_synced_at,
+        homeFormation: fixture.home_formation,
+        awayFormation: fixture.away_formation,
+        homeLineup: fixture.home_lineup ?? [],
+        awayLineup: fixture.away_lineup ?? [],
+        homeBench: fixture.home_bench ?? [],
+        awayBench: fixture.away_bench ?? [],
+        homeStatistics: fixture.home_statistics ?? {},
+        awayStatistics: fixture.away_statistics ?? {},
+        goals: fixture.goals ?? [],
+        bookings: fixture.bookings ?? [],
+        substitutions: fixture.substitutions ?? [],
+        penalties: fixture.penalties ?? [],
+        score: fixture.score_detail ?? {},
+      },
       events: [],
     }
   })

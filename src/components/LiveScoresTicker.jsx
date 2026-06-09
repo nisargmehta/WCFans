@@ -1,6 +1,6 @@
 import { Radio } from 'lucide-react'
 
-export function LiveScoresTicker({ matches }) {
+export function LiveScoresTicker({ matches, onMatchSelect }) {
   const visibleMatches = matches.slice(0, 4)
 
   if (visibleMatches.length === 0) {
@@ -25,7 +25,7 @@ export function LiveScoresTicker({ matches }) {
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {visibleMatches.map((match) => (
-            <LiveScoreCard key={match.id} match={match} />
+            <LiveScoreCard key={match.id} match={match} onMatchSelect={onMatchSelect} />
           ))}
         </div>
       </div>
@@ -33,23 +33,30 @@ export function LiveScoresTicker({ matches }) {
   )
 }
 
-function LiveScoreCard({ match }) {
+function LiveScoreCard({ match, onMatchSelect }) {
   return (
-    <article className="rounded-lg border border-twilight_indigo-900 bg-white p-3 shadow-panel">
-      <div className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-wide text-twilight_indigo-600">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-burnt_peach" aria-hidden="true" />
-          Live
-        </span>
-        <span className="truncate normal-case tracking-normal">{match.group ?? match.round}</span>
-      </div>
-      <div className="mt-3 space-y-2">
-        <ScoreRow team={match.home} score={match.score.home} />
-        <ScoreRow team={match.away} score={match.score.away} />
-      </div>
-      <p className="mt-3 border-t border-twilight_indigo-900 pt-2 text-xs font-bold text-twilight_indigo-600">
-        {formatLiveStatus(match)}
-      </p>
+    <article className="rounded-lg border border-twilight_indigo-900 bg-white shadow-panel">
+      <button
+        type="button"
+        className="w-full rounded-lg p-3 text-left transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach focus:ring-offset-2"
+        onClick={() => onMatchSelect?.(match)}
+      >
+        <div className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-wide text-twilight_indigo-600">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-burnt_peach" aria-hidden="true" />
+            Live
+          </span>
+          <span className="truncate normal-case tracking-normal">{match.group ?? match.round}</span>
+        </div>
+        <div className="mt-3 space-y-2">
+          <ScoreRow team={match.home} score={match.score.home} />
+          <ScoreRow team={match.away} score={match.score.away} />
+        </div>
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-twilight_indigo-900 pt-2 text-xs font-bold text-twilight_indigo-600">
+          <span>{formatLiveStatus(match)}</span>
+          <span className="text-burnt_peach-300">Details</span>
+        </div>
+      </button>
     </article>
   )
 }
@@ -67,7 +74,7 @@ function ScoreRow({ team, score }) {
 
 function formatLiveStatus(match) {
   if (typeof match.minute === 'number') {
-    return `${match.minute}' played`
+    return `${match.minute}'`
   }
 
   return 'In progress'

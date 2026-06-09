@@ -71,7 +71,6 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <TeamName team={team} />
-                  <p className="text-sm text-eggshell-600">Group {team.group}</p>
                 </div>
                 <span
                   className={`rounded px-2 py-1 text-xs font-black uppercase ${

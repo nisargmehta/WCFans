@@ -31,31 +31,26 @@ export const fetchSupabaseNews = async () => {
     'news_articles?select=id,headline,summary,image_url,category,source,url,published_at&order=published_at.desc.nullslast&limit=80',
   )
 
-  return balanceBySource(
-    rows
-      .map((row) => ({
-        id: row.id,
-        headline: row.headline,
-        summary: row.summary,
-        image: row.image_url,
-        category: row.category || row.source || 'News',
-        source: row.source,
-        url: row.url,
-        timestamp: formatTimestamp(row.published_at),
-        publishedAt: row.published_at,
-      }))
-      .filter(isWorldCupArticle),
-  ).slice(0, 25)
+  return rows
+    .map((row) => ({
+      id: row.id,
+      headline: row.headline,
+      summary: row.summary,
+      image: row.image_url,
+      category: row.category || row.source || 'News',
+      source: row.source,
+      url: row.url,
+      timestamp: formatTimestamp(row.published_at),
+      publishedAt: row.published_at,
+    }))
+    .filter(isWorldCupArticle)
+    .sort(compareArticlesByPublishedAt)
+    .slice(0, 30)
 }
-
-export const fetchSupabaseFixturePreviews = async () =>
-  get(
-    'fixture_previews?select=match_id,generated_at,refresh_label,head_to_head_summary,head_to_head_sources,players_to_watch,injuries,updated_at&order=updated_at.desc&limit=200',
-  )
 
 export const fetchSupabaseFixtures = async () =>
   get(
-    'fixtures?select=match_id,kickoff_at,home_team,away_team,group_name,round_name,ground,api_football_fixture_id,football_data_match_id,home_api_football_team_id,away_api_football_team_id,home_football_data_team_id,away_football_data_team_id,status,minute,home_score,away_score,score_winner,source&source=eq.football-data&order=kickoff_at.asc&limit=200',
+    'fixtures?select=match_id,kickoff_at,home_team,away_team,group_name,round_name,ground,api_football_fixture_id,football_data_match_id,home_api_football_team_id,away_api_football_team_id,home_football_data_team_id,away_football_data_team_id,status,minute,home_score,away_score,score_winner,source,match_details_synced_at,home_formation,away_formation,home_lineup,away_lineup,home_bench,away_bench,home_statistics,away_statistics,goals,bookings,substitutions,penalties,score_detail&source=eq.football-data&order=kickoff_at.asc&limit=200',
   )
 
 export const fetchSupabaseStandings = async () =>
@@ -104,26 +99,18 @@ const formatTimestamp = (publishedAt) => {
   return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`
 }
 
-const balanceBySource = (articles) => {
-  const sourceGroups = new Map()
+const compareArticlesByPublishedAt = (first, second) => {
+  const firstTime = getPublishedAtTime(first.publishedAt)
+  const secondTime = getPublishedAtTime(second.publishedAt)
 
-  articles.forEach((article) => {
-    const source = article.source || article.category || 'News'
-    sourceGroups.set(source, [...(sourceGroups.get(source) ?? []), article])
-  })
+  return secondTime - firstTime
+}
 
-  const balancedArticles = []
-  const groups = [...sourceGroups.values()]
-
-  while (balancedArticles.length < articles.length && groups.some((group) => group.length > 0)) {
-    groups.forEach((group) => {
-      const nextArticle = group.shift()
-
-      if (nextArticle) {
-        balancedArticles.push(nextArticle)
-      }
-    })
+const getPublishedAtTime = (publishedAt) => {
+  if (!publishedAt) {
+    return 0
   }
 
-  return balancedArticles
+  const publishedTime = new Date(publishedAt).getTime()
+  return Number.isNaN(publishedTime) ? 0 : publishedTime
 }

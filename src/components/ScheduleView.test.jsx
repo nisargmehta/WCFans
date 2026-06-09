@@ -12,13 +12,17 @@ const matches = [
     kickoffAt: '2026-06-11T19:00:00.000Z',
     group: 'Group A',
     ground: 'Mexico City',
+    status: 'Final',
+    score: { home: 2, away: 1 },
     home: { name: 'Mexico', code: 'MEX', flag: '🇲🇽' },
     away: { name: 'South Africa', code: 'RSA', flag: '🇿🇦' },
-    insights: {
-      refreshLabel: 'Prematch preview refreshed',
-      headToHead: { summary: 'Mexico and South Africa split their previous meetings.', sources: [] },
-      playersToWatch: [{ summary: 'Mexico captain enters in strong form.', sources: [] }],
-      injuries: [{ summary: 'No reported injuries.', sources: [] }],
+    details: {
+      homeFormation: '4-3-3',
+      awayFormation: '4-4-2',
+      homeLineup: [{ id: 1, name: 'Mexico Keeper', position: 'Goalkeeper' }],
+      awayLineup: [{ id: 2, name: 'South Africa Keeper', position: 'Goalkeeper' }],
+      homeStatistics: { shots: 11 },
+      awayStatistics: { shots: 8 },
     },
   },
 ]
@@ -26,15 +30,14 @@ const matches = [
 describe('ScheduleView', () => {
   it('renders schedule fixtures and returns to match hub', async () => {
     const onBack = vi.fn()
+    const onMatchSelect = vi.fn()
     const user = userEvent.setup()
-    render(<ScheduleView matches={matches} onBack={onBack} />)
+    render(<ScheduleView matches={matches} onBack={onBack} onMatchSelect={onMatchSelect} />)
 
     expect(screen.getByRole('heading', { name: /full world cup 2026 schedule/i })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /mexico/i }))
 
-    expect(screen.getByText('Mexico City')).toBeInTheDocument()
-    expect(screen.getByText(/mexico and south africa/i)).toBeInTheDocument()
-    expect(screen.getByText(/mexico captain/i)).toBeInTheDocument()
+    expect(onMatchSelect).toHaveBeenCalledWith(matches[0])
 
     await user.click(screen.getByRole('button', { name: /match hub/i }))
 

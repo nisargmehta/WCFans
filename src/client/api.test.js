@@ -40,7 +40,6 @@ describe('buildDashboardPayload', () => {
     const payload = buildDashboardPayload({
       matches: [scheduledMatch, liveMatch, finalMatch],
       news: [],
-      fixturePreviews: [],
       haircutTracker: [],
       standings: [],
     })
@@ -52,5 +51,19 @@ describe('buildDashboardPayload', () => {
       'live-match',
       'scheduled-match',
     ])
+  })
+
+  it('surfaces up to thirty news stories', () => {
+    const news = Array.from({ length: 35 }, (_, index) => ({ id: `story-${index}` }))
+
+    const payload = buildDashboardPayload({
+      matches: [],
+      news,
+      haircutTracker: [],
+      standings: [],
+    })
+
+    expect(payload.news).toHaveLength(30)
+    expect(payload.news[29].id).toBe('story-29')
   })
 })

@@ -40,17 +40,17 @@ const toRoundName = (match: Record<string, any>) => {
 }
 
 const toFixtureRow = (item: Record<string, any>, fetchedAt: string) => ({
-  match_id: `football-data-${item.id}`,
+  match_id: String(item.id),
   kickoff_at: item.utcDate,
   home_team: item.homeTeam?.name ?? 'TBD',
   away_team: item.awayTeam?.name ?? 'TBD',
   group_name: toGroupName(item.group),
   round_name: toRoundName(item),
   ground: item.venue ?? null,
-  api_football_fixture_id: item.id,
+  api_football_fixture_id: null,
   football_data_match_id: item.id,
-  home_api_football_team_id: item.homeTeam?.id ?? null,
-  away_api_football_team_id: item.awayTeam?.id ?? null,
+  home_api_football_team_id: null,
+  away_api_football_team_id: null,
   home_football_data_team_id: item.homeTeam?.id ?? null,
   away_football_data_team_id: item.awayTeam?.id ?? null,
   status: item.status ?? null,

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { MatchCard } from './MatchCard'
 
 const match = {
@@ -16,11 +16,15 @@ const match = {
   away: { name: 'South Africa', code: 'RSA', flag: '🇿🇦' },
   score: { home: 1, away: 0 },
   events: [],
-  insights: {
-    refreshLabel: 'Prematch preview pending',
-    headToHead: { summary: 'Head-to-head record will appear after the preview job runs.', sources: [] },
-    playersToWatch: [{ summary: 'Mexico forward listed among players to watch.', sources: [] }],
-    injuries: [{ summary: 'Injury updates will appear after the preview job runs.', sources: [] }],
+  details: {
+    homeFormation: '4-3-3',
+    awayFormation: '4-2-3-1',
+    homeLineup: [{ id: 1, name: 'Mexico Keeper', position: 'Goalkeeper', shirtNumber: 1 }],
+    awayLineup: [{ id: 2, name: 'South Africa Keeper', position: 'Goalkeeper', shirtNumber: 1 }],
+    homeBench: [],
+    awayBench: [],
+    homeStatistics: { ball_possession: 55, shots: 9 },
+    awayStatistics: { ball_possession: 45, shots: 6 },
   },
 }
 
@@ -33,18 +37,24 @@ describe('MatchCard', () => {
     expect(screen.queryByText('Mexico City')).not.toBeInTheDocument()
   })
 
-  it('expands and collapses match details when enabled', async () => {
+  it('does not make scheduled matches clickable for detail panels', () => {
+    render(<MatchCard match={{ ...match, status: 'Scheduled', events: [] }} onMatchSelect={vi.fn()} />)
+
+    expect(screen.queryByRole('button', { name: /mexico/i })).not.toBeInTheDocument()
+    expect(screen.queryByText('Mexico City')).not.toBeInTheDocument()
+    expect(screen.queryByText('Lineups')).not.toBeInTheDocument()
+  })
+
+  it('opens full-page match details for live or final matches', async () => {
+    const onMatchSelect = vi.fn()
     const user = userEvent.setup()
-    render(<MatchCard match={{ ...match, status: 'Scheduled', events: [] }} expandable />)
+    const finalMatch = { ...match, status: 'Final' }
+    render(<MatchCard match={finalMatch} onMatchSelect={onMatchSelect} />)
 
-    const toggle = screen.getByRole('button', { name: /mexico/i })
-    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await user.click(screen.getByRole('button', { name: /mexico/i }))
 
-    await user.click(toggle)
-
-    expect(toggle).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText('Mexico City')).toBeInTheDocument()
-    expect(screen.getByText(/mexico forward/i)).toBeInTheDocument()
+    expect(onMatchSelect).toHaveBeenCalledWith(finalMatch)
+    expect(screen.queryByText('Lineups')).not.toBeInTheDocument()
   })
 
   it('shows live score without expanding live matches by default', () => {
