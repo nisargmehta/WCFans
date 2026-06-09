@@ -9,6 +9,31 @@ import {
 
 const withLatency = (payload) => new Promise((resolve) => setTimeout(() => resolve(payload), 120))
 
+const NEWS_STORY_LIMIT = 30
+const NEWS_SOURCE_LIMIT = 3
+
+const getNewsSourceKey = (article) => (article.source || article.category || 'Unknown').toLowerCase()
+
+export const diversifyNewsBySource = (articles, limit = NEWS_STORY_LIMIT, sourceLimit = NEWS_SOURCE_LIMIT) => {
+  const sourceCounts = new Map()
+  const selected = []
+  const skipped = []
+
+  articles.forEach((article) => {
+    const sourceKey = getNewsSourceKey(article)
+    const sourceCount = sourceCounts.get(sourceKey) ?? 0
+
+    if (sourceCount < sourceLimit) {
+      selected.push(article)
+      sourceCounts.set(sourceKey, sourceCount + 1)
+    } else {
+      skipped.push(article)
+    }
+  })
+
+  return [...selected, ...skipped].slice(0, limit)
+}
+
 export const buildDashboardPayload = ({ matches, news, haircutTracker, standings }) => {
   const enrichedMatches = sortMatchesByKickoff(matches)
 
@@ -16,7 +41,7 @@ export const buildDashboardPayload = ({ matches, news, haircutTracker, standings
     liveMatches: enrichedMatches.filter((match) => match.status === 'Live'),
     upcomingMatches: enrichedMatches.filter((match) => match.status === 'Scheduled').slice(0, 10),
     scheduleMatches: enrichedMatches,
-    news: news.slice(0, 30),
+    news: diversifyNewsBySource(news),
     haircutTracker,
     standings,
   }
@@ -36,4 +61,3 @@ export const fetchDashboardData = async () => {
     standings,
   }))
 }
-

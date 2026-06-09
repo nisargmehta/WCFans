@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildDashboardPayload } from './api'
+import { buildDashboardPayload, diversifyNewsBySource } from './api'
 
 const baseMatch = {
   round: 'Matchday 1',
@@ -65,5 +65,24 @@ describe('buildDashboardPayload', () => {
 
     expect(payload.news).toHaveLength(30)
     expect(payload.news[29].id).toBe('story-29')
+  })
+
+  it('limits one source from dominating the top news slots without changing each source order', () => {
+    const news = [
+      ...Array.from({ length: 8 }, (_, index) => ({ id: `espn-${index}`, source: 'ESPN' })),
+      { id: 'guardian-0', source: 'The Guardian' },
+      { id: 'bbc-0', source: 'BBC Sport' },
+    ]
+
+    expect(diversifyNewsBySource(news, 8).map((article) => article.id)).toEqual([
+      'espn-0',
+      'espn-1',
+      'espn-2',
+      'guardian-0',
+      'bbc-0',
+      'espn-3',
+      'espn-4',
+      'espn-5',
+    ])
   })
 })
