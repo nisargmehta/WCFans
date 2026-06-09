@@ -28,6 +28,9 @@ export function StandingsView({ standings, onBack }) {
           {standings.length} teams
         </p>
       </div>
+      <p className="mt-4 rounded bg-white px-3 py-2 text-sm font-bold text-twilight_indigo-600 shadow-panel ring-1 ring-twilight_indigo-900">
+        Standings update after matches are final; in-progress matches are not reflected.
+      </p>
 
       {standings.length === 0 ? (
         <div className="mt-6 rounded-lg border border-twilight_indigo-900 bg-white p-6 text-sm font-bold text-twilight_indigo-600 shadow-panel">

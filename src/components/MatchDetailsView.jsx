@@ -44,6 +44,9 @@ export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
       <section className="mt-5 rounded-lg border border-twilight_indigo-900 bg-white p-4 shadow-panel sm:p-5">
         <MatchDetails match={match} />
       </section>
+      <p className="mt-4 rounded bg-white px-3 py-2 text-sm font-bold text-twilight_indigo-600 shadow-panel ring-1 ring-twilight_indigo-900">
+        Lineups, events, stats, and final data update after the match feed is available/final.
+      </p>
     </main>
   )
 }

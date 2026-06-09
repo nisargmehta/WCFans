@@ -61,6 +61,9 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
           <p className="mt-2 text-sm text-eggshell-600">Until then, every fan keeps their hair.</p>
         </div>
       ) : null}
+      <p className="mt-4 rounded bg-white/10 px-3 py-2 text-sm font-bold text-eggshell-600 ring-1 ring-white/15">
+        Haircut streaks update after standings refresh from final matches; in-progress matches are not reflected.
+      </p>
       {hasTeams ? (
         <div className={expanded ? 'mt-4 grid gap-3 sm:mt-5 sm:grid-cols-2 xl:grid-cols-4' : 'mt-4 flex gap-3 overflow-x-auto pb-1 sm:mt-5'}>
           {visibleTeams.map((team) => (

@@ -19,6 +19,18 @@ type DueFixture = FixtureRow & {
   reason: string
 }
 
+const errorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    return JSON.stringify(error)
+  }
+
+  return String(error)
+}
+
 const fetchFootballData = async (endpoint: string, apiKey: string) => {
   const response = await fetch(`${FOOTBALL_DATA_BASE_URL}${endpoint}`, {
     headers: {
@@ -31,6 +43,23 @@ const fetchFootballData = async (endpoint: string, apiKey: string) => {
   }
 
   return response.json()
+}
+
+const invokeSyncStandings = async (supabaseUrl: string, serviceRoleKey: string) => {
+  const response = await fetch(`${supabaseUrl}/functions/v1/sync-standings`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${serviceRoleKey}`,
+      apikey: serviceRoleKey,
+    },
+  })
+  const payload = await response.json().catch(() => null)
+
+  if (!response.ok || payload?.ok === false) {
+    throw new Error(`sync-standings invoke failed: ${response.status} ${JSON.stringify(payload)}`)
+  }
+
+  return payload
 }
 
 const asDate = (value: string | null) => {
@@ -119,7 +148,9 @@ Deno.serve(async () => {
   const syncedAt = new Date().toISOString()
 
   try {
-    const supabase = createClient(requireEnv('SUPABASE_URL'), firstEnv('SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY'))
+    const supabaseUrl = requireEnv('SUPABASE_URL')
+    const serviceRoleKey = firstEnv('SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY')
+    const supabase = createClient(supabaseUrl, serviceRoleKey)
     const apiKey = requireEnv('FOOTBALL_DATA_API_KEY')
     const now = new Date(syncedAt)
     const liveWindowMinutes = getLiveWindowMinutes()
@@ -158,11 +189,27 @@ Deno.serve(async () => {
           throw updateError
         }
 
+        const shouldSyncStandings = fixture.status !== 'FINISHED' && match.status === 'FINISHED'
+        let standingsSync = null
+
+        if (shouldSyncStandings) {
+          try {
+            standingsSync = await invokeSyncStandings(supabaseUrl, serviceRoleKey)
+          } catch (standingsError) {
+            standingsSync = {
+              ok: false,
+              error: errorMessage(standingsError),
+            }
+          }
+        }
+
         results.push({
           matchId: fixture.match_id,
           footballDataMatchId: fixture.football_data_match_id,
           reason: fixture.reason,
           ok: true,
+          standingsInvoked: shouldSyncStandings,
+          standingsSync,
         })
       } catch (error) {
         results.push({
@@ -170,7 +217,7 @@ Deno.serve(async () => {
           footballDataMatchId: fixture.football_data_match_id,
           reason: fixture.reason,
           ok: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: errorMessage(error),
         })
       }
     }
@@ -183,6 +230,6 @@ Deno.serve(async () => {
       results,
     })
   } catch (error) {
-    return jsonResponse({ ok: false, checkedAt: syncedAt, error: error instanceof Error ? error.message : 'Unknown error' }, 500)
+    return jsonResponse({ ok: false, checkedAt: syncedAt, error: errorMessage(error) }, 500)
   }
 })

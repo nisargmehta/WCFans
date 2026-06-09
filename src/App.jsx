@@ -9,6 +9,8 @@ import { NewsFeed } from './components/NewsFeed'
 import { ScheduleView } from './components/ScheduleView'
 import { StandingsView } from './components/StandingsView'
 
+const DASHBOARD_LIVE_POLL_MS = 30 * 1000
+
 function App() {
   const [dashboard, setDashboard] = useState(null)
   const [view, setView] = useState('home')
@@ -25,17 +27,37 @@ function App() {
 
   useEffect(() => {
     let active = true
+    let pollTimeout = null
 
-    fetchDashboardData().then((data) => {
+    const refreshDashboard = async () => {
+      const data = await fetchDashboardData()
       if (active) {
         setDashboard(data)
+
+        if (data.liveMatches.length > 0) {
+          pollTimeout = window.setTimeout(refreshDashboard, DASHBOARD_LIVE_POLL_MS)
+        }
       }
-    })
+    }
+
+    refreshDashboard()
 
     return () => {
       active = false
+      window.clearTimeout(pollTimeout)
     }
   }, [])
+
+  useEffect(() => {
+    if (!dashboard || !selectedMatch) {
+      return
+    }
+
+    const refreshedMatch = dashboard.scheduleMatches.find((match) => match.id === selectedMatch.id)
+    if (refreshedMatch && refreshedMatch !== selectedMatch) {
+      setSelectedMatch(refreshedMatch)
+    }
+  }, [dashboard, selectedMatch])
 
   if (!dashboard) {
     return (
