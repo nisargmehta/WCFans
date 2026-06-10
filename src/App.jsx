@@ -1,5 +1,6 @@
 import { CalendarDays, ChevronDown, Moon, Sun, Trophy } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { CLICK_EVENTS, trackClick } from './client/analytics'
 import { fetchDashboardData } from './client/api'
 import { HaircutTracker } from './components/HaircutTracker'
 import { LiveScoresTicker } from './components/LiveScoresTicker'
@@ -30,6 +31,17 @@ function App() {
     setSelectedMatch(match)
     setMatchBackView(backView)
     setView('match')
+  }
+
+  const toggleTheme = () => {
+    trackClick(CLICK_EVENTS.THEME_TOGGLE_CLICK, {
+      featureArea: 'theme',
+      pageView: view,
+      metadata: {
+        nextTheme: isDarkMode ? 'light' : 'dark',
+      },
+    })
+    setIsDarkMode((current) => !current)
   }
 
   useEffect(() => {
@@ -71,7 +83,7 @@ function App() {
       <main
         className={`${isDarkMode ? 'dark ' : ''}grid min-h-screen place-items-center bg-eggshell px-4 text-twilight_indigo transition-colors dark:bg-[#090b12] dark:text-eggshell-800`}
       >
-        <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
+        <ThemeToggle isDarkMode={isDarkMode} onToggle={toggleTheme} />
         <div className="text-center">
           <p className="text-xs font-bold uppercase text-burnt_peach-300 dark:text-burnt_peach-600 sm:text-sm">WCFans</p>
           <h1 className="mt-2 text-2xl font-black">Loading the match hub</h1>
@@ -85,7 +97,7 @@ function App() {
       <div
         className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-[#090b12] dark:text-eggshell-800`}
       >
-        <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
+        <ThemeToggle isDarkMode={isDarkMode} onToggle={toggleTheme} />
         <ScheduleView
           matches={dashboard.scheduleMatches}
           onBack={() => setView('home')}
@@ -100,7 +112,7 @@ function App() {
       <div
         className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-[#090b12] dark:text-eggshell-800`}
       >
-        <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
+        <ThemeToggle isDarkMode={isDarkMode} onToggle={toggleTheme} />
         <MatchDetailsView
           match={selectedMatch}
           onBack={() => setView(matchBackView)}
@@ -115,7 +127,7 @@ function App() {
       <div
         className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-[#090b12] dark:text-eggshell-800`}
       >
-        <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
+        <ThemeToggle isDarkMode={isDarkMode} onToggle={toggleTheme} />
         <StandingsView standings={dashboard.standings} onBack={() => setView('home')} />
       </div>
     )
@@ -128,7 +140,7 @@ function App() {
     <div
       className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-[#090b12] dark:text-eggshell-800`}
     >
-      <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
+      <ThemeToggle isDarkMode={isDarkMode} onToggle={toggleTheme} />
       <header className="border-b border-twilight_indigo-900 bg-eggshell-900 transition-colors dark:border-white/10 dark:bg-twilight_indigo-200">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
           <div>
@@ -151,7 +163,13 @@ function App() {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => setView('standings')}
+                onClick={() => {
+                  trackClick(CLICK_EVENTS.STANDINGS_OPEN_CLICK, {
+                    featureArea: 'match_center',
+                    pageView: 'home',
+                  })
+                  setView('standings')
+                }}
                 className="inline-flex h-11 items-center gap-2 rounded bg-white px-4 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
               >
                 <Trophy aria-hidden="true" className="h-4 w-4" />
@@ -159,7 +177,13 @@ function App() {
               </button>
               <button
                 type="button"
-                onClick={() => setView('schedule')}
+                onClick={() => {
+                  trackClick(CLICK_EVENTS.SCHEDULE_OPEN_CLICK, {
+                    featureArea: 'match_center',
+                    pageView: 'home',
+                  })
+                  setView('schedule')
+                }}
                 className="inline-flex h-11 items-center gap-2 rounded bg-white px-4 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
               >
                 <CalendarDays aria-hidden="true" className="h-4 w-4" />
@@ -184,7 +208,16 @@ function App() {
             <div className="mt-4 flex justify-center">
               <button
                 type="button"
-                onClick={() => setMatchesExpanded((current) => !current)}
+                onClick={() => {
+                  trackClick(CLICK_EVENTS.MATCHES_EXPAND_CLICK, {
+                    featureArea: 'match_center',
+                    pageView: 'home',
+                    metadata: {
+                      expandedTo: !matchesExpanded,
+                    },
+                  })
+                  setMatchesExpanded((current) => !current)
+                }}
                 className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
                 aria-expanded={matchesExpanded}
               >
@@ -207,7 +240,16 @@ function App() {
             <div className="mt-4 flex justify-center">
               <button
                 type="button"
-                onClick={() => setStoriesExpanded((current) => !current)}
+                onClick={() => {
+                  trackClick(CLICK_EVENTS.NEWS_EXPAND_CLICK, {
+                    featureArea: 'news_feed',
+                    pageView: 'home',
+                    metadata: {
+                      expandedTo: !storiesExpanded,
+                    },
+                  })
+                  setStoriesExpanded((current) => !current)
+                }}
                 className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
                 aria-expanded={storiesExpanded}
               >

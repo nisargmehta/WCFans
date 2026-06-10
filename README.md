@@ -21,6 +21,7 @@ Apply the migration in `supabase/migrations` to create:
 - `fixture_previews`
 - `standings`
 - `haircut_tracker`
+- `analytics_events`
 
 Seed local World Cup fixtures into Supabase:
 

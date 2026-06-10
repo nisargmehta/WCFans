@@ -1,4 +1,5 @@
 import { Radio } from 'lucide-react'
+import { CLICK_EVENTS, trackClick } from '../client/analytics'
 
 export function LiveScoresTicker({ matches, onMatchSelect }) {
   const visibleMatches = matches.slice(0, 4)
@@ -39,7 +40,19 @@ function LiveScoreCard({ match, onMatchSelect }) {
       <button
         type="button"
         className="w-full rounded-lg p-3 text-left transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach focus:ring-offset-2 dark:hover:bg-twilight_indigo-400 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
-        onClick={() => onMatchSelect?.(match)}
+        onClick={() => {
+          trackClick(CLICK_EVENTS.LIVE_SCORE_CARD_CLICK, {
+            featureArea: 'live_scores',
+            pageView: 'home',
+            targetId: match.id,
+            targetLabel: getMatchLabel(match),
+            metadata: {
+              matchStatus: match.status,
+              minute: match.minute,
+            },
+          })
+          onMatchSelect?.(match)
+        }}
       >
         <div className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-wide text-twilight_indigo-600 dark:text-eggshell-600">
           <span className="inline-flex items-center gap-1.5">
@@ -59,6 +72,10 @@ function LiveScoreCard({ match, onMatchSelect }) {
       </button>
     </article>
   )
+}
+
+function getMatchLabel(match) {
+  return `${match.home.name ?? match.home.code} vs ${match.away.name ?? match.away.code}`
 }
 
 function ScoreRow({ team, score }) {

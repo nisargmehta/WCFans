@@ -1,5 +1,6 @@
 import { ChevronDown, Scissors, Share2 } from 'lucide-react'
 import { useState } from 'react'
+import { CLICK_EVENTS, trackClick } from '../client/analytics'
 import { buildHaircutShareText, CUT_THRESHOLD, getHaircutPunchline } from './haircutTrackerCopy'
 
 const WCFANS_URL = 'https://wc-fans.vercel.app'
@@ -17,6 +18,19 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
     const browserNavigator = window.navigator
     const shareText = `${buildHaircutShareText(team)}\n${WCFANS_URL}`
     const title = `${team.team} haircut tracker`
+    const shareMethod = browserNavigator.share ? 'native_share' : 'clipboard'
+
+    trackClick(CLICK_EVENTS.HAIRCUT_SHARE_CLICK, {
+      featureArea: 'haircut_tracker',
+      pageView: 'home',
+      targetId: team.id,
+      targetLabel: team.team,
+      metadata: {
+        winsInARow: team.winsInARow,
+        canCutHair: team.canCutHair,
+        shareMethod,
+      },
+    })
 
     try {
       if (browserNavigator.share) {
@@ -41,7 +55,16 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
         {hasTeams ? (
           <button
             type="button"
-            onClick={() => setExpanded((current) => !current)}
+            onClick={() => {
+              trackClick(CLICK_EVENTS.HAIRCUT_EXPAND_CLICK, {
+                featureArea: 'haircut_tracker',
+                pageView: 'home',
+                metadata: {
+                  expandedTo: !expanded,
+                },
+              })
+              setExpanded((current) => !current)
+            }}
             className="inline-flex items-center gap-2 rounded bg-eggshell px-4 py-2 text-sm font-black text-twilight_indigo transition hover:bg-eggshell-600 focus:outline-none focus:ring-2 focus:ring-apricot_cream focus:ring-offset-2 focus:ring-offset-twilight_indigo dark:bg-twilight_indigo-300 dark:text-eggshell-800 dark:ring-1 dark:ring-white/10 dark:hover:bg-twilight_indigo-400 dark:focus:ring-apricot_cream-600 dark:focus:ring-offset-twilight_indigo-200"
             aria-expanded={expanded}
           >

@@ -1,5 +1,6 @@
 import { ArrowLeft, Clock, Copy, MapPin, MessageCircle, RefreshCcw, Share2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { CLICK_EVENTS, trackClick } from '../client/analytics'
 import { buildExcuseOptions, buildExcuseShareText, getLosingSide } from './excuseGenerator'
 import { MatchDetails } from './MatchDetails'
 
@@ -21,11 +22,13 @@ export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
   }, [match.id])
 
   const openExcuseGenerator = () => {
+    trackFanDefenseClick(CLICK_EVENTS.FAN_DEFENSE_GENERATE_CLICK)
     setShareStatus('')
     setExcuseIndex(getRandomIndex(excuseOptions))
   }
 
   const regenerateExcuse = () => {
+    trackFanDefenseClick(CLICK_EVENTS.FAN_DEFENSE_REGENERATE_CLICK)
     setShareStatus('')
     setExcuseIndex((current) => getNextIndex(excuseOptions, current))
   }
@@ -36,6 +39,11 @@ export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
     }
 
     const text = buildExcuseShareText(match, losingSide, activeExcuse)
+    const shareMethod = canShareExcuse ? 'native_share' : 'clipboard'
+
+    trackFanDefenseClick(CLICK_EVENTS.FAN_DEFENSE_SHARE_CLICK, {
+      shareMethod,
+    })
 
     try {
       if (canShareExcuse) {
@@ -63,7 +71,18 @@ export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
     <main className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
       <button
         type="button"
-        onClick={onBack}
+        onClick={() => {
+          trackClick(CLICK_EVENTS.MATCH_BACK_CLICK, {
+            featureArea: 'match_details',
+            pageView: 'match',
+            targetId: match.id,
+            targetLabel: getMatchLabel(match),
+            metadata: {
+              backLabel,
+            },
+          })
+          onBack?.()
+        }}
         className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
       >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
@@ -142,6 +161,28 @@ export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
       </p>
     </main>
   )
+
+  function trackFanDefenseClick(eventName, metadata = {}) {
+    if (!losingSide) {
+      return
+    }
+
+    trackClick(eventName, {
+      featureArea: 'match_details',
+      pageView: 'match',
+      targetId: match.id,
+      targetLabel: match[losingSide].name,
+      metadata: {
+        losingSide,
+        matchLabel: getMatchLabel(match),
+        ...metadata,
+      },
+    })
+  }
+}
+
+function getMatchLabel(match) {
+  return `${match.home.name ?? match.home.code} vs ${match.away.name ?? match.away.code}`
 }
 
 function TeamHeading({ team, align = 'left', onGenerateExcuse = null }) {

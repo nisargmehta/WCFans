@@ -1,8 +1,23 @@
 import { ArrowLeft, CalendarDays } from 'lucide-react'
+import { CLICK_EVENTS, trackClick } from '../client/analytics'
 import { MatchCard } from './MatchCard'
 
 export function ScheduleView({ matches, onBack, onMatchSelect }) {
   const sortedMatches = [...matches].sort(compareMatchesByKickoff)
+  const handleMatchSelect = onMatchSelect
+    ? (selectedMatch) => {
+        trackClick(CLICK_EVENTS.SCHEDULE_MATCH_CLICK, {
+          featureArea: 'schedule',
+          pageView: 'schedule',
+          targetId: selectedMatch.id,
+          targetLabel: getMatchLabel(selectedMatch),
+          metadata: {
+            matchStatus: selectedMatch.status,
+          },
+        })
+        onMatchSelect(selectedMatch)
+      }
+    : undefined
 
   const matchesByDate = sortedMatches.reduce((dates, match) => {
     const dateKey = getMatchDateKey(match)
@@ -50,7 +65,7 @@ export function ScheduleView({ matches, onBack, onMatchSelect }) {
               <div className="mt-3 grid gap-3">
                 {[...dateMatches].sort(compareMatchesByKickoff).map((match) => (
                   <div key={match.id}>
-                    <MatchCard match={match} onMatchSelect={onMatchSelect} />
+                    <MatchCard match={match} onMatchSelect={handleMatchSelect} />
                   </div>
                 ))}
               </div>
@@ -60,6 +75,10 @@ export function ScheduleView({ matches, onBack, onMatchSelect }) {
       )}
     </main>
   )
+}
+
+function getMatchLabel(match) {
+  return `${match.home.name ?? match.home.code} vs ${match.away.name ?? match.away.code}`
 }
 
 function compareMatchesByKickoff(first, second) {
