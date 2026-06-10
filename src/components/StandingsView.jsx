@@ -38,55 +38,56 @@ export function StandingsView({ standings, onBack }) {
         </div>
       ) : (
         <div className="mt-5 grid gap-4 sm:mt-6 sm:gap-5 lg:grid-cols-2">
-          {groupEntries.map(([groupName, rows]) => (
-            <section
-              key={groupName}
-              aria-labelledby={`standings-${groupName}`}
-              className="overflow-hidden rounded-lg border border-twilight_indigo-900 bg-white shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200"
-            >
-              <h2
-                id={`standings-${groupName}`}
-                className="flex items-center gap-2 border-b border-twilight_indigo-900 bg-twilight_indigo px-3 py-2 text-sm font-black text-eggshell dark:border-white/10 dark:bg-twilight_indigo-300 dark:text-eggshell-800 sm:px-4 sm:py-3 sm:text-lg"
+          {groupEntries.map(([groupName, rows]) => {
+            const rankedRows = getGroupRankedRows(rows)
+
+            return (
+              <section
+                key={groupName}
+                aria-labelledby={`standings-${groupName}`}
+                className="overflow-hidden rounded-lg border border-twilight_indigo-900 bg-white shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200"
               >
-                <Trophy aria-hidden="true" className="h-4 w-4 text-apricot_cream dark:text-apricot_cream-600 sm:h-5 sm:w-5" />
-                {groupName}
-              </h2>
-              <div>
-                <table className="w-full table-fixed text-left text-[0.68rem] sm:text-sm">
-                  <thead className="bg-eggshell-800 text-[0.62rem] font-black uppercase text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600 sm:text-xs">
-                    <tr>
-                      <th scope="col" className="w-7 px-1 py-1.5 sm:w-10 sm:px-3 sm:py-2">
-                        #
-                      </th>
-                      <th scope="col" className="px-1 py-1.5 sm:px-3 sm:py-2">
-                        Team
-                      </th>
-                      <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
-                        P
-                      </th>
-                      <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
-                        W
-                      </th>
-                      <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
-                        D
-                      </th>
-                      <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
-                        L
-                      </th>
-                      <th scope="col" className="w-8 px-1 py-1.5 text-center sm:w-11 sm:px-3 sm:py-2">
-                        GD
-                      </th>
-                      <th scope="col" className="w-8 px-1 py-1.5 text-center sm:w-11 sm:px-3 sm:py-2">
-                        Pts
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-twilight_indigo-900 dark:divide-white/10">
-                    {rows
-                      .sort((first, second) => (first.rank ?? 999) - (second.rank ?? 999))
-                      .map((row) => (
+                <h2
+                  id={`standings-${groupName}`}
+                  className="flex items-center gap-2 border-b border-twilight_indigo-900 bg-twilight_indigo px-3 py-2 text-sm font-black text-eggshell dark:border-white/10 dark:bg-twilight_indigo-300 dark:text-eggshell-800 sm:px-4 sm:py-3 sm:text-lg"
+                >
+                  <Trophy aria-hidden="true" className="h-4 w-4 text-apricot_cream dark:text-apricot_cream-600 sm:h-5 sm:w-5" />
+                  {groupName}
+                </h2>
+                <div>
+                  <table className="w-full table-fixed text-left text-[0.68rem] sm:text-sm">
+                    <thead className="bg-eggshell-800 text-[0.62rem] font-black uppercase text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600 sm:text-xs">
+                      <tr>
+                        <th scope="col" className="w-7 px-1 py-1.5 sm:w-10 sm:px-3 sm:py-2">
+                          #
+                        </th>
+                        <th scope="col" className="px-1 py-1.5 sm:px-3 sm:py-2">
+                          Team
+                        </th>
+                        <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
+                          P
+                        </th>
+                        <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
+                          W
+                        </th>
+                        <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
+                          D
+                        </th>
+                        <th scope="col" className="w-7 px-1 py-1.5 text-center sm:w-10 sm:px-3 sm:py-2">
+                          L
+                        </th>
+                        <th scope="col" className="w-8 px-1 py-1.5 text-center sm:w-11 sm:px-3 sm:py-2">
+                          GD
+                        </th>
+                        <th scope="col" className="w-8 px-1 py-1.5 text-center sm:w-11 sm:px-3 sm:py-2">
+                          Pts
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-twilight_indigo-900 dark:divide-white/10">
+                      {rankedRows.map(({ groupRank, row }) => (
                         <tr key={row.team_id} className="text-twilight_indigo dark:text-eggshell-800">
-                          <td className="px-1 py-2 font-black sm:px-3 sm:py-3">{row.rank ?? '-'}</td>
+                          <td className="px-1 py-2 font-black sm:px-3 sm:py-3">{groupRank}</td>
                           <td className="px-1 py-2 sm:px-3 sm:py-3">
                             <div className="flex min-w-0 items-center gap-1 sm:gap-2">
                               {row.team_logo ? (
@@ -103,15 +104,22 @@ export function StandingsView({ standings, onBack }) {
                           <td className="px-1 py-2 text-center text-xs font-black sm:px-3 sm:py-3 sm:text-base">{row.points ?? 0}</td>
                         </tr>
                       ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )
+          })}
         </div>
       )}
     </main>
   )
+}
+
+function getGroupRankedRows(rows) {
+  return [...rows]
+    .sort((first, second) => (first.rank ?? 999) - (second.rank ?? 999))
+    .map((row, index) => ({ row, groupRank: index + 1 }))
 }
 
 function formatGoalDiff(value) {
