@@ -63,4 +63,21 @@ describe('MatchCard', () => {
     expect(screen.getByText('1 - 0')).toBeInTheDocument()
     expect(screen.queryByText('Mexico City')).not.toBeInTheDocument()
   })
+
+  it('collapses equivalent knockout stage and round labels', () => {
+    const { container } = render(
+      <MatchCard
+        match={{
+          ...match,
+          group: 'Last 32',
+          round: 'Last32',
+          status: 'Scheduled',
+          score: { home: null, away: null },
+        }}
+      />,
+    )
+
+    expect(screen.getByText('Last 32')).toBeInTheDocument()
+    expect(container).not.toHaveTextContent('Last32')
+  })
 })

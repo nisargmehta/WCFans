@@ -1,9 +1,11 @@
 import { ArrowLeft, CalendarDays } from 'lucide-react'
+import { useEffect, useMemo, useRef } from 'react'
 import { CLICK_EVENTS, trackClick } from '../client/analytics'
 import { MatchCard } from './MatchCard'
 
 export function ScheduleView({ matches, onBack, onMatchSelect }) {
-  const sortedMatches = [...matches].sort(compareMatchesByKickoff)
+  const dateSectionRefs = useRef(new Map())
+  const sortedMatches = useMemo(() => [...matches].sort(compareMatchesByKickoff), [matches])
   const handleMatchSelect = onMatchSelect
     ? (selectedMatch) => {
         trackClick(CLICK_EVENTS.SCHEDULE_MATCH_CLICK, {
@@ -19,13 +21,26 @@ export function ScheduleView({ matches, onBack, onMatchSelect }) {
       }
     : undefined
 
-  const matchesByDate = sortedMatches.reduce((dates, match) => {
-    const dateKey = getMatchDateKey(match)
-    dates[dateKey] = dates[dateKey] ? [...dates[dateKey], match] : [match]
-    return dates
-  }, {})
+  const dateEntries = useMemo(() => {
+    const matchesByDate = sortedMatches.reduce((dates, match) => {
+      const dateKey = getMatchDateKey(match)
+      dates[dateKey] = dates[dateKey] ? [...dates[dateKey], match] : [match]
+      return dates
+    }, {})
 
-  const dateEntries = Object.entries(matchesByDate).sort(([firstDate], [secondDate]) => firstDate.localeCompare(secondDate))
+    return Object.entries(matchesByDate).sort(([firstDate], [secondDate]) => firstDate.localeCompare(secondDate))
+  }, [sortedMatches])
+  const initialScrollDate = getInitialScrollDate(dateEntries.map(([date]) => date), getTodayDateKey())
+
+  useEffect(() => {
+    if (!initialScrollDate) {
+      return
+    }
+
+    dateSectionRefs.current.get(initialScrollDate)?.scrollIntoView?.({
+      block: 'start',
+    })
+  }, [initialScrollDate])
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
@@ -54,7 +69,17 @@ export function ScheduleView({ matches, onBack, onMatchSelect }) {
       ) : (
         <div className="mt-5 space-y-5 sm:mt-6 sm:space-y-6">
           {dateEntries.map(([date, dateMatches]) => (
-            <section key={date} aria-labelledby={`schedule-${date}`}>
+            <section
+              key={date}
+              ref={(element) => {
+                if (element) {
+                  dateSectionRefs.current.set(date, element)
+                } else {
+                  dateSectionRefs.current.delete(date)
+                }
+              }}
+              aria-labelledby={`schedule-${date}`}
+            >
               <h2
                 id={`schedule-${date}`}
                 className="sticky top-0 z-10 flex items-center gap-2 border-y border-twilight_indigo-900 bg-eggshell py-2 text-lg font-black dark:border-white/10 dark:bg-twilight_indigo-100 dark:text-eggshell-800 sm:py-3 sm:text-xl"
@@ -110,6 +135,23 @@ function getMatchDateKey(match) {
   const year = kickoff.getFullYear()
   const month = String(kickoff.getMonth() + 1).padStart(2, '0')
   const day = String(kickoff.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function getInitialScrollDate(dates, todayDateKey) {
+  if (dates.length === 0) {
+    return null
+  }
+
+  return dates.find((date) => date >= todayDateKey) ?? dates[dates.length - 1]
+}
+
+function getTodayDateKey() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
 
   return `${year}-${month}-${day}`
 }

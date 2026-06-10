@@ -24,9 +24,7 @@ export function MatchCard({ match, onMatchSelect }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-2 text-[0.7rem] font-semibold uppercase text-twilight_indigo-600 dark:text-eggshell-600 sm:text-xs">
             <span className="inline-flex items-center gap-2">
-              <span>{match.group}</span>
-              <span aria-hidden="true">/</span>
-              <span>{match.round}</span>
+              {formatStageLabel(match)}
             </span>
             <span className="inline-flex items-center gap-1.5 text-burnt_peach-300 dark:text-burnt_peach-600">
               <Clock aria-hidden="true" className="h-3.5 w-3.5" />
@@ -47,6 +45,31 @@ export function MatchCard({ match, onMatchSelect }) {
       </Summary>
     </article>
   )
+}
+
+function formatStageLabel(match) {
+  const stage = match.group
+  const round = match.round
+
+  if (!stage) {
+    return round
+  }
+
+  if (!round || normalizeLabel(stage) === normalizeLabel(round)) {
+    return stage
+  }
+
+  return (
+    <>
+      <span>{stage}</span>
+      <span aria-hidden="true">/</span>
+      <span>{round}</span>
+    </>
+  )
+}
+
+function normalizeLabel(label) {
+  return String(label).replace(/\s+/g, '').toLowerCase()
 }
 
 function TeamBlock({ team, align }) {

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ScheduleView } from './ScheduleView'
 
 const matches = [
@@ -28,6 +28,10 @@ const matches = [
 ]
 
 describe('ScheduleView', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('renders schedule fixtures and returns to match hub', async () => {
     const onBack = vi.fn()
     const onMatchSelect = vi.fn()
@@ -84,5 +88,40 @@ describe('ScheduleView', () => {
     expect(screen.queryByText('Jun 14 / 6:00 PM PDT')).not.toBeInTheDocument()
     expect(scheduleText.indexOf('Noon Home')).toBeLessThan(scheduleText.indexOf('Three PM Home'))
     expect(scheduleText.indexOf('Three PM Home')).toBeLessThan(scheduleText.indexOf('Six PM Home'))
+  })
+
+  it('scrolls the full schedule to the current match date', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-06-13T09:00:00-07:00'))
+    const scrollIntoView = vi.fn()
+    const originalScrollIntoView = window.HTMLElement.prototype.scrollIntoView
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoView
+    const scheduledMatches = [
+      {
+        ...matches[0],
+        id: 'opening-match',
+        date: '2026-06-11',
+        kickoffAt: '2026-06-11T19:00:00.000Z',
+        home: { name: 'Opening Home', code: 'OPH', flag: '' },
+        away: { name: 'Opening Away', code: 'OPA', flag: '' },
+      },
+      {
+        ...matches[0],
+        id: 'current-match',
+        date: '2026-06-13',
+        kickoffAt: '2026-06-13T19:00:00.000Z',
+        home: { name: 'Current Home', code: 'CUH', flag: '' },
+        away: { name: 'Current Away', code: 'CUA', flag: '' },
+      },
+    ]
+
+    try {
+      render(<ScheduleView matches={scheduledMatches} onBack={vi.fn()} />)
+
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: 'start' })
+      expect(scrollIntoView.mock.contexts[0]).toHaveTextContent('Current Home')
+    } finally {
+      window.HTMLElement.prototype.scrollIntoView = originalScrollIntoView
+    }
   })
 })
