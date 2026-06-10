@@ -69,7 +69,7 @@ function App() {
   if (!dashboard) {
     return (
       <main
-        className={`${isDarkMode ? 'dark ' : ''}grid min-h-screen place-items-center bg-eggshell px-4 text-twilight_indigo transition-colors dark:bg-twilight_indigo-100 dark:text-eggshell-800`}
+        className={`${isDarkMode ? 'dark ' : ''}grid min-h-screen place-items-center bg-eggshell px-4 text-twilight_indigo transition-colors dark:bg-[#090b12] dark:text-eggshell-800`}
       >
         <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
         <div className="text-center">
@@ -83,7 +83,7 @@ function App() {
   if (view === 'schedule') {
     return (
       <div
-        className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-twilight_indigo-100 dark:text-eggshell-800`}
+        className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-[#090b12] dark:text-eggshell-800`}
       >
         <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
         <ScheduleView
@@ -98,7 +98,7 @@ function App() {
   if (view === 'match' && selectedMatch) {
     return (
       <div
-        className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-twilight_indigo-100 dark:text-eggshell-800`}
+        className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-[#090b12] dark:text-eggshell-800`}
       >
         <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
         <MatchDetailsView
@@ -113,7 +113,7 @@ function App() {
   if (view === 'standings') {
     return (
       <div
-        className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-twilight_indigo-100 dark:text-eggshell-800`}
+        className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-[#090b12] dark:text-eggshell-800`}
       >
         <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
         <StandingsView standings={dashboard.standings} onBack={() => setView('home')} />
@@ -126,7 +126,7 @@ function App() {
 
   return (
     <div
-      className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-twilight_indigo-100 dark:text-eggshell-800`}
+      className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-[#090b12] dark:text-eggshell-800`}
     >
       <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
       <header className="border-b border-twilight_indigo-900 bg-eggshell-900 transition-colors dark:border-white/10 dark:bg-twilight_indigo-200">

@@ -1,5 +1,6 @@
 import { mapFixtureRowsToMatches, sortMatchesByKickoff } from '../server/fixtureRows'
 import { fetchRssArticles } from '../server/rssNews'
+import { mockDashboardData } from './mockDashboardData'
 import {
   fetchSupabaseFixtures,
   fetchSupabaseHaircutTracker,
@@ -13,6 +14,8 @@ const NEWS_STORY_LIMIT = 30
 const NEWS_SOURCE_LIMIT = 3
 
 const getNewsSourceKey = (article) => (article.source || article.category || 'Unknown').toLowerCase()
+
+const shouldUseMocks = () => import.meta.env.VITE_USE_MOCKS === 'true'
 
 export const diversifyNewsBySource = (articles, limit = NEWS_STORY_LIMIT, sourceLimit = NEWS_SOURCE_LIMIT) => {
   const sourceCounts = new Map()
@@ -48,6 +51,10 @@ export const buildDashboardPayload = ({ matches, news, haircutTracker, standings
 }
 
 export const fetchDashboardData = async () => {
+  if (shouldUseMocks()) {
+    return withLatency(buildDashboardPayload(mockDashboardData))
+  }
+
   const supabaseFixtures = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseFixtures().catch(() => [])
   const matches = mapFixtureRowsToMatches(supabaseFixtures)
   const news = import.meta.env.MODE === 'test' ? [] : await fetchSupabaseNews().catch(() => fetchRssArticles())

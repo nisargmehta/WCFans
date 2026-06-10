@@ -14,7 +14,7 @@
 
   :root.dark {
     color: #faf9f1;
-    background: #181a25;
+    background: #090b12;
   }
 
   * {
@@ -28,7 +28,7 @@
   }
 
   :root.dark body {
-    background: #181a25;
+    background: #090b12;
   }
 
   button {
@@ -39,5 +39,11 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .dark .shadow-panel {
+    box-shadow:
+      0 22px 70px rgba(0, 0, 0, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 }
