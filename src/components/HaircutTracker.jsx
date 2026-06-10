@@ -32,17 +32,17 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
   }
 
   return (
-    <section className="rounded-lg bg-twilight_indigo p-4 text-eggshell shadow-panel sm:p-5">
+    <section className="rounded-lg bg-twilight_indigo p-4 text-eggshell shadow-panel dark:bg-twilight_indigo-200 dark:ring-1 dark:ring-white/10 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase text-apricot_cream sm:text-sm">Fan challenge</p>
+          <p className="text-xs font-bold uppercase text-apricot_cream dark:text-apricot_cream-600 sm:text-sm">Fan challenge</p>
           <h2 className="mt-1 text-xl font-black sm:text-2xl">Haircut tracker</h2>
         </div>
         {hasTeams ? (
           <button
             type="button"
             onClick={() => setExpanded((current) => !current)}
-            className="inline-flex items-center gap-2 rounded bg-eggshell px-4 py-2 text-sm font-black text-twilight_indigo transition hover:bg-eggshell-600 focus:outline-none focus:ring-2 focus:ring-apricot_cream focus:ring-offset-2 focus:ring-offset-twilight_indigo"
+            className="inline-flex items-center gap-2 rounded bg-eggshell px-4 py-2 text-sm font-black text-twilight_indigo transition hover:bg-eggshell-600 focus:outline-none focus:ring-2 focus:ring-apricot_cream focus:ring-offset-2 focus:ring-offset-twilight_indigo dark:bg-twilight_indigo-300 dark:text-eggshell-800 dark:ring-1 dark:ring-white/10 dark:hover:bg-twilight_indigo-400 dark:focus:ring-apricot_cream-600 dark:focus:ring-offset-twilight_indigo-200"
             aria-expanded={expanded}
           >
             <Scissors aria-hidden="true" className="h-4 w-4" />
@@ -50,12 +50,12 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
             <ChevronDown aria-hidden="true" className={`h-4 w-4 transition ${expanded ? 'rotate-180' : ''}`} />
           </button>
         ) : (
-          <span className="rounded bg-eggshell px-3 py-2 text-xs font-black uppercase text-twilight_indigo">
+          <span className="rounded bg-eggshell px-3 py-2 text-xs font-black uppercase text-twilight_indigo dark:bg-twilight_indigo-300 dark:text-eggshell-800 dark:ring-1 dark:ring-white/10">
             No streak data
           </span>
         )}
       </div>
-      <p className="mt-4 rounded bg-white/10 px-3 py-2 text-sm font-bold text-eggshell-600 ring-1 ring-white/15">
+      <p className="mt-4 rounded bg-white/10 px-3 py-2 text-sm font-bold text-eggshell-600 ring-1 ring-white/15 dark:text-eggshell-700">
         Haircut streaks update after standings refresh from final matches; in-progress matches are not reflected.
       </p>
       {hasTeams ? (
@@ -63,7 +63,7 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
           {visibleTeams.map((team) => (
             <article
               key={team.id}
-              className={`rounded-lg bg-white/10 p-3 ring-1 ring-white/15 sm:p-4 ${expanded ? '' : 'min-w-56 flex-1 sm:min-w-64'}`}
+              className={`rounded-lg bg-white/10 p-3 ring-1 ring-white/15 dark:bg-twilight_indigo-300 sm:p-4 ${expanded ? '' : 'min-w-56 flex-1 sm:min-w-64'}`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -71,7 +71,7 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
                 </div>
                 <span
                   className={`rounded px-2 py-1 text-xs font-black uppercase ${
-                    team.canCutHair ? 'bg-muted_teal text-twilight_indigo-100' : 'bg-eggshell text-twilight_indigo'
+                    team.canCutHair ? 'bg-muted_teal text-twilight_indigo-100 dark:bg-muted_teal-600' : 'bg-eggshell text-twilight_indigo dark:bg-twilight_indigo-400 dark:text-eggshell-800'
                   }`}
                 >
                   {team.canCutHair ? 'Eligible' : `${CUT_THRESHOLD - team.winsInARow} to go`}
@@ -80,19 +80,19 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
               <div className="mt-4" aria-label={`${team.team} winning streak: ${team.winsInARow} of ${CUT_THRESHOLD}`}>
                 <div className="h-2 overflow-hidden rounded bg-white/20">
                   <div
-                    className="h-full rounded bg-apricot_cream"
+                    className="h-full rounded bg-apricot_cream dark:bg-apricot_cream-600"
                     style={{ width: `${Math.min(team.winsInARow, CUT_THRESHOLD) * 20}%` }}
                   />
                 </div>
                 <p className="mt-2 text-sm font-semibold text-eggshell-600">
                   {team.winsInARow}/{CUT_THRESHOLD} wins in a row
                 </p>
-                <p className="mt-2 text-sm font-black text-apricot_cream sm:text-base">{getHaircutPunchline(team.winsInARow)}</p>
+                <p className="mt-2 text-sm font-black text-apricot_cream dark:text-apricot_cream-600 sm:text-base">{getHaircutPunchline(team.winsInARow)}</p>
               </div>
               <button
                 type="button"
                 onClick={() => shareTeam(team)}
-                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded bg-eggshell px-3 py-2 text-sm font-black text-twilight_indigo transition hover:bg-eggshell-600 focus:outline-none focus:ring-2 focus:ring-apricot_cream focus:ring-offset-2 focus:ring-offset-twilight_indigo"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded bg-eggshell px-3 py-2 text-sm font-black text-twilight_indigo transition hover:bg-eggshell-600 focus:outline-none focus:ring-2 focus:ring-apricot_cream focus:ring-offset-2 focus:ring-offset-twilight_indigo dark:bg-twilight_indigo-100 dark:text-eggshell-800 dark:ring-1 dark:ring-white/10 dark:hover:bg-twilight_indigo-400 dark:focus:ring-apricot_cream-600 dark:focus:ring-offset-twilight_indigo-200"
                 aria-label={`Share ${team.team} haircut tracker`}
               >
                 <Share2 aria-hidden="true" className="h-4 w-4" />

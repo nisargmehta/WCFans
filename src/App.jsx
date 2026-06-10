@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronDown, Trophy } from 'lucide-react'
+import { CalendarDays, ChevronDown, Moon, Sun, Trophy } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { fetchDashboardData } from './client/api'
 import { HaircutTracker } from './components/HaircutTracker'
@@ -18,6 +18,13 @@ function App() {
   const [matchBackView, setMatchBackView] = useState('home')
   const [matchesExpanded, setMatchesExpanded] = useState(false)
   const [storiesExpanded, setStoriesExpanded] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(() => getInitialDarkMode())
+
+  useEffect(() => {
+    window.localStorage.setItem('wcfans-theme', isDarkMode ? 'dark' : 'light')
+    document.documentElement.classList.toggle('dark', isDarkMode)
+    document.documentElement.style.colorScheme = isDarkMode ? 'dark' : 'light'
+  }, [isDarkMode])
 
   const openMatch = (match, backView) => {
     setSelectedMatch(match)
@@ -61,9 +68,12 @@ function App() {
 
   if (!dashboard) {
     return (
-      <main className="grid min-h-screen place-items-center bg-eggshell px-4 text-twilight_indigo">
+      <main
+        className={`${isDarkMode ? 'dark ' : ''}grid min-h-screen place-items-center bg-eggshell px-4 text-twilight_indigo transition-colors dark:bg-twilight_indigo-100 dark:text-eggshell-800`}
+      >
+        <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
         <div className="text-center">
-          <p className="text-xs font-bold uppercase text-burnt_peach-300 sm:text-sm">WCFans</p>
+          <p className="text-xs font-bold uppercase text-burnt_peach-300 dark:text-burnt_peach-600 sm:text-sm">WCFans</p>
           <h1 className="mt-2 text-2xl font-black">Loading the match hub</h1>
         </div>
       </main>
@@ -72,7 +82,10 @@ function App() {
 
   if (view === 'schedule') {
     return (
-      <div className="min-h-screen bg-eggshell text-twilight_indigo">
+      <div
+        className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-twilight_indigo-100 dark:text-eggshell-800`}
+      >
+        <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
         <ScheduleView
           matches={dashboard.scheduleMatches}
           onBack={() => setView('home')}
@@ -84,7 +97,10 @@ function App() {
 
   if (view === 'match' && selectedMatch) {
     return (
-      <div className="min-h-screen bg-eggshell text-twilight_indigo">
+      <div
+        className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-twilight_indigo-100 dark:text-eggshell-800`}
+      >
+        <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
         <MatchDetailsView
           match={selectedMatch}
           onBack={() => setView(matchBackView)}
@@ -96,7 +112,10 @@ function App() {
 
   if (view === 'standings') {
     return (
-      <div className="min-h-screen bg-eggshell text-twilight_indigo">
+      <div
+        className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-twilight_indigo-100 dark:text-eggshell-800`}
+      >
+        <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
         <StandingsView standings={dashboard.standings} onBack={() => setView('home')} />
       </div>
     )
@@ -106,12 +125,15 @@ function App() {
   const visibleStories = storiesExpanded ? dashboard.news.slice(0, 30) : dashboard.news.slice(0, 8)
 
   return (
-    <div className="min-h-screen bg-eggshell text-twilight_indigo">
-      <header className="border-b border-twilight_indigo-900 bg-eggshell-900">
+    <div
+      className={`${isDarkMode ? 'dark ' : ''}min-h-screen bg-eggshell text-twilight_indigo transition-colors dark:bg-twilight_indigo-100 dark:text-eggshell-800`}
+    >
+      <ThemeToggle isDarkMode={isDarkMode} onToggle={() => setIsDarkMode((current) => !current)} />
+      <header className="border-b border-twilight_indigo-900 bg-eggshell-900 transition-colors dark:border-white/10 dark:bg-twilight_indigo-200">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
           <div>
-            <p className="text-xs font-black uppercase text-burnt_peach-300 sm:text-sm">FIFA World Cup 2026</p>
-            <h1 className="mt-1 max-w-3xl text-2xl font-black leading-tight text-twilight_indigo sm:mt-2 sm:text-2xl">
+            <p className="text-xs font-black uppercase text-burnt_peach-300 dark:text-burnt_peach-600 sm:text-sm">FIFA World Cup 2026</p>
+            <h1 className="mt-1 max-w-3xl text-2xl font-black leading-tight text-twilight_indigo dark:text-eggshell-800 sm:mt-2 sm:text-2xl">
               News, scores & fan rituals.
             </h1>
           </div>
@@ -130,7 +152,7 @@ function App() {
               <button
                 type="button"
                 onClick={() => setView('standings')}
-                className="inline-flex h-11 items-center gap-2 rounded bg-white px-4 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
+                className="inline-flex h-11 items-center gap-2 rounded bg-white px-4 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
               >
                 <Trophy aria-hidden="true" className="h-4 w-4" />
                 Standings
@@ -138,7 +160,7 @@ function App() {
               <button
                 type="button"
                 onClick={() => setView('schedule')}
-                className="inline-flex h-11 items-center gap-2 rounded bg-white px-4 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
+                className="inline-flex h-11 items-center gap-2 rounded bg-white px-4 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
               >
                 <CalendarDays aria-hidden="true" className="h-4 w-4" />
                 Full schedule
@@ -153,7 +175,7 @@ function App() {
                 </div>
               ))
             ) : (
-              <div className="mb-4 break-inside-avoid rounded-lg border border-twilight_indigo-900 bg-white p-6 text-sm font-bold text-twilight_indigo-600 shadow-panel">
+              <div className="mb-4 break-inside-avoid rounded-lg border border-twilight_indigo-900 bg-white p-6 text-sm font-bold text-twilight_indigo-600 shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200 dark:text-eggshell-600">
                 Fixtures will appear here once Supabase has schedule rows.
               </div>
             )}
@@ -163,7 +185,7 @@ function App() {
               <button
                 type="button"
                 onClick={() => setMatchesExpanded((current) => !current)}
-                className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
+                className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
                 aria-expanded={matchesExpanded}
               >
                 {matchesExpanded ? 'Show fewer matches' : 'Show more matches'}
@@ -186,7 +208,7 @@ function App() {
               <button
                 type="button"
                 onClick={() => setStoriesExpanded((current) => !current)}
-                className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
+                className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
                 aria-expanded={storiesExpanded}
               >
                 {storiesExpanded ? 'Show fewer stories' : `See more stories (${Math.min(dashboard.news.length, 30)})`}
@@ -203,12 +225,43 @@ function App() {
 function SectionTitle({ id, eyebrow, title }) {
   return (
     <div>
-      <p className="text-xs font-black uppercase text-burnt_peach-300 sm:text-sm">{eyebrow}</p>
-      <h2 id={id} className="mt-1 text-2xl font-black text-twilight_indigo">
+      <p className="text-xs font-black uppercase text-burnt_peach-300 dark:text-burnt_peach-600 sm:text-sm">{eyebrow}</p>
+      <h2 id={id} className="mt-1 text-2xl font-black text-twilight_indigo dark:text-eggshell-800">
         {title}
       </h2>
     </div>
   )
+}
+
+function ThemeToggle({ isDarkMode, onToggle }) {
+  const Icon = isDarkMode ? Sun : Moon
+  const label = isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'
+
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="fixed right-4 top-4 z-50 inline-flex h-11 w-11 items-center justify-center rounded bg-white text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-300 dark:text-eggshell-800 dark:ring-white/15 dark:hover:bg-twilight_indigo-400 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
+      aria-label={label}
+      title={label}
+    >
+      <Icon aria-hidden="true" className="h-5 w-5" />
+    </button>
+  )
+}
+
+function getInitialDarkMode() {
+  const storedTheme = window.localStorage.getItem('wcfans-theme')
+
+  if (storedTheme === 'dark') {
+    return true
+  }
+
+  if (storedTheme === 'light') {
+    return false
+  }
+
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
 }
 
 export default App

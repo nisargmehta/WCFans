@@ -25,40 +25,40 @@ export function MatchDetails({ match }) {
   return (
     <div className="space-y-5">
       <section aria-labelledby={`${match.id}-stats-heading`}>
-        <h3 id={`${match.id}-stats-heading`} className="text-lg font-black text-twilight_indigo">
+        <h3 id={`${match.id}-stats-heading`} className="text-lg font-black text-twilight_indigo dark:text-eggshell-800">
           Stats
         </h3>
         {statRows.length > 0 ? (
           <div className="mt-2 space-y-2">
             {statRows.map((stat) => (
               <div key={stat.key} className="grid grid-cols-[3rem_minmax(0,1fr)_3rem] items-center gap-3 text-sm">
-                <span className="text-right font-black text-twilight_indigo">{formatStatValue(stat.home, stat.key)}</span>
+                <span className="text-right font-black text-twilight_indigo dark:text-eggshell-800">{formatStatValue(stat.home, stat.key)}</span>
                 <div>
-                  <p className="text-center text-xs font-bold uppercase text-twilight_indigo-600">{stat.label}</p>
-                  <div className="mt-1 grid h-1.5 grid-cols-2 overflow-hidden rounded bg-eggshell-800">
+                  <p className="text-center text-xs font-bold uppercase text-twilight_indigo-600 dark:text-eggshell-600">{stat.label}</p>
+                  <div className="mt-1 grid h-1.5 grid-cols-2 overflow-hidden rounded bg-eggshell-800 dark:bg-twilight_indigo-300">
                     <div className="bg-muted_teal" style={{ width: `${stat.homeShare}%`, justifySelf: 'end' }} />
                     <div className="bg-burnt_peach" style={{ width: `${stat.awayShare}%` }} />
                   </div>
                 </div>
-                <span className="font-black text-twilight_indigo">{formatStatValue(stat.away, stat.key)}</span>
+                <span className="font-black text-twilight_indigo dark:text-eggshell-800">{formatStatValue(stat.away, stat.key)}</span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600">
+          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
             Stats will appear once the match feed updates.
           </p>
         )}
       </section>
 
       <section aria-labelledby={`${match.id}-timeline-heading`}>
-        <h3 id={`${match.id}-timeline-heading`} className="text-lg font-black text-twilight_indigo">
+        <h3 id={`${match.id}-timeline-heading`} className="text-lg font-black text-twilight_indigo dark:text-eggshell-800">
           Timeline
         </h3>
         {timelineEvents.length > 0 ? (
           <Timeline events={timelineEvents} />
         ) : (
-          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600">
+          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
             Match events will appear once Football-Data publishes goals, cards, and substitutions.
           </p>
         )}
@@ -66,14 +66,14 @@ export function MatchDetails({ match }) {
 
       <section aria-labelledby={`${match.id}-lineups-heading`}>
         <div className="flex items-center justify-between gap-3">
-          <h3 id={`${match.id}-lineups-heading`} className="text-lg font-black text-twilight_indigo">
+          <h3 id={`${match.id}-lineups-heading`} className="text-lg font-black text-twilight_indigo dark:text-eggshell-800">
             Lineups
           </h3>
           {hasLineups ? (
             <button
               type="button"
               onClick={() => setLineupsExpanded((current) => !current)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded border border-twilight_indigo-900 bg-white text-twilight_indigo transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach"
+              className="inline-flex h-9 w-9 items-center justify-center rounded border border-twilight_indigo-900 bg-white text-twilight_indigo transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach dark:border-white/10 dark:bg-twilight_indigo-300 dark:text-eggshell-800 dark:hover:bg-twilight_indigo-400 dark:focus:ring-burnt_peach-600"
               aria-controls={lineupsContentId}
               aria-expanded={lineupsExpanded}
               aria-label={lineupsExpanded ? 'Collapse lineups' : 'Expand lineups'}
@@ -83,7 +83,7 @@ export function MatchDetails({ match }) {
           ) : null}
         </div>
         {!hasLineups ? (
-          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600">
+          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
             Lineups will appear after Football-Data publishes match details.
           </p>
         ) : null}
@@ -110,7 +110,7 @@ export function MatchDetails({ match }) {
 
 function Timeline({ events }) {
   return (
-    <ol className="relative mt-3 overflow-hidden rounded-lg bg-twilight_indigo px-3 py-4 text-eggshell shadow-inner sm:px-4">
+    <ol className="relative mt-3 overflow-hidden rounded-lg bg-twilight_indigo px-3 py-4 text-eggshell shadow-inner dark:bg-twilight_indigo-300 dark:text-eggshell-800 sm:px-4">
       <span aria-hidden="true" className="absolute left-1/2 top-4 h-[calc(100%-2rem)] w-px -translate-x-1/2 bg-white/15" />
       {events.map((event) => (
         <TimelineItem key={event.id} event={event} />
@@ -124,7 +124,7 @@ function TimelineItem({ event }) {
     return (
       <li className="relative grid grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] items-center gap-2 py-4">
         <span className="h-px bg-white/15" aria-hidden="true" />
-        <span className="z-10 flex h-12 w-12 items-center justify-center rounded-full border-4 border-white/40 bg-twilight_indigo text-sm font-black">
+        <span className="z-10 flex h-12 w-12 items-center justify-center rounded-full border-4 border-white/40 bg-twilight_indigo text-sm font-black dark:bg-twilight_indigo-300">
           HT
         </span>
         <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ function TimelineItem({ event }) {
 }
 
 function TimelineMinute({ minute }) {
-  return <span className="shrink-0 pt-1 text-base font-black text-eggshell sm:text-lg">{minute}</span>
+  return <span className="shrink-0 pt-1 text-base font-black text-eggshell dark:text-eggshell-800 sm:text-lg">{minute}</span>
 }
 
 function TimelineEventText({ event, align }) {
@@ -171,11 +171,11 @@ function TimelineEventText({ event, align }) {
 
   return (
     <div className={`flex min-w-0 flex-col ${alignClass}`}>
-      <p className="max-w-full truncate text-base font-black text-eggshell sm:text-lg">
+      <p className="max-w-full truncate text-base font-black text-eggshell dark:text-eggshell-800 sm:text-lg">
         {event.title}
         {event.score ? <span className="text-emerald-400"> ({event.score})</span> : null}
       </p>
-      {event.detail ? <p className="max-w-full truncate text-sm font-semibold text-white/55 sm:text-base">{event.detail}</p> : null}
+      {event.detail ? <p className="max-w-full truncate text-sm font-semibold text-white/55 dark:text-eggshell-600 sm:text-base">{event.detail}</p> : null}
     </div>
   )
 }
@@ -200,31 +200,31 @@ function TimelineIcon({ event }) {
   }
 
   return (
-    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-eggshell ring-1 ring-white/20" aria-hidden="true">
-      <Circle className="h-5 w-5 fill-eggshell stroke-eggshell" />
+    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-eggshell ring-1 ring-white/20 dark:text-eggshell-800" aria-hidden="true">
+      <Circle className="h-5 w-5 fill-eggshell stroke-eggshell dark:fill-eggshell-800 dark:stroke-eggshell-800" />
     </span>
   )
 }
 
 function TeamSheet({ team, formation, lineup = [], bench = [] }) {
   return (
-    <div className="rounded border border-twilight_indigo-900 bg-eggshell-900 p-3">
+    <div className="rounded border border-twilight_indigo-900 bg-eggshell-900 p-3 dark:border-white/10 dark:bg-twilight_indigo-300">
       <div className="flex items-center justify-between gap-3">
-        <h5 className="truncate text-sm font-black text-twilight_indigo">
+        <h5 className="truncate text-sm font-black text-twilight_indigo dark:text-eggshell-800">
           <span aria-hidden="true">{team.flag}</span> {team.name}
         </h5>
-        {formation ? <span className="rounded bg-white px-2 py-1 text-xs font-black text-twilight_indigo">{formation}</span> : null}
+        {formation ? <span className="rounded bg-white px-2 py-1 text-xs font-black text-twilight_indigo dark:bg-twilight_indigo-100 dark:text-eggshell-800">{formation}</span> : null}
       </div>
-      <ol className="mt-3 space-y-1 text-sm text-twilight_indigo">
+      <ol className="mt-3 space-y-1 text-sm text-twilight_indigo dark:text-eggshell-800">
         {lineup.map((player) => (
           <li key={player.id ?? player.name} className="flex items-center justify-between gap-3">
             <span className="truncate font-semibold">{player.name}</span>
-            <span className="shrink-0 text-xs font-bold text-twilight_indigo-600">{player.position ?? player.shirtNumber ?? ''}</span>
+            <span className="shrink-0 text-xs font-bold text-twilight_indigo-600 dark:text-eggshell-600">{player.position ?? player.shirtNumber ?? ''}</span>
           </li>
         ))}
       </ol>
       {bench.length > 0 ? (
-        <p className="mt-3 text-xs font-bold text-twilight_indigo-600">
+        <p className="mt-3 text-xs font-bold text-twilight_indigo-600 dark:text-eggshell-600">
           Bench: {bench.slice(0, 5).map((player) => player.name).join(', ')}
           {bench.length > 5 ? '...' : ''}
         </p>

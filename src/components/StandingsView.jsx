@@ -14,26 +14,26 @@ export function StandingsView({ standings, onBack }) {
       <button
         type="button"
         onClick={onBack}
-        className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2"
+        className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
       >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         Match hub
       </button>
       <div className="mt-5 flex flex-wrap items-end justify-between gap-4 sm:mt-6">
         <div>
-          <p className="text-xs font-black uppercase text-burnt_peach-300 sm:text-sm">Group tables</p>
-          <h1 className="mt-1 text-2xl font-black text-twilight_indigo sm:mt-2 sm:text-2xl">World Cup 2026 standings</h1>
+          <p className="text-xs font-black uppercase text-burnt_peach-300 dark:text-burnt_peach-600 sm:text-sm">Group tables</p>
+          <h1 className="mt-1 text-2xl font-black text-twilight_indigo dark:text-eggshell-800 sm:mt-2 sm:text-2xl">World Cup 2026 standings</h1>
         </div>
-        <p className="rounded bg-muted_teal-900 px-3 py-2 text-sm font-black text-muted_teal-300">
+        <p className="rounded bg-muted_teal-900 px-3 py-2 text-sm font-black text-muted_teal-300 dark:bg-muted_teal-100 dark:text-muted_teal-700">
           {standings.length} teams
         </p>
       </div>
-      <p className="mt-4 rounded bg-white px-3 py-2 text-sm font-bold text-twilight_indigo-600 shadow-panel ring-1 ring-twilight_indigo-900">
+      <p className="mt-4 rounded bg-white px-3 py-2 text-sm font-bold text-twilight_indigo-600 shadow-panel ring-1 ring-twilight_indigo-900 dark:bg-twilight_indigo-200 dark:text-eggshell-600 dark:ring-white/10">
         Standings update after matches are final; in-progress matches are not reflected.
       </p>
 
       {standings.length === 0 ? (
-        <div className="mt-6 rounded-lg border border-twilight_indigo-900 bg-white p-6 text-sm font-bold text-twilight_indigo-600 shadow-panel">
+        <div className="mt-6 rounded-lg border border-twilight_indigo-900 bg-white p-6 text-sm font-bold text-twilight_indigo-600 shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200 dark:text-eggshell-600">
           Standings will appear here once Supabase has group table rows.
         </div>
       ) : (
@@ -42,18 +42,18 @@ export function StandingsView({ standings, onBack }) {
             <section
               key={groupName}
               aria-labelledby={`standings-${groupName}`}
-              className="overflow-hidden rounded-lg border border-twilight_indigo-900 bg-white shadow-panel"
+              className="overflow-hidden rounded-lg border border-twilight_indigo-900 bg-white shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200"
             >
               <h2
                 id={`standings-${groupName}`}
-                className="flex items-center gap-2 border-b border-twilight_indigo-900 bg-twilight_indigo px-3 py-2 text-sm font-black text-eggshell sm:px-4 sm:py-3 sm:text-lg"
+                className="flex items-center gap-2 border-b border-twilight_indigo-900 bg-twilight_indigo px-3 py-2 text-sm font-black text-eggshell dark:border-white/10 dark:bg-twilight_indigo-300 dark:text-eggshell-800 sm:px-4 sm:py-3 sm:text-lg"
               >
-                <Trophy aria-hidden="true" className="h-4 w-4 text-apricot_cream sm:h-5 sm:w-5" />
+                <Trophy aria-hidden="true" className="h-4 w-4 text-apricot_cream dark:text-apricot_cream-600 sm:h-5 sm:w-5" />
                 {groupName}
               </h2>
               <div>
                 <table className="w-full table-fixed text-left text-[0.68rem] sm:text-sm">
-                  <thead className="bg-eggshell-800 text-[0.62rem] font-black uppercase text-twilight_indigo-600 sm:text-xs">
+                  <thead className="bg-eggshell-800 text-[0.62rem] font-black uppercase text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600 sm:text-xs">
                     <tr>
                       <th scope="col" className="w-7 px-1 py-1.5 sm:w-10 sm:px-3 sm:py-2">
                         #
@@ -81,16 +81,16 @@ export function StandingsView({ standings, onBack }) {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-twilight_indigo-900">
+                  <tbody className="divide-y divide-twilight_indigo-900 dark:divide-white/10">
                     {rows
                       .sort((first, second) => (first.rank ?? 999) - (second.rank ?? 999))
                       .map((row) => (
-                        <tr key={row.team_id} className="text-twilight_indigo">
+                        <tr key={row.team_id} className="text-twilight_indigo dark:text-eggshell-800">
                           <td className="px-1 py-2 font-black sm:px-3 sm:py-3">{row.rank ?? '-'}</td>
                           <td className="px-1 py-2 sm:px-3 sm:py-3">
                             <div className="flex min-w-0 items-center gap-1 sm:gap-2">
                               {row.team_logo ? (
-                                <img className="h-4 w-4 shrink-0 rounded-full bg-eggshell object-contain sm:h-6 sm:w-6" src={row.team_logo} alt="" />
+                                <img className="h-4 w-4 shrink-0 rounded-full bg-eggshell object-contain dark:bg-white sm:h-6 sm:w-6" src={row.team_logo} alt="" />
                               ) : null}
                               <span className="truncate font-black">{row.team_name}</span>
                             </div>
