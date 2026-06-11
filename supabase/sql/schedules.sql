@@ -15,6 +15,7 @@ begin
     where jobname in (
       'sync-rss-news-every-3-hours',
       'sync-match-details-every-minute',
+      'sync-match-details-when-active',
       'sync-fixture-previews-every-6-hours',
       'sync-standings-daily',
       'sync-standings-every-10-minutes'
@@ -45,7 +46,7 @@ select cron.schedule(
 );
 
 select cron.schedule(
-  'sync-match-details-every-minute',
+  'sync-match-details-when-active',
   '* * * * *',
   $$
   select net.http_post(
@@ -55,6 +56,13 @@ select cron.schedule(
       'Content-Type', 'application/json'
     ),
     body := '{}'::jsonb
+  )
+  where exists (
+    select 1
+    from public.fixtures
+    where football_data_match_id is not null
+      and coalesce(status, '') not in ('FINISHED', 'AWARDED', 'CANCELLED', 'CANCELED', 'POSTPONED', 'SUSPENDED')
+      and kickoff_at between now() - interval '180 minutes' and now() + interval '60 minutes'
   );
   $$
 );
@@ -78,7 +86,7 @@ select jobid, jobname, schedule
 from cron.job
 where jobname in (
   'sync-rss-news-every-3-hours',
-  'sync-match-details-every-minute',
+  'sync-match-details-when-active',
   'sync-standings-every-10-minutes'
 )
 order by jobname;

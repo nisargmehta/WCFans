@@ -75,7 +75,7 @@ Deno.serve(async () => {
     const rows = (data.matches ?? []).map((item: Record<string, any>) => toFixtureRow(item, fetchedAt))
 
     if (rows.length > 0) {
-      const { error } = await supabase.from('fixtures').upsert(rows, { onConflict: 'match_id' })
+      const { error } = await supabase.from('fixtures').upsert(rows, { onConflict: 'football_data_match_id' })
 
       if (error) {
         throw error

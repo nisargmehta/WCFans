@@ -3,6 +3,8 @@ import { firstEnv, jsonResponse, requireEnv } from '../_shared/http.ts'
 
 const FOOTBALL_DATA_BASE_URL = 'https://api.football-data.org/v4'
 const PREMATCH_REFRESH_MINUTES = [55, 30]
+const PREMATCH_LINEUP_WINDOW_MINUTES = 60
+const PREMATCH_LINEUP_REFRESH_INTERVAL_MS = 5 * 60 * 1000
 const DEFAULT_LIVE_WINDOW_MINUTES = 180
 const LIVE_REFRESH_INTERVAL_MS = 60 * 1000
 const TERMINAL_STATUSES = new Set(['FINISHED', 'AWARDED', 'CANCELLED', 'CANCELED', 'POSTPONED', 'SUSPENDED'])
@@ -13,6 +15,8 @@ type FixtureRow = {
   status: string | null
   football_data_match_id: number | null
   match_details_last_checked_at: string | null
+  home_lineup: unknown[] | null
+  away_lineup: unknown[] | null
 }
 
 type DueFixture = FixtureRow & {
@@ -78,6 +82,10 @@ const getLiveWindowMinutes = () => {
 
 const isTerminalStatus = (status: string | null) => Boolean(status && TERMINAL_STATUSES.has(status))
 
+const hasPublishedLineups = (fixture: FixtureRow) =>
+  (Array.isArray(fixture.home_lineup) && fixture.home_lineup.length > 0) ||
+  (Array.isArray(fixture.away_lineup) && fixture.away_lineup.length > 0)
+
 const getDueReason = (fixture: FixtureRow, now: Date, liveWindowMinutes: number) => {
   if (!fixture.football_data_match_id || isTerminalStatus(fixture.status)) {
     return null
@@ -94,6 +102,16 @@ const getDueReason = (fixture: FixtureRow, now: Date, liveWindowMinutes: number)
   const kickoffTime = kickoffAt.getTime()
 
   if (nowTime < kickoffTime) {
+    const lineupWindowStart = kickoffTime - PREMATCH_LINEUP_WINDOW_MINUTES * 60 * 1000
+    if (!hasPublishedLineups(fixture) && nowTime >= lineupWindowStart) {
+      const hasNeverChecked = lastCheckedTime === 0
+      const refreshIntervalElapsed = nowTime - lastCheckedTime >= PREMATCH_LINEUP_REFRESH_INTERVAL_MS
+
+      if (hasNeverChecked || refreshIntervalElapsed) {
+        return 'prematch-lineups'
+      }
+    }
+
     const duePrematchRefresh = PREMATCH_REFRESH_MINUTES.some((minutesBeforeKickoff) => {
       const targetTime = kickoffTime - minutesBeforeKickoff * 60 * 1000
       return nowTime >= targetTime && lastCheckedTime < targetTime
@@ -159,7 +177,7 @@ Deno.serve(async () => {
 
     const { data: fixtures, error } = await supabase
       .from('fixtures')
-      .select('match_id,kickoff_at,status,football_data_match_id,match_details_last_checked_at')
+      .select('match_id,kickoff_at,status,football_data_match_id,match_details_last_checked_at,home_lineup,away_lineup')
       .not('football_data_match_id', 'is', null)
       .gte('kickoff_at', lowerBound)
       .lte('kickoff_at', upperBound)

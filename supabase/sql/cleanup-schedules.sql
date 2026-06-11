@@ -11,6 +11,7 @@ begin
       'sync-rss-news-every-3-hours',
       'sync-fixtures-daily',
       'sync-match-details-every-minute',
+      'sync-match-details-when-active',
       'sync-fixture-previews-every-6-hours',
       'sync-standings-daily',
       'sync-standings-every-10-minutes'

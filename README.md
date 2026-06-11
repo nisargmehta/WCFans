@@ -70,7 +70,7 @@ The default RSS feeds are public ESPN, Guardian, and BBC football feeds. Fox Spo
 Enable schedules with `supabase/sql/schedules.sql`, replacing `YOUR_SUPABASE_FUNCTION_JWT` with the project's anon JWT or service-role JWT:
 
 - `sync-rss-news`: every 3 hours
-- `sync-match-details`: every minute; internally calls football-data.org only at 55 minutes before kickoff, 30 minutes before kickoff, and once per minute after kickoff until the match is terminal or outside the live window
+- `sync-match-details`: cron checks every minute, but only invokes the Edge Function when a Football-Data fixture is within 60 minutes before kickoff through 180 minutes after kickoff. The function then calls football-data.org every 5 minutes while pre-match lineups are missing, and once per minute after kickoff until the match is terminal or outside the live window.
 - `sync-standings`: every 10 minutes
 
 Do not schedule `sync-fixtures` daily during group-stage setup. If you want automated fixture refreshes once knockout teams start resolving, use `supabase/sql/knockout-fixture-refresh.sql` near June 27, 2026.
