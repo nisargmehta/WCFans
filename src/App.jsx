@@ -1,6 +1,6 @@
 import { CalendarDays, ChevronDown, Moon, Sun, Trophy } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { CLICK_EVENTS, trackClick } from './client/analytics'
+import { CLICK_EVENTS, trackAppLaunch, trackClick } from './client/analytics'
 import { fetchDashboardData } from './client/api'
 import { HaircutTracker } from './components/HaircutTracker'
 import { LiveScoresTicker } from './components/LiveScoresTicker'
@@ -20,6 +20,10 @@ function App() {
   const [matchesExpanded, setMatchesExpanded] = useState(false)
   const [storiesExpanded, setStoriesExpanded] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(() => getInitialDarkMode())
+
+  useEffect(() => {
+    trackAppLaunch()
+  }, [])
 
   useEffect(() => {
     window.localStorage.setItem('wcfans-theme', isDarkMode ? 'dark' : 'light')

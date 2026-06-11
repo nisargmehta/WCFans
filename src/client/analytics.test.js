@@ -48,7 +48,31 @@ describe('analytics', () => {
       feature_area: 'match_center',
       page_view: 'home',
     })
+    expect(events[0].visitor_id).toEqual(expect.any(String))
+    expect(events[0].session_id).toEqual(expect.any(String))
     expect(window.localStorage.getItem('wcfans-analytics-queue')).toBe('[]')
+  })
+
+  it('tracks one app launch per page session with a persistent visitor id', async () => {
+    const { flushAnalytics, trackAppLaunch } = await importAnalytics()
+
+    trackAppLaunch()
+    trackAppLaunch()
+    await flushAnalytics()
+
+    expect(fetch).toHaveBeenCalledOnce()
+
+    const events = JSON.parse(fetch.mock.calls[0][1].body)
+
+    expect(events).toHaveLength(1)
+    expect(events[0]).toMatchObject({
+      event_type: 'app_launch',
+      event_name: 'app_launch',
+      feature_area: 'app',
+      page_view: 'app',
+    })
+    expect(events[0].visitor_id).toBe(window.localStorage.getItem('wcfans-analytics-visitor'))
+    expect(events[0].session_id).toEqual(expect.any(String))
   })
 
   it('flushes queued clicks every minute', async () => {

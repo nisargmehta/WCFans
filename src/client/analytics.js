@@ -4,7 +4,8 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL
 const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY
 
 const ANALYTICS_QUEUE_KEY = 'wcfans-analytics-queue'
-const ANALYTICS_SESSION_KEY = 'wcfans-analytics-session'
+const ANALYTICS_VISITOR_KEY = 'wcfans-analytics-visitor'
+const LEGACY_ANALYTICS_SESSION_KEY = 'wcfans-analytics-session'
 const ANALYTICS_BATCH_SIZE = 20
 const ANALYTICS_FLUSH_MS = 60 * 1000
 const ANALYTICS_MAX_QUEUE_SIZE = 250
@@ -30,15 +31,32 @@ const isConfigured = Boolean(supabaseUrl && supabasePublishableKey)
 let queue = null
 let listenersStarted = false
 let flushPromise = null
+let launchTracked = false
+let pageSessionId = null
+
+export function trackAppLaunch(payload = {}) {
+  if (launchTracked || !isBrowser()) {
+    return
+  }
+
+  launchTracked = true
+  enqueueEvent({
+    event_type: 'app_launch',
+    event_name: 'app_launch',
+    feature_area: 'app',
+    page_view: payload.pageView ?? 'app',
+    target_id: null,
+    target_label: null,
+    metadata: payload.metadata ?? {},
+  })
+}
 
 export function trackClick(eventName, payload = {}) {
   if (!CLICK_EVENT_NAMES.has(eventName) || !isBrowser()) {
     return
   }
 
-  startAnalytics()
-
-  const event = {
+  enqueueEvent({
     event_type: 'click',
     event_name: eventName,
     feature_area: payload.featureArea ?? null,
@@ -46,12 +64,21 @@ export function trackClick(eventName, payload = {}) {
     target_id: payload.targetId == null ? null : String(payload.targetId),
     target_label: payload.targetLabel ?? null,
     metadata: payload.metadata ?? {},
-    session_id: getSessionId(),
+  })
+}
+
+function enqueueEvent(event) {
+  startAnalytics()
+
+  const analyticsEvent = {
+    ...event,
+    visitor_id: getVisitorId(),
+    session_id: getPageSessionId(),
     url: window.location.href,
     referrer: document.referrer || null,
   }
 
-  const nextQueue = [...getQueue(), event].slice(-ANALYTICS_MAX_QUEUE_SIZE)
+  const nextQueue = [...getQueue(), analyticsEvent].slice(-ANALYTICS_MAX_QUEUE_SIZE)
   setQueue(nextQueue)
 
   if (nextQueue.length >= ANALYTICS_BATCH_SIZE) {
@@ -155,22 +182,28 @@ function writeStoredQueue(nextQueue) {
   }
 }
 
-function getSessionId() {
+function getVisitorId() {
   try {
-    const storedSession = window.localStorage.getItem(ANALYTICS_SESSION_KEY)
-    if (storedSession) {
-      return storedSession
+    const storedVisitor = window.localStorage.getItem(ANALYTICS_VISITOR_KEY)
+    if (storedVisitor) {
+      return storedVisitor
     }
 
-    const sessionId = createSessionId()
-    window.localStorage.setItem(ANALYTICS_SESSION_KEY, sessionId)
-    return sessionId
+    const legacyVisitor = window.localStorage.getItem(LEGACY_ANALYTICS_SESSION_KEY)
+    const visitorId = legacyVisitor || createId()
+    window.localStorage.setItem(ANALYTICS_VISITOR_KEY, visitorId)
+    return visitorId
   } catch {
-    return createSessionId()
+    return createId()
   }
 }
 
-function createSessionId() {
+function getPageSessionId() {
+  pageSessionId = pageSessionId || createId()
+  return pageSessionId
+}
+
+function createId() {
   return window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
