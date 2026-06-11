@@ -1,91 +1,24 @@
 # WCFans
 
-WCFans is a responsive FIFA World Cup 2026 fan hub built with React and Tailwind CSS. It includes a live scores ticker, expandable match cards, an RSS-powered World Cup news feed, and a playful haircut tracker that follows the five-wins-in-a-row fan challenge.
+WCFans is a FIFA World Cup 2026 fan hub for following matches, news, standings, and fan rituals in one lightweight web app.
 
-The app reads fixtures, news, and tracker data from Supabase at runtime. The bundled `openfootball/worldcup.json` data is only used for seeding Supabase, not as a browser fallback. News comes from Supabase `news_articles`, populated by an RSS sync job. Fixtures and match details are populated from football-data.org.
+## Features
 
-## Supabase
+- Live and upcoming match cards with scores, match status, kickoff times, teams, and quick access to the full match view.
+- Full schedule view that auto-scrolls to the current match date and keeps navigation back to the match hub within reach.
+- Match detail pages with officials, score notes, stats, timelines, lineups, benches, and provider-delay messaging when feeds lag behind the game.
+- World Cup news feed powered by synced RSS sources and diversified so one publisher does not dominate the page.
+- Group standings and a playful haircut tracker for the five-wins-in-a-row fan challenge.
+- Dark mode, responsive layouts, click tracking, and share-ready fan-defense/haircut moments.
 
-The Supabase project URL is configured in `.env.example`. Add your public publishable key locally:
+## Screenshots
 
-```bash
-cp .env.example .env.local
-```
+Screenshots coming soon.
 
-Then set `VITE_SUPABASE_PUBLISHABLE_KEY` in `.env.local`. The app also accepts the older `VITE_SUPABASE_ANON_KEY` name for compatibility.
+## Tech Architecture
 
-Apply the migration in `supabase/migrations` to create:
-
-- `news_articles`
-- `fixtures`
-- `fixture_previews`
-- `standings`
-- `haircut_tracker`
-- `analytics_events`
-
-Seed local World Cup fixtures into Supabase:
-
-```bash
-SERVICE_ROLE_KEY=... npm run supabase:seed-fixtures
-```
-
-The local seed can bootstrap the `fixtures` table while API-Football data is unavailable. The app renders real rows from Supabase and does not synthesize fixture cards when the table is empty.
-
-Run the football-data.org fixture sync once after deploying functions. Football-Data match IDs are stored as the fixture `match_id`, for example `537327`:
-
-```bash
-curl -X POST 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-fixtures' \
-  -H "Authorization: Bearer $VITE_SUPABASE_PUBLISHABLE_KEY" \
-  -H 'Content-Type: application/json' \
-  -d '{}'
-```
-
-Run it again when the knockout bracket starts resolving after June 27, 2026.
-
-Deploy the Edge Functions:
-
-```bash
-supabase functions deploy sync-rss-news
-supabase functions deploy sync-fixtures
-supabase functions deploy sync-match-details
-supabase functions deploy sync-standings
-```
-
-Set function secrets:
-
-```bash
-supabase secrets set FOOTBALL_DATA_API_KEY=...
-supabase secrets set SERVICE_ROLE_KEY=...
-supabase secrets set FOOTBALL_DATA_COMPETITION_CODE=WC
-supabase secrets set FOOTBALL_DATA_COMPETITION_ID=2000
-supabase secrets set FOOTBALL_DATA_SEASON=2026
-```
-
-`FOOTBALL_DATA_COMPETITION_CODE`, `FOOTBALL_DATA_COMPETITION_ID`, and `FOOTBALL_DATA_SEASON` are optional for World Cup 2026 because the functions default to `WC`, `2000`, and `2026`.
-`MATCH_DETAILS_LIVE_WINDOW_MINUTES` is optional and defaults to `180`; it controls how long after kickoff `sync-match-details` keeps considering non-final matches live-refresh candidates.
-RSS feeds can be overridden with a comma-separated `RSS_FEEDS` secret.
-`sync-standings` also derives the haircut challenge streaks from standings form and stores them in `haircut_tracker`.
-The default RSS feeds are public ESPN, Guardian, and BBC football feeds. Fox Sports requires a partner key, and Feedspot is a feed directory page unless you configure a specific listed feed.
-
-Enable schedules with `supabase/sql/schedules.sql`, replacing `YOUR_SUPABASE_FUNCTION_JWT` with the project's anon JWT or service-role JWT:
-
-- `sync-rss-news`: every 3 hours
-- `sync-match-details`: cron checks every minute, but only invokes the Edge Function when a Football-Data fixture is within 60 minutes before kickoff through 180 minutes after kickoff. The function then calls football-data.org every 5 minutes while pre-match lineups are missing, and once per minute after kickoff until the match is terminal or outside the live window.
-- `sync-standings`: every 10 minutes
-
-Do not schedule `sync-fixtures` daily during group-stage setup. If you want automated fixture refreshes once knockout teams start resolving, use `supabase/sql/knockout-fixture-refresh.sql` near June 27, 2026.
-
-## Local Development
-
-```bash
-npm install
-npm run dev
-```
-
-## Checks
-
-```bash
-npm test
-npm run lint
-npm run build
-```
+- **Frontend:** React, Vite, and Tailwind CSS render the fan hub as a responsive single-page app.
+- **Data backend:** Supabase stores fixtures, match details, news articles, standings, haircut tracker state, fixture previews, and analytics events.
+- **Edge functions:** Supabase Edge Functions sync fixtures, match details, standings, RSS news, and preview data from external football/news feeds.
+- **Runtime data flow:** The browser reads public Supabase REST endpoints, normalizes fixture rows into app-friendly match objects, and polls during active match windows so late provider updates can appear without a page reload.
+- **Testing:** Vitest and Testing Library cover dashboard shaping, schedule behavior, match cards, detail views, standings, news, analytics, and fan challenge flows.
