@@ -14,6 +14,9 @@ create table if not exists public.analytics_events (
   referrer text
 );
 
+alter table public.analytics_events add column if not exists visitor_id text;
+alter table public.analytics_events add column if not exists session_id text;
+
 create index if not exists analytics_events_created_at_idx on public.analytics_events (created_at desc);
 create index if not exists analytics_events_event_type_idx on public.analytics_events (event_type);
 create index if not exists analytics_events_event_name_idx on public.analytics_events (event_name);
