@@ -26,7 +26,7 @@ describe('rssNews', () => {
 
     expect(articles).toEqual([
       expect.objectContaining({
-        id: 'fox-sports-soccer-mexico-world-cup-injury-update-before-south-africa-opener',
+        id: 'fox-sports-soccer-mexico-world-cup-injury-update-before-south-africa-opener-12quf2v',
         headline: 'Mexico World Cup injury update before South Africa opener',
         summary: 'Mexico waits on a late fitness test.',
         image: 'https://example.com/image.jpg',
@@ -46,6 +46,29 @@ describe('rssNews', () => {
         timestamp: '30 min ago',
       }),
     ])
+  })
+
+  it('creates distinct ids for repeated headlines with different links', () => {
+    const repeatedHeadlineRss = `
+      <rss version="2.0">
+        <channel>
+          <title>World Cup Wire</title>
+          <item>
+            <title>World Cup squad update</title>
+            <link>https://example.com/one</link>
+          </item>
+          <item>
+            <title>World Cup squad update</title>
+            <link>https://example.com/two</link>
+          </item>
+        </channel>
+      </rss>
+    `
+
+    const articles = parseRssArticles(repeatedHeadlineRss, 'https://example.com/rss')
+
+    expect(articles).toHaveLength(2)
+    expect(new Set(articles.map((article) => article.id)).size).toBe(2)
   })
 
   it('filters out general football stories', () => {

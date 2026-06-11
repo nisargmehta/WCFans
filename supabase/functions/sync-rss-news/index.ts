@@ -19,6 +19,21 @@ const normalizeId = (value: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
 
+const hashString = (value: string) => {
+  let hash = 5381
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 33) ^ value.charCodeAt(index)
+  }
+
+  return (hash >>> 0).toString(36)
+}
+
+const articleId = (source: string, headline: string, url: string, index: number) => {
+  const baseId = normalizeId(`${source}-${headline || index}`) || `article-${index}`
+  return normalizeId(`${baseId}-${hashString(url || String(index))}`)
+}
+
 const decodeXmlEntities = (value: string) =>
   value
     .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
@@ -75,7 +90,16 @@ const getArticleImage = (item: string) =>
   attrFrom(item, ['enclosure'], 'url') ||
   DEFAULT_ARTICLE_IMAGE
 
-const getPublishedAt = (item: string) => textFrom(item, ['pubDate', 'published', 'updated']) || null
+const toIsoTimestamp = (value: string | null) => {
+  if (!value) {
+    return null
+  }
+
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date.toISOString()
+}
+
+const getPublishedAt = (item: string) => toIsoTimestamp(textFrom(item, ['pubDate', 'published', 'updated']) || null)
 
 const isWorldCupArticle = (article: { headline: string; summary: string; category: string; source: string }) =>
   WORLD_CUP_PATTERN.test([article.headline, article.summary, article.category, article.source].filter(Boolean).join(' '))
@@ -92,7 +116,7 @@ const parseRssArticles = (xml: string, feedUrl: string) => {
       const summary = textFrom(item, ['description', 'summary', 'content:encoded', 'content'])
 
       return {
-        id: normalizeId(`${source}-${headline || url || index}`),
+        id: articleId(source, headline, url, index),
         headline,
         summary,
         image_url: getArticleImage(item),

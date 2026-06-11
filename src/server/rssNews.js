@@ -22,6 +22,21 @@ const normalizeId = (value) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
 
+const hashString = (value) => {
+  let hash = 5381
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 33) ^ value.charCodeAt(index)
+  }
+
+  return (hash >>> 0).toString(36)
+}
+
+const articleId = (source, headline, url, index) => {
+  const baseId = normalizeId(`${source}-${headline || index}`) || `article-${index}`
+  return normalizeId(`${baseId}-${hashString(url || String(index))}`)
+}
+
 const stripMarkup = (value) => value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
 
 const getFeedTitle = (document, feedUrl) =>
@@ -85,7 +100,7 @@ export const parseRssArticles = (xml, feedUrl) => {
       const summary = stripMarkup(textFrom(item, 'description') || textFrom(item, 'summary') || textFrom(item, 'content'))
 
       return {
-        id: normalizeId(`${source}-${headline || url || index}`),
+        id: articleId(source, headline, url, index),
         headline,
         summary,
         timestamp: formatTimestamp(publishedAt),
