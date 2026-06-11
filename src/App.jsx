@@ -11,6 +11,8 @@ import { ScheduleView } from './components/ScheduleView'
 import { StandingsView } from './components/StandingsView'
 
 const DASHBOARD_LIVE_POLL_MS = 30 * 1000
+const ACTIVE_MATCH_POLL_BEFORE_MS = 60 * 60 * 1000
+const ACTIVE_MATCH_POLL_AFTER_MS = 180 * 60 * 1000
 
 function App() {
   const [dashboard, setDashboard] = useState(null)
@@ -57,7 +59,7 @@ function App() {
       if (active) {
         setDashboard(data)
 
-        if (data.liveMatches.length > 0) {
+        if (shouldPollDashboard(data)) {
           pollTimeout = window.setTimeout(refreshDashboard, DASHBOARD_LIVE_POLL_MS)
         }
       }
@@ -294,6 +296,28 @@ function ThemeToggle({ isDarkMode, onToggle }) {
       <Icon aria-hidden="true" className="h-5 w-5" />
     </button>
   )
+}
+
+function shouldPollDashboard(data) {
+  if (data.liveMatches.length > 0) {
+    return true
+  }
+
+  const now = Date.now()
+
+  return data.scheduleMatches.some((match) => {
+    if (match.status === 'Final') {
+      return false
+    }
+
+    const kickoffAt = new Date(match.kickoffAt ?? `${match.date}T00:00:00Z`).getTime()
+
+    if (Number.isNaN(kickoffAt)) {
+      return false
+    }
+
+    return now >= kickoffAt - ACTIVE_MATCH_POLL_BEFORE_MS && now <= kickoffAt + ACTIVE_MATCH_POLL_AFTER_MS
+  })
 }
 
 function getInitialDarkMode() {
