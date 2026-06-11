@@ -1,5 +1,6 @@
 import { Radio } from 'lucide-react'
 import { CLICK_EVENTS, trackClick } from '../client/analytics'
+import { hasPublishedLineups } from '../server/matchDetails'
 
 export function LiveScoresTicker({ matches, onMatchSelect }) {
   const visibleMatches = matches.slice(0, 4)
@@ -22,7 +23,7 @@ export function LiveScoresTicker({ matches, onMatchSelect }) {
       <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
         <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-wide text-burnt_peach-300 dark:text-burnt_peach-600">
           <Radio aria-hidden="true" className="h-3.5 w-3.5" />
-          Live scores
+          {visibleMatches.some((match) => match.status === 'Live') ? 'Live scores' : 'Match details'}
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {visibleMatches.map((match) => (
@@ -49,6 +50,7 @@ function LiveScoreCard({ match, onMatchSelect }) {
             metadata: {
               matchStatus: match.status,
               minute: match.minute,
+              hasLineups: hasPublishedLineups(match),
             },
           })
           onMatchSelect?.(match)
@@ -57,7 +59,7 @@ function LiveScoreCard({ match, onMatchSelect }) {
         <div className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-wide text-twilight_indigo-600 dark:text-eggshell-600">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-burnt_peach" aria-hidden="true" />
-            Live
+            {formatCardBadge(match)}
           </span>
           <span className="truncate normal-case tracking-normal">{match.group ?? match.round}</span>
         </div>
@@ -84,15 +86,27 @@ function ScoreRow({ team, score }) {
       <span className="truncate text-base font-black leading-tight text-twilight_indigo dark:text-eggshell-800">
         <span aria-hidden="true">{team.flag}</span> {team.name ?? team.code}
       </span>
-      <span className="text-xl font-black leading-none text-twilight_indigo dark:text-eggshell-800">{score ?? 0}</span>
+      <span className="text-xl font-black leading-none text-twilight_indigo dark:text-eggshell-800">{score ?? '-'}</span>
     </div>
   )
 }
 
 function formatLiveStatus(match) {
+  if (match.status === 'Scheduled' && hasPublishedLineups(match)) {
+    return 'Lineups posted'
+  }
+
   if (typeof match.minute === 'number') {
     return `${match.minute}'`
   }
 
   return 'In progress'
+}
+
+function formatCardBadge(match) {
+  if (match.status === 'Scheduled' && hasPublishedLineups(match)) {
+    return 'Lineups'
+  }
+
+  return 'Live'
 }

@@ -5,6 +5,7 @@ import { LiveScoresTicker } from './LiveScoresTicker'
 
 const liveMatch = {
   id: 'mex-rsa',
+  status: 'Live',
   minute: 27,
   home: { flag: '🇲🇽', code: 'MEX', name: 'Mexico' },
   away: { flag: '🇿🇦', code: 'RSA', name: 'South Africa' },
@@ -15,6 +16,14 @@ const liveMatch = {
     homeStatistics: { shots: 7 },
     awayStatistics: { shots: 4 },
   },
+}
+
+const lineupMatch = {
+  ...liveMatch,
+  id: 'lineups-posted',
+  status: 'Scheduled',
+  minute: null,
+  score: { home: null, away: null },
 }
 
 describe('LiveScoresTicker', () => {
@@ -45,5 +54,19 @@ describe('LiveScoresTicker', () => {
 
     expect(onMatchSelect).toHaveBeenCalledWith(liveMatch)
     expect(screen.queryByText('Lineups')).not.toBeInTheDocument()
+  })
+
+  it('renders scheduled fixtures with lineups as tappable detail cards', async () => {
+    const onMatchSelect = vi.fn()
+    const user = userEvent.setup()
+    render(<LiveScoresTicker matches={[lineupMatch]} onMatchSelect={onMatchSelect} />)
+
+    expect(screen.getByText('Match details')).toBeInTheDocument()
+    expect(screen.getByText('Lineups posted')).toBeInTheDocument()
+    expect(screen.getAllByText('-')).toHaveLength(2)
+
+    await user.click(screen.getByRole('button', { name: /mexico/i }))
+
+    expect(onMatchSelect).toHaveBeenCalledWith(lineupMatch)
   })
 })

@@ -1,8 +1,9 @@
 import { Clock } from 'lucide-react'
+import { hasPublishedLineups } from '../server/matchDetails'
 
 export function MatchCard({ match, onMatchSelect }) {
   const hasScore = match.status === 'Live' || match.status === 'Final'
-  const canOpenDetails = hasScore && onMatchSelect
+  const canOpenDetails = (hasScore || hasPublishedLineups(match)) && onMatchSelect
   const Summary = canOpenDetails ? 'button' : 'div'
   const summaryProps = canOpenDetails
     ? {

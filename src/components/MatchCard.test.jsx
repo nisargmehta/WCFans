@@ -38,7 +38,20 @@ describe('MatchCard', () => {
   })
 
   it('does not make scheduled matches clickable for detail panels', () => {
-    render(<MatchCard match={{ ...match, status: 'Scheduled', events: [] }} onMatchSelect={vi.fn()} />)
+    render(
+      <MatchCard
+        match={{
+          ...match,
+          status: 'Scheduled',
+          events: [],
+          details: {
+            homeLineup: [],
+            awayLineup: [],
+          },
+        }}
+        onMatchSelect={vi.fn()}
+      />,
+    )
 
     expect(screen.queryByRole('button', { name: /mexico/i })).not.toBeInTheDocument()
     expect(screen.queryByText('Mexico City')).not.toBeInTheDocument()
@@ -55,6 +68,18 @@ describe('MatchCard', () => {
 
     expect(onMatchSelect).toHaveBeenCalledWith(finalMatch)
     expect(screen.queryByText('Lineups')).not.toBeInTheDocument()
+  })
+
+  it('opens full-page match details for scheduled matches once lineups are published', async () => {
+    const onMatchSelect = vi.fn()
+    const user = userEvent.setup()
+    const scheduledWithLineups = { ...match, status: 'Scheduled', score: { home: null, away: null } }
+    render(<MatchCard match={scheduledWithLineups} onMatchSelect={onMatchSelect} />)
+
+    await user.click(screen.getByRole('button', { name: /mexico/i }))
+
+    expect(onMatchSelect).toHaveBeenCalledWith(scheduledWithLineups)
+    expect(screen.getByText('vs')).toBeInTheDocument()
   })
 
   it('shows live score without expanding live matches by default', () => {

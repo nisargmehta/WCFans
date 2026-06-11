@@ -1,4 +1,5 @@
 import { mapFixtureRowsToMatches, sortMatchesByKickoff } from '../server/fixtureRows'
+import { hasPublishedLineups } from '../server/matchDetails'
 import { fetchRssArticles } from '../server/rssNews'
 import {
   fetchSupabaseFixtures,
@@ -38,8 +39,8 @@ export const buildDashboardPayload = ({ matches, news, haircutTracker, standings
   const enrichedMatches = sortMatchesByKickoff(matches)
 
   return {
-    liveMatches: enrichedMatches.filter((match) => match.status === 'Live'),
-    upcomingMatches: enrichedMatches.filter((match) => match.status === 'Scheduled').slice(0, 10),
+    liveMatches: enrichedMatches.filter((match) => match.status === 'Live' || isPrematchWithLineups(match)),
+    upcomingMatches: enrichedMatches.filter((match) => match.status === 'Scheduled' && !isPrematchWithLineups(match)).slice(0, 10),
     scheduleMatches: enrichedMatches,
     news: diversifyNewsBySource(news),
     haircutTracker,
@@ -61,3 +62,5 @@ export const fetchDashboardData = async () => {
     standings,
   }))
 }
+
+const isPrematchWithLineups = (match) => match.status === 'Scheduled' && hasPublishedLineups(match)
