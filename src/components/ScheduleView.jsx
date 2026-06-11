@@ -43,11 +43,11 @@ export function ScheduleView({ matches, onBack, onMatchSelect }) {
   }, [initialScrollDate])
 
   return (
-    <main className="mx-auto max-w-7xl px-4 pb-24 pt-5 sm:px-6 sm:pb-28 sm:pt-8 lg:px-8">
+    <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
       <button
         type="button"
         onClick={onBack}
-        className="fixed bottom-4 left-4 z-30 inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100 sm:bottom-6 sm:left-6"
+        className="fixed left-4 top-4 z-30 inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100 sm:left-6 sm:top-6"
         aria-label="Back to match hub"
       >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
