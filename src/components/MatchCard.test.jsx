@@ -82,6 +82,26 @@ describe('MatchCard', () => {
     expect(screen.getByText('vs')).toBeInTheDocument()
   })
 
+  it('opens full-page match details for scheduled matches once referee data is published', async () => {
+    const onMatchSelect = vi.fn()
+    const user = userEvent.setup()
+    const scheduledWithReferee = {
+      ...match,
+      status: 'Scheduled',
+      score: { home: null, away: null },
+      details: {
+        homeLineup: [],
+        awayLineup: [],
+        referees: [{ id: 11412, name: 'Wilton Sampaio', type: 'REFEREE' }],
+      },
+    }
+    render(<MatchCard match={scheduledWithReferee} onMatchSelect={onMatchSelect} />)
+
+    await user.click(screen.getByRole('button', { name: /mexico/i }))
+
+    expect(onMatchSelect).toHaveBeenCalledWith(scheduledWithReferee)
+  })
+
   it('shows live score without expanding live matches by default', () => {
     render(<MatchCard match={match} />)
 

@@ -50,7 +50,7 @@ export const fetchSupabaseNews = async () => {
 
 export const fetchSupabaseFixtures = async () =>
   get(
-    'fixtures?select=match_id,kickoff_at,home_team,away_team,group_name,round_name,ground,api_football_fixture_id,football_data_match_id,home_api_football_team_id,away_api_football_team_id,home_football_data_team_id,away_football_data_team_id,status,minute,home_score,away_score,score_winner,source,match_details_synced_at,home_formation,away_formation,home_lineup,away_lineup,home_bench,away_bench,home_statistics,away_statistics,goals,bookings,substitutions,penalties,score_detail&source=eq.football-data&order=kickoff_at.asc&limit=200',
+    'fixtures?select=match_id,kickoff_at,home_team,away_team,group_name,round_name,ground,api_football_fixture_id,football_data_match_id,home_api_football_team_id,away_api_football_team_id,home_football_data_team_id,away_football_data_team_id,status,minute,home_score,away_score,score_winner,source,match_details_synced_at,home_formation,away_formation,home_lineup,away_lineup,home_bench,away_bench,home_statistics,away_statistics,goals,bookings,substitutions,penalties,score_detail,raw_payload&source=eq.football-data&order=kickoff_at.asc&limit=200',
   )
 
 export const fetchSupabaseStandings = async () =>

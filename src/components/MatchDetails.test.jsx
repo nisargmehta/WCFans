@@ -41,6 +41,7 @@ const match = {
     score: {
       halfTime: { home: 1, away: 0 },
     },
+    referees: [{ id: 11412, name: 'Wilton Sampaio', type: 'REFEREE', nationality: 'Brazil' }],
   },
 }
 
@@ -49,6 +50,10 @@ describe('MatchDetails', () => {
     render(<MatchDetails match={match} />)
 
     expect(screen.getByRole('heading', { name: 'Stats' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Officials' })).toBeInTheDocument()
+    expect(screen.getByText('Wilton Sampaio')).toBeInTheDocument()
+    expect(screen.getByText('referee')).toBeInTheDocument()
+    expect(screen.getByText('Brazil')).toBeInTheDocument()
     expect(screen.getByText('61%')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Timeline' })).toBeInTheDocument()
     expect(screen.getByText(/santiago gimenez/i)).toBeInTheDocument()

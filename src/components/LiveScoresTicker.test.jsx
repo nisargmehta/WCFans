@@ -26,6 +26,16 @@ const lineupMatch = {
   score: { home: null, away: null },
 }
 
+const refereeMatch = {
+  ...lineupMatch,
+  id: 'referee-posted',
+  details: {
+    homeLineup: [],
+    awayLineup: [],
+    referees: [{ id: 11412, name: 'Wilton Sampaio', type: 'REFEREE' }],
+  },
+}
+
 describe('LiveScoresTicker', () => {
   it('renders a placeholder instead of the live banner when there are no live matches', () => {
     render(<LiveScoresTicker matches={[]} />)
@@ -68,5 +78,18 @@ describe('LiveScoresTicker', () => {
     await user.click(screen.getByRole('button', { name: /mexico/i }))
 
     expect(onMatchSelect).toHaveBeenCalledWith(lineupMatch)
+  })
+
+  it('renders scheduled fixtures with referee data as tappable detail cards', async () => {
+    const onMatchSelect = vi.fn()
+    const user = userEvent.setup()
+    render(<LiveScoresTicker matches={[refereeMatch]} onMatchSelect={onMatchSelect} />)
+
+    expect(screen.getByText('Match details')).toBeInTheDocument()
+    expect(screen.getByText('Match feed available')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /mexico/i }))
+
+    expect(onMatchSelect).toHaveBeenCalledWith(refereeMatch)
   })
 })

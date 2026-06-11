@@ -40,6 +40,15 @@ describe('buildDashboardPayload', () => {
         awayLineup: [],
       },
     }
+    const refereeMatch = {
+      ...baseMatch,
+      id: 'referee-match',
+      kickoffAt: '2026-06-11T21:00:00Z',
+      status: 'Scheduled',
+      details: {
+        referees: [{ id: 11412, name: 'Wilton Sampaio', type: 'REFEREE' }],
+      },
+    }
     const finalMatch = {
       ...baseMatch,
       id: 'final-match',
@@ -48,18 +57,19 @@ describe('buildDashboardPayload', () => {
     }
 
     const payload = buildDashboardPayload({
-      matches: [scheduledMatch, lineupMatch, liveMatch, finalMatch],
+      matches: [scheduledMatch, refereeMatch, lineupMatch, liveMatch, finalMatch],
       news: [],
       haircutTracker: [],
       standings: [],
     })
 
-    expect(payload.liveMatches.map((match) => match.id)).toEqual(['live-match', 'lineup-match'])
+    expect(payload.liveMatches.map((match) => match.id)).toEqual(['live-match', 'lineup-match', 'referee-match'])
     expect(payload.upcomingMatches.map((match) => match.id)).toEqual(['scheduled-match'])
     expect(payload.scheduleMatches.map((match) => match.id)).toEqual([
       'final-match',
       'live-match',
       'lineup-match',
+      'referee-match',
       'scheduled-match',
     ])
   })

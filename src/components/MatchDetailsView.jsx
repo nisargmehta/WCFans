@@ -109,6 +109,9 @@ export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
             onGenerateExcuse={losingSide === 'away' ? openExcuseGenerator : null}
           />
         </div>
+        <p className="mt-3 rounded bg-eggshell-800 px-3 py-2 text-sm font-bold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
+          Scores and match events may be delayed while the data provider feed catches up.
+        </p>
 
         {activeExcuse && losingSide ? (
           <div className="mt-4 rounded border border-burnt_peach-800 bg-burnt_peach-900 p-3 text-twilight_indigo shadow-inner dark:border-burnt_peach-500/30 dark:bg-twilight_indigo-300 dark:text-eggshell-800">

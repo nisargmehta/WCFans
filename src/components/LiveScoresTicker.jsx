@@ -1,6 +1,6 @@
 import { Radio } from 'lucide-react'
 import { CLICK_EVENTS, trackClick } from '../client/analytics'
-import { hasPublishedLineups } from '../server/matchDetails'
+import { hasMatchFeedData, hasPublishedLineups } from '../server/matchDetails'
 
 export function LiveScoresTicker({ matches, onMatchSelect }) {
   const visibleMatches = matches.slice(0, 4)
@@ -50,7 +50,7 @@ function LiveScoreCard({ match, onMatchSelect }) {
             metadata: {
               matchStatus: match.status,
               minute: match.minute,
-              hasLineups: hasPublishedLineups(match),
+              hasFeedData: hasMatchFeedData(match),
             },
           })
           onMatchSelect?.(match)
@@ -96,6 +96,10 @@ function formatLiveStatus(match) {
     return 'Lineups posted'
   }
 
+  if (match.status === 'Scheduled' && hasMatchFeedData(match)) {
+    return 'Match feed available'
+  }
+
   if (typeof match.minute === 'number') {
     return `${match.minute}'`
   }
@@ -106,6 +110,10 @@ function formatLiveStatus(match) {
 function formatCardBadge(match) {
   if (match.status === 'Scheduled' && hasPublishedLineups(match)) {
     return 'Lineups'
+  }
+
+  if (match.status === 'Scheduled' && hasMatchFeedData(match)) {
+    return 'Details'
   }
 
   return 'Live'

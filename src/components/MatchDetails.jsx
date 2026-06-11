@@ -18,12 +18,45 @@ export function MatchDetails({ match }) {
   const [lineupsExpanded, setLineupsExpanded] = useState(false)
   const details = match.details ?? {}
   const hasLineups = hasItems(details.homeLineup) || hasItems(details.awayLineup)
+  const hasReferees = hasItems(details.referees)
   const statRows = getStatRows(details.homeStatistics, details.awayStatistics)
   const timelineEvents = getTimelineEvents(match)
   const lineupsContentId = `${match.id}-lineups-content`
 
   return (
     <div className="space-y-5">
+      <section aria-labelledby={`${match.id}-officials-heading`}>
+        <h3 id={`${match.id}-officials-heading`} className="text-lg font-black text-twilight_indigo dark:text-eggshell-800">
+          Officials
+        </h3>
+        {hasReferees ? (
+          <div className="mt-2 overflow-hidden rounded border border-twilight_indigo-900 dark:border-white/10">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead className="bg-eggshell-800 text-xs font-black uppercase text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
+                <tr>
+                  <th scope="col" className="px-3 py-2">Name</th>
+                  <th scope="col" className="px-3 py-2">Role</th>
+                  <th scope="col" className="px-3 py-2">Nationality</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-twilight_indigo-900 bg-white font-semibold text-twilight_indigo dark:divide-white/10 dark:bg-twilight_indigo-200 dark:text-eggshell-800">
+                {details.referees.map((referee) => (
+                  <tr key={referee.id ?? `${referee.name}-${referee.type}`}>
+                    <td className="px-3 py-2">{referee.name ?? 'Official'}</td>
+                    <td className="px-3 py-2">{formatRefereeRole(referee.type)}</td>
+                    <td className="px-3 py-2">{referee.nationality ?? '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
+            Officials will appear once the match feed publishes referee assignments.
+          </p>
+        )}
+      </section>
+
       <section aria-labelledby={`${match.id}-stats-heading`}>
         <h3 id={`${match.id}-stats-heading`} className="text-lg font-black text-twilight_indigo dark:text-eggshell-800">
           Stats
@@ -389,4 +422,12 @@ function formatStatLabel(key) {
 
 function formatStatValue(value, key) {
   return key === 'ball_possession' ? `${value}%` : value
+}
+
+function formatRefereeRole(role) {
+  if (!role) {
+    return 'Official'
+  }
+
+  return String(role).toLowerCase().replaceAll('_', ' ')
 }

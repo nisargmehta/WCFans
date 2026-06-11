@@ -57,6 +57,7 @@ export const mapFixtureRowsToMatches = (fixtures) =>
         substitutions: fixture.substitutions ?? [],
         penalties: fixture.penalties ?? [],
         score: fixture.score_detail ?? {},
+        referees: fixture.raw_payload?.referees ?? [],
       },
       events: [],
     }

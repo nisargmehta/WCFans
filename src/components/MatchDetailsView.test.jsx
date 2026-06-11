@@ -45,4 +45,10 @@ describe('MatchDetailsView', () => {
 
     expect(screen.queryByRole('button', { name: /generate fan defense/i })).not.toBeInTheDocument()
   })
+
+  it('disclaims provider score delays in the match header', () => {
+    render(<MatchDetailsView match={finalParaguayLoss} onBack={vi.fn()} />)
+
+    expect(screen.getByText(/scores and match events may be delayed/i)).toBeInTheDocument()
+  })
 })
