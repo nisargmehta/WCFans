@@ -61,8 +61,17 @@ select cron.schedule(
     select 1
     from public.fixtures
     where football_data_match_id is not null
-      and coalesce(status, '') not in ('FINISHED', 'AWARDED', 'CANCELLED', 'CANCELED', 'POSTPONED', 'SUSPENDED')
-      and kickoff_at between now() - interval '180 minutes' and now() + interval '60 minutes'
+      and (
+        (
+          coalesce(status, '') not in ('FINISHED', 'AWARDED', 'CANCELLED', 'CANCELED', 'POSTPONED', 'SUSPENDED')
+          and kickoff_at between now() - interval '180 minutes' and now() + interval '60 minutes'
+        )
+        or (
+          status = 'FINISHED'
+          and (home_score is null or away_score is null)
+          and kickoff_at between now() - interval '24 hours' and now()
+        )
+      )
   );
   $$
 );

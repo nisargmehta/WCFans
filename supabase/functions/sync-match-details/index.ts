@@ -6,7 +6,9 @@ const PREMATCH_REFRESH_MINUTES = [55, 30]
 const PREMATCH_LINEUP_WINDOW_MINUTES = 60
 const PREMATCH_LINEUP_REFRESH_INTERVAL_MS = 5 * 60 * 1000
 const DEFAULT_LIVE_WINDOW_MINUTES = 180
+const DEFAULT_TERMINAL_SCORE_WINDOW_MINUTES = 24 * 60
 const LIVE_REFRESH_INTERVAL_MS = 60 * 1000
+const TERMINAL_SCORE_REFRESH_INTERVAL_MS = 5 * 60 * 1000
 const TERMINAL_STATUSES = new Set(['FINISHED', 'AWARDED', 'CANCELLED', 'CANCELED', 'POSTPONED', 'SUSPENDED'])
 
 type FixtureRow = {
@@ -17,6 +19,8 @@ type FixtureRow = {
   match_details_last_checked_at: string | null
   home_lineup: unknown[] | null
   away_lineup: unknown[] | null
+  home_score: number | null
+  away_score: number | null
 }
 
 type DueFixture = FixtureRow & {
@@ -80,14 +84,24 @@ const getLiveWindowMinutes = () => {
   return Number.isFinite(configuredMinutes) && configuredMinutes > 0 ? configuredMinutes : DEFAULT_LIVE_WINDOW_MINUTES
 }
 
+const getTerminalScoreWindowMinutes = () => {
+  const configuredMinutes = Number(Deno.env.get('MATCH_DETAILS_TERMINAL_SCORE_WINDOW_MINUTES') ?? DEFAULT_TERMINAL_SCORE_WINDOW_MINUTES)
+  return Number.isFinite(configuredMinutes) && configuredMinutes > 0 ? configuredMinutes : DEFAULT_TERMINAL_SCORE_WINDOW_MINUTES
+}
+
 const isTerminalStatus = (status: string | null) => Boolean(status && TERMINAL_STATUSES.has(status))
+
+const isFinishedStatus = (status: string | null) => status === 'FINISHED'
 
 const hasPublishedLineups = (fixture: FixtureRow) =>
   (Array.isArray(fixture.home_lineup) && fixture.home_lineup.length > 0) ||
   (Array.isArray(fixture.away_lineup) && fixture.away_lineup.length > 0)
 
-const getDueReason = (fixture: FixtureRow, now: Date, liveWindowMinutes: number) => {
-  if (!fixture.football_data_match_id || isTerminalStatus(fixture.status)) {
+const hasFullTimeScore = (fixture: FixtureRow) =>
+  typeof fixture.home_score === 'number' && typeof fixture.away_score === 'number'
+
+const getDueReason = (fixture: FixtureRow, now: Date, liveWindowMinutes: number, terminalScoreWindowMinutes: number) => {
+  if (!fixture.football_data_match_id) {
     return null
   }
 
@@ -100,6 +114,19 @@ const getDueReason = (fixture: FixtureRow, now: Date, liveWindowMinutes: number)
   const lastCheckedTime = lastCheckedAt?.getTime() ?? 0
   const nowTime = now.getTime()
   const kickoffTime = kickoffAt.getTime()
+
+  if (isTerminalStatus(fixture.status)) {
+    if (!isFinishedStatus(fixture.status) || hasFullTimeScore(fixture)) {
+      return null
+    }
+
+    const terminalScoreWindowEndsAt = kickoffTime + terminalScoreWindowMinutes * 60 * 1000
+    if (nowTime > terminalScoreWindowEndsAt) {
+      return null
+    }
+
+    return nowTime - lastCheckedTime >= TERMINAL_SCORE_REFRESH_INTERVAL_MS ? 'terminal-score' : null
+  }
 
   if (nowTime < kickoffTime) {
     const lineupWindowStart = kickoffTime - PREMATCH_LINEUP_WINDOW_MINUTES * 60 * 1000
@@ -172,12 +199,14 @@ Deno.serve(async () => {
     const apiKey = requireEnv('FOOTBALL_DATA_API_KEY')
     const now = new Date(syncedAt)
     const liveWindowMinutes = getLiveWindowMinutes()
-    const lowerBound = new Date(now.getTime() - liveWindowMinutes * 60 * 1000).toISOString()
+    const terminalScoreWindowMinutes = getTerminalScoreWindowMinutes()
+    const lowerBoundMinutes = Math.max(liveWindowMinutes, terminalScoreWindowMinutes)
+    const lowerBound = new Date(now.getTime() - lowerBoundMinutes * 60 * 1000).toISOString()
     const upperBound = new Date(now.getTime() + 56 * 60 * 1000).toISOString()
 
     const { data: fixtures, error } = await supabase
       .from('fixtures')
-      .select('match_id,kickoff_at,status,football_data_match_id,match_details_last_checked_at,home_lineup,away_lineup')
+      .select('match_id,kickoff_at,status,football_data_match_id,match_details_last_checked_at,home_lineup,away_lineup,home_score,away_score')
       .not('football_data_match_id', 'is', null)
       .gte('kickoff_at', lowerBound)
       .lte('kickoff_at', upperBound)
@@ -188,7 +217,7 @@ Deno.serve(async () => {
     }
 
     const dueFixtures = ((fixtures ?? []) as FixtureRow[]).reduce<DueFixture[]>((records, fixture) => {
-      const reason = getDueReason(fixture, now, liveWindowMinutes)
+      const reason = getDueReason(fixture, now, liveWindowMinutes, terminalScoreWindowMinutes)
       return reason ? [...records, { ...fixture, reason }] : records
     }, [])
 

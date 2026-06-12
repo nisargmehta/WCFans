@@ -9,6 +9,8 @@ do $$
 declare
   existing_command text;
   guarded_command text;
+  old_guard text;
+  new_guard text;
   job record;
 begin
   select command
@@ -27,12 +29,7 @@ begin
     raise exception 'Could not find an existing sync-match-details cron command to preserve.';
   end if;
 
-  if existing_command ilike '%football_data_match_id is not null%'
-    and existing_command ilike '%kickoff_at between now()%'
-  then
-    guarded_command := existing_command;
-  else
-    guarded_command := regexp_replace(existing_command, ';\s*$', '') || $guard$
+  old_guard := $old$
   where exists (
     select 1
     from public.fixtures
@@ -40,7 +37,37 @@ begin
       and coalesce(status, '') not in ('FINISHED', 'AWARDED', 'CANCELLED', 'CANCELED', 'POSTPONED', 'SUSPENDED')
       and kickoff_at between now() - interval '180 minutes' and now() + interval '60 minutes'
   );
-$guard$;
+$old$;
+
+  new_guard := $new$
+  where exists (
+    select 1
+    from public.fixtures
+    where football_data_match_id is not null
+      and (
+        (
+          coalesce(status, '') not in ('FINISHED', 'AWARDED', 'CANCELLED', 'CANCELED', 'POSTPONED', 'SUSPENDED')
+          and kickoff_at between now() - interval '180 minutes' and now() + interval '60 minutes'
+        )
+        or (
+          status = 'FINISHED'
+          and (home_score is null or away_score is null)
+          and kickoff_at between now() - interval '24 hours' and now()
+        )
+      )
+  );
+$new$;
+
+  if existing_command ilike '%status = ''FINISHED''%'
+    and existing_command ilike '%home_score is null or away_score is null%'
+  then
+    guarded_command := existing_command;
+  elsif existing_command ilike '%football_data_match_id is not null%'
+    and existing_command ilike '%kickoff_at between now()%'
+  then
+    guarded_command := replace(existing_command, old_guard, new_guard);
+  else
+    guarded_command := regexp_replace(existing_command, ';\s*$', '') || new_guard;
   end if;
 
   for job in

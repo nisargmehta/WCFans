@@ -13,6 +13,7 @@ import { StandingsView } from './components/StandingsView'
 const DASHBOARD_LIVE_POLL_MS = 30 * 1000
 const ACTIVE_MATCH_POLL_BEFORE_MS = 60 * 60 * 1000
 const ACTIVE_MATCH_POLL_AFTER_MS = 180 * 60 * 1000
+const FINAL_SCORE_CATCHUP_AFTER_MS = 24 * 60 * 60 * 1000
 
 function App() {
   const [dashboard, setDashboard] = useState(null)
@@ -306,7 +307,9 @@ function shouldPollDashboard(data) {
   const now = Date.now()
 
   return data.scheduleMatches.some((match) => {
-    if (match.status === 'Final') {
+    const hasScore = typeof match.score?.home === 'number' && typeof match.score?.away === 'number'
+
+    if (match.status === 'Final' && hasScore) {
       return false
     }
 
@@ -316,7 +319,9 @@ function shouldPollDashboard(data) {
       return false
     }
 
-    return now >= kickoffAt - ACTIVE_MATCH_POLL_BEFORE_MS && now <= kickoffAt + ACTIVE_MATCH_POLL_AFTER_MS
+    const pollAfterKickoffMs = match.status === 'Final' ? FINAL_SCORE_CATCHUP_AFTER_MS : ACTIVE_MATCH_POLL_AFTER_MS
+
+    return now >= kickoffAt - ACTIVE_MATCH_POLL_BEFORE_MS && now <= kickoffAt + pollAfterKickoffMs
   })
 }
 
