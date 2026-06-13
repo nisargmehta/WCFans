@@ -28,12 +28,12 @@ export function StandingsView({ standings, onBack }) {
           {standings.length} teams
         </p>
       </div>
-      <p className="mt-4 rounded bg-white px-3 py-2 text-sm font-bold text-twilight_indigo-600 shadow-panel ring-1 ring-twilight_indigo-900 dark:bg-twilight_indigo-200 dark:text-eggshell-600 dark:ring-white/10">
+      <p className="mt-4 rounded bg-white px-3 py-2 text-xs font-bold text-twilight_indigo-600 shadow-panel ring-1 ring-twilight_indigo-900 dark:bg-twilight_indigo-200 dark:text-eggshell-600 dark:ring-white/10">
         Standings update after matches are final; in-progress matches are not reflected.
       </p>
 
       {standings.length === 0 ? (
-        <div className="mt-6 rounded-lg border border-twilight_indigo-900 bg-white p-6 text-sm font-bold text-twilight_indigo-600 shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200 dark:text-eggshell-600">
+        <div className="mt-6 rounded-lg border border-twilight_indigo-900 bg-white p-6 text-xs font-bold text-twilight_indigo-600 shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200 dark:text-eggshell-600">
           Standings will appear here once Supabase has group table rows.
         </div>
       ) : (

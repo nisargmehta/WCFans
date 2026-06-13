@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { MatchDetails } from './MatchDetails'
 
@@ -46,7 +46,7 @@ const match = {
 }
 
 describe('MatchDetails', () => {
-  it('renders timeline, lineups, and stats from match details', () => {
+  it('renders timeline and stats from match details without lineups', () => {
     render(<MatchDetails match={match} />)
 
     expect(screen.getByRole('heading', { name: 'Stats' })).toBeInTheDocument()
@@ -63,10 +63,7 @@ describe('MatchDetails', () => {
     expect(screen.getByText(/yellow card/i)).toBeInTheDocument()
     expect(screen.getByText('HT')).toBeInTheDocument()
 
-    expect(screen.getByRole('heading', { name: 'Lineups' })).toBeInTheDocument()
     expect(screen.queryByText('Mexico Keeper')).not.toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Expand lineups' }))
-    expect(screen.getByText('Mexico Keeper')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Lineups' })).not.toBeInTheDocument()
   })
 })

@@ -155,39 +155,46 @@ const getDueReason = (fixture: FixtureRow, now: Date, liveWindowMinutes: number,
   return nowTime - lastCheckedTime >= LIVE_REFRESH_INTERVAL_MS ? 'live' : null
 }
 
-const toFixtureDetailUpdate = (match: Record<string, any>, syncedAt: string) => ({
-  kickoff_at: match.utcDate,
-  home_team: match.homeTeam?.name ?? 'TBD',
-  away_team: match.awayTeam?.name ?? 'TBD',
-  ground: match.venue ?? null,
-  football_data_match_id: match.id,
-  home_football_data_team_id: match.homeTeam?.id ?? null,
-  away_football_data_team_id: match.awayTeam?.id ?? null,
-  status: match.status ?? null,
-  minute: match.minute ?? null,
-  home_score: match.score?.fullTime?.home ?? null,
-  away_score: match.score?.fullTime?.away ?? null,
-  score_winner: match.score?.winner ?? null,
-  score_detail: match.score ?? {},
-  home_formation: match.homeTeam?.formation ?? null,
-  away_formation: match.awayTeam?.formation ?? null,
-  home_lineup: match.homeTeam?.lineup ?? [],
-  away_lineup: match.awayTeam?.lineup ?? [],
-  home_bench: match.homeTeam?.bench ?? [],
-  away_bench: match.awayTeam?.bench ?? [],
-  home_statistics: match.homeTeam?.statistics ?? {},
-  away_statistics: match.awayTeam?.statistics ?? {},
-  goals: match.goals ?? [],
-  bookings: match.bookings ?? [],
-  substitutions: match.substitutions ?? [],
-  penalties: match.penalties ?? [],
-  raw_payload: match,
-  match_details_raw_payload: match,
-  match_details_last_updated_at: match.lastUpdated ?? null,
-  match_details_last_checked_at: syncedAt,
-  match_details_synced_at: syncedAt,
-  updated_at: syncedAt,
-})
+const toFixtureDetailUpdate = (match: Record<string, any>, syncedAt: string) => {
+  const update: Record<string, any> = {
+    kickoff_at: match.utcDate,
+    home_team: match.homeTeam?.name ?? 'TBD',
+    away_team: match.awayTeam?.name ?? 'TBD',
+    football_data_match_id: match.id,
+    home_football_data_team_id: match.homeTeam?.id ?? null,
+    away_football_data_team_id: match.awayTeam?.id ?? null,
+    status: match.status ?? null,
+    minute: match.minute ?? null,
+    home_score: match.score?.fullTime?.home ?? null,
+    away_score: match.score?.fullTime?.away ?? null,
+    score_winner: match.score?.winner ?? null,
+    score_detail: match.score ?? {},
+    home_formation: match.homeTeam?.formation ?? null,
+    away_formation: match.awayTeam?.formation ?? null,
+    home_lineup: match.homeTeam?.lineup ?? [],
+    away_lineup: match.awayTeam?.lineup ?? [],
+    home_bench: match.homeTeam?.bench ?? [],
+    away_bench: match.awayTeam?.bench ?? [],
+    home_statistics: match.homeTeam?.statistics ?? {},
+    away_statistics: match.awayTeam?.statistics ?? {},
+    goals: match.goals ?? [],
+    bookings: match.bookings ?? [],
+    substitutions: match.substitutions ?? [],
+    penalties: match.penalties ?? [],
+    raw_payload: match,
+    match_details_raw_payload: match,
+    match_details_last_updated_at: match.lastUpdated ?? null,
+    match_details_last_checked_at: syncedAt,
+    match_details_synced_at: syncedAt,
+    updated_at: syncedAt,
+  }
+
+  if (typeof match.venue === 'string' && match.venue.trim() !== '') {
+    update.ground = match.venue.trim()
+  }
+
+  return update
+}
 
 Deno.serve(async () => {
   const syncedAt = new Date().toISOString()

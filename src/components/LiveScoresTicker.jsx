@@ -9,7 +9,7 @@ export function LiveScoresTicker({ matches, onMatchSelect }) {
     return (
       <section className="border-b border-twilight_indigo-900 bg-white text-twilight_indigo dark:border-white/10 dark:bg-twilight_indigo-200 dark:text-eggshell-800" aria-label="Live scores">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold text-twilight_indigo-600 dark:text-eggshell-600">No live matches right now.</p>
+          <p className="text-xs font-semibold text-twilight_indigo-600 dark:text-eggshell-600">No live matches right now.</p>
         </div>
       </section>
     )

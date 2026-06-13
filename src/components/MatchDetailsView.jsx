@@ -109,7 +109,7 @@ export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
             onGenerateExcuse={losingSide === 'away' ? openExcuseGenerator : null}
           />
         </div>
-        <p className="mt-3 rounded bg-eggshell-800 px-3 py-2 text-sm font-bold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
+        <p className="mt-3 rounded bg-eggshell-800 px-3 py-2 text-xs font-bold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
           Scores and match events may be delayed while the data provider feed catches up.
         </p>
 
@@ -159,9 +159,6 @@ export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
       <section className="mt-5 rounded-lg border border-twilight_indigo-900 bg-white p-4 shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200 sm:p-5">
         <MatchDetails match={match} />
       </section>
-      <p className="mt-4 rounded bg-white px-3 py-2 text-sm font-bold text-twilight_indigo-600 shadow-panel ring-1 ring-twilight_indigo-900 dark:bg-twilight_indigo-200 dark:text-eggshell-600 dark:ring-white/10">
-        Lineups, events, stats, and final data update after the match feed is available/final.
-      </p>
     </main>
   )
 
@@ -190,9 +187,9 @@ function getMatchLabel(match) {
 
 function TeamHeading({ team, align = 'left', onGenerateExcuse = null }) {
   return (
-    <div className={`min-w-0 ${align === 'right' ? 'text-right' : ''}`}>
-      <div className={`flex min-w-0 items-start gap-2 ${align === 'right' ? 'justify-end' : ''}`}>
-        <h2 className="break-words text-xl font-black leading-tight text-twilight_indigo dark:text-eggshell-800 sm:text-2xl">
+    <div className={`min-w-0 px-1 ${align === 'right' ? 'text-right' : ''}`}>
+      <div className={`flex min-w-0 items-start gap-3 ${align === 'right' ? 'justify-end' : ''}`}>
+        <h2 className="min-w-0 break-words text-xl font-black leading-tight text-twilight_indigo dark:text-eggshell-800 sm:text-2xl">
           <span aria-hidden="true">{team.flag}</span> {team.name}
         </h2>
         {onGenerateExcuse ? (

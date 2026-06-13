@@ -43,16 +43,18 @@ export function ScheduleView({ matches, onBack, onMatchSelect }) {
   }, [initialScrollDate])
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-      <button
-        type="button"
-        onClick={onBack}
-        className="fixed left-4 top-4 z-30 inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100 sm:left-6 sm:top-6"
-        aria-label="Back to match hub"
-      >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-        Match hub
-      </button>
+    <main className="mx-auto max-w-7xl px-4 pb-5 sm:px-6 sm:pb-8 lg:px-8">
+      <div className="sticky top-0 z-30 -mx-4 bg-eggshell/95 px-4 py-4 backdrop-blur dark:bg-twilight_indigo-100/95 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center gap-2 rounded bg-white px-4 py-2 text-sm font-black text-twilight_indigo shadow-panel ring-1 ring-twilight_indigo-900 transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach-300 focus:ring-offset-2 dark:bg-twilight_indigo-200 dark:text-eggshell-800 dark:ring-white/10 dark:hover:bg-twilight_indigo-300 dark:focus:ring-burnt_peach-600 dark:focus:ring-offset-twilight_indigo-100"
+          aria-label="Back to match hub"
+        >
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+          Match hub
+        </button>
+      </div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase text-burnt_peach-300 dark:text-burnt_peach-600 sm:text-sm">Real schedule</p>
@@ -64,7 +66,7 @@ export function ScheduleView({ matches, onBack, onMatchSelect }) {
       </div>
 
       {matches.length === 0 ? (
-        <div className="mt-6 rounded-lg border border-twilight_indigo-900 bg-white p-6 text-sm font-bold text-twilight_indigo-600 shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200 dark:text-eggshell-600">
+        <div className="mt-6 rounded-lg border border-twilight_indigo-900 bg-white p-6 text-xs font-bold text-twilight_indigo-600 shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200 dark:text-eggshell-600">
           Fixtures will appear here once Supabase has schedule rows.
         </div>
       ) : (
@@ -83,7 +85,7 @@ export function ScheduleView({ matches, onBack, onMatchSelect }) {
             >
               <h2
                 id={`schedule-${date}`}
-                className="sticky top-0 z-10 flex items-center gap-2 border-y border-twilight_indigo-900 bg-eggshell py-2 text-lg font-black dark:border-white/10 dark:bg-twilight_indigo-100 dark:text-eggshell-800 sm:py-3 sm:text-xl"
+                className="sticky top-16 z-10 flex items-center gap-2 border-y border-twilight_indigo-900 bg-eggshell py-2 text-lg font-black dark:border-white/10 dark:bg-twilight_indigo-100 dark:text-eggshell-800 sm:top-[4.5rem] sm:py-3 sm:text-xl"
               >
                 <CalendarDays aria-hidden="true" className="h-5 w-5 text-muted_teal-300 dark:text-muted_teal-600" />
                 {formatDate(date)}

@@ -1,10 +1,24 @@
 import teams from '../data/worldcupTeams2026.json'
+import worldCupSchedule from '../data/worldcup2026.json'
 import { formatKickoffTime } from './timeFormat'
 
-const teamMetaByName = new Map(teams.map((team) => [team.name.toLowerCase(), team]))
+const teamMetaByName = new Map(
+  teams.flatMap((team) => [
+    [normalizeTeamName(team.name), team],
+    team.name_normalised ? [normalizeTeamName(team.name_normalised), team] : null,
+    team.fifa_code ? [normalizeTeamName(team.fifa_code), team] : null,
+  ]).filter(Boolean),
+)
+
+const fallbackGroundByTeams = new Map(
+  (worldCupSchedule.matches ?? []).map((match) => [
+    getFixtureTeamsKey(match.team1, match.team2),
+    match.ground,
+  ]),
+)
 
 const getTeam = (name) => {
-  const team = teamMetaByName.get(name.toLowerCase())
+  const team = teamMetaByName.get(normalizeTeamName(name))
 
   return {
     name,
@@ -36,7 +50,7 @@ export const mapFixtureRowsToMatches = (fixtures) =>
       time: formatKickoffTime(fixture.kickoff_at),
       kickoffAt: kickoff.toISOString(),
       group: fixture.group_name ?? fixture.round_name ?? 'World Cup',
-      ground: fixture.ground ?? 'Venue TBA',
+      ground: getFixtureGround(fixture),
       minute: fixture.minute,
       status: toMatchStatus(fixture.status),
       home: getTeam(fixture.home_team),
@@ -62,6 +76,33 @@ export const mapFixtureRowsToMatches = (fixtures) =>
       events: [],
     }
   })
+
+const getFixtureGround = (fixture) => {
+  if (typeof fixture.ground === 'string' && fixture.ground.trim() !== '') {
+    return fixture.ground.trim()
+  }
+
+  return fallbackGroundByTeams.get(getFixtureTeamsKey(fixture.home_team, fixture.away_team)) ?? 'Venue TBA'
+}
+
+function getFixtureTeamsKey(homeTeam, awayTeam) {
+  return `${getCanonicalTeamKey(homeTeam)}::${getCanonicalTeamKey(awayTeam)}`
+}
+
+function getCanonicalTeamKey(name) {
+  const normalizedName = normalizeTeamName(name)
+  const team = teamMetaByName.get(normalizedName)
+
+  return normalizeTeamName(team?.name ?? normalizedName)
+}
+
+function normalizeTeamName(name) {
+  return String(name ?? '')
+    .toLowerCase()
+    .replace(/&/g, '')
+    .replace(/\band\b/g, '')
+    .replace(/[^a-z0-9]/g, '')
+}
 
 export const sortMatchesByKickoff = (matches) =>
   [...matches].sort((first, second) => {

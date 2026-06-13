@@ -78,7 +78,7 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
           </span>
         )}
       </div>
-      <p className="mt-4 rounded bg-white/10 px-3 py-2 text-sm font-bold text-eggshell-600 ring-1 ring-white/15 dark:text-eggshell-700">
+      <p className="mt-4 rounded bg-white/10 px-3 py-2 text-xs font-bold text-eggshell-600 ring-1 ring-white/15 dark:text-eggshell-700">
         Haircut streaks update after standings refresh from final matches; in-progress matches are not reflected.
       </p>
       {hasTeams ? (
@@ -89,11 +89,11 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
               className={`rounded-lg bg-white/10 p-3 ring-1 ring-white/15 dark:bg-twilight_indigo-300 sm:p-4 ${expanded ? '' : 'min-w-56 flex-1 sm:min-w-64'}`}
             >
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <TeamName team={team} />
                 </div>
                 <span
-                  className={`rounded px-2 py-1 text-xs font-black uppercase ${
+                  className={`shrink-0 whitespace-nowrap rounded px-2 py-1 text-xs font-black uppercase ${
                     team.canCutHair ? 'bg-muted_teal text-twilight_indigo-100 dark:bg-muted_teal-600' : 'bg-eggshell text-twilight_indigo dark:bg-twilight_indigo-400 dark:text-eggshell-800'
                   }`}
                 >
@@ -131,10 +131,10 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
 
 function TeamName({ team }) {
   return (
-    <h3 className="flex min-w-0 items-center gap-2 text-base font-black sm:text-lg">
+    <h3 className="flex min-w-0 items-start gap-2 text-base font-black leading-tight sm:text-lg">
       {team.logo ? <img className="h-5 w-5 shrink-0 rounded-full bg-white object-contain sm:h-6 sm:w-6" src={team.logo} alt="" /> : null}
       {team.flag ? <span aria-hidden="true">{team.flag}</span> : null}
-      <span className="truncate">{team.team}</span>
+      <span className="line-clamp-2 min-w-0">{team.team}</span>
     </h3>
   )
 }

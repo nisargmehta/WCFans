@@ -1,7 +1,7 @@
 export function NewsFeed({ articles }) {
   if (articles.length === 0) {
     return (
-      <div className="rounded-lg border border-twilight_indigo-900 bg-white p-6 text-sm font-bold text-twilight_indigo-600 shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200 dark:text-eggshell-600">
+      <div className="rounded-lg border border-twilight_indigo-900 bg-white p-6 text-xs font-bold text-twilight_indigo-600 shadow-panel dark:border-white/10 dark:bg-twilight_indigo-200 dark:text-eggshell-600">
         Latest RSS stories will appear here when a configured feed is reachable.
       </div>
     )

@@ -1,5 +1,4 @@
-import { ArrowDownLeft, ArrowUpRight, ChevronDown, Circle } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowDownLeft, ArrowUpRight, Circle } from 'lucide-react'
 
 const STAT_KEYS = [
   'ball_possession',
@@ -15,13 +14,10 @@ const STAT_KEYS = [
 ]
 
 export function MatchDetails({ match }) {
-  const [lineupsExpanded, setLineupsExpanded] = useState(false)
   const details = match.details ?? {}
-  const hasLineups = hasItems(details.homeLineup) || hasItems(details.awayLineup)
   const hasReferees = hasItems(details.referees)
   const statRows = getStatRows(details.homeStatistics, details.awayStatistics)
   const timelineEvents = getTimelineEvents(match)
-  const lineupsContentId = `${match.id}-lineups-content`
 
   return (
     <div className="space-y-5">
@@ -51,7 +47,7 @@ export function MatchDetails({ match }) {
             </table>
           </div>
         ) : (
-          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
+          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-xs font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
             Officials will appear once the match feed publishes referee assignments.
           </p>
         )}
@@ -78,7 +74,7 @@ export function MatchDetails({ match }) {
             ))}
           </div>
         ) : (
-          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
+          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-xs font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
             Stats will appear once the match feed updates.
           </p>
         )}
@@ -91,51 +87,10 @@ export function MatchDetails({ match }) {
         {timelineEvents.length > 0 ? (
           <Timeline events={timelineEvents} />
         ) : (
-          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
+          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-xs font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
             Match events will appear once Football-Data publishes goals, cards, and substitutions.
           </p>
         )}
-      </section>
-
-      <section aria-labelledby={`${match.id}-lineups-heading`}>
-        <div className="flex items-center justify-between gap-3">
-          <h3 id={`${match.id}-lineups-heading`} className="text-lg font-black text-twilight_indigo dark:text-eggshell-800">
-            Lineups
-          </h3>
-          {hasLineups ? (
-            <button
-              type="button"
-              onClick={() => setLineupsExpanded((current) => !current)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded border border-twilight_indigo-900 bg-white text-twilight_indigo transition hover:bg-eggshell-800 focus:outline-none focus:ring-2 focus:ring-burnt_peach dark:border-white/10 dark:bg-twilight_indigo-300 dark:text-eggshell-800 dark:hover:bg-twilight_indigo-400 dark:focus:ring-burnt_peach-600"
-              aria-controls={lineupsContentId}
-              aria-expanded={lineupsExpanded}
-              aria-label={lineupsExpanded ? 'Collapse lineups' : 'Expand lineups'}
-            >
-              <ChevronDown aria-hidden="true" className={`h-4 w-4 transition ${lineupsExpanded ? 'rotate-180' : ''}`} />
-            </button>
-          ) : null}
-        </div>
-        {!hasLineups ? (
-          <p className="mt-2 rounded bg-eggshell-800 px-3 py-2 text-sm font-semibold text-twilight_indigo-600 dark:bg-twilight_indigo-300 dark:text-eggshell-600">
-            Lineups will appear after Football-Data publishes match details.
-          </p>
-        ) : null}
-        {hasLineups && lineupsExpanded ? (
-          <div id={lineupsContentId} className="mt-2 grid gap-3 md:grid-cols-2">
-            <TeamSheet
-              team={match.home}
-              formation={details.homeFormation}
-              lineup={details.homeLineup}
-              bench={details.homeBench}
-            />
-            <TeamSheet
-              team={match.away}
-              formation={details.awayFormation}
-              lineup={details.awayLineup}
-              bench={details.awayBench}
-            />
-          </div>
-        ) : null}
       </section>
     </div>
   )
@@ -236,33 +191,6 @@ function TimelineIcon({ event }) {
     <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-eggshell ring-1 ring-white/20 dark:text-eggshell-800" aria-hidden="true">
       <Circle className="h-5 w-5 fill-eggshell stroke-eggshell dark:fill-eggshell-800 dark:stroke-eggshell-800" />
     </span>
-  )
-}
-
-function TeamSheet({ team, formation, lineup = [], bench = [] }) {
-  return (
-    <div className="rounded border border-twilight_indigo-900 bg-eggshell-900 p-3 dark:border-white/10 dark:bg-twilight_indigo-300">
-      <div className="flex items-center justify-between gap-3">
-        <h5 className="truncate text-sm font-black text-twilight_indigo dark:text-eggshell-800">
-          <span aria-hidden="true">{team.flag}</span> {team.name}
-        </h5>
-        {formation ? <span className="rounded bg-white px-2 py-1 text-xs font-black text-twilight_indigo dark:bg-twilight_indigo-100 dark:text-eggshell-800">{formation}</span> : null}
-      </div>
-      <ol className="mt-3 space-y-1 text-sm text-twilight_indigo dark:text-eggshell-800">
-        {lineup.map((player) => (
-          <li key={player.id ?? player.name} className="flex items-center justify-between gap-3">
-            <span className="truncate font-semibold">{player.name}</span>
-            <span className="shrink-0 text-xs font-bold text-twilight_indigo-600 dark:text-eggshell-600">{player.position ?? player.shirtNumber ?? ''}</span>
-          </li>
-        ))}
-      </ol>
-      {bench.length > 0 ? (
-        <p className="mt-3 text-xs font-bold text-twilight_indigo-600 dark:text-eggshell-600">
-          Bench: {bench.slice(0, 5).map((player) => player.name).join(', ')}
-          {bench.length > 5 ? '...' : ''}
-        </p>
-      ) : null}
-    </div>
   )
 }
 

@@ -50,5 +50,6 @@ describe('MatchDetailsView', () => {
     render(<MatchDetailsView match={finalParaguayLoss} onBack={vi.fn()} />)
 
     expect(screen.getByText(/scores and match events may be delayed/i)).toBeInTheDocument()
+    expect(screen.queryByText(/lineups, events, stats, and final data/i)).not.toBeInTheDocument()
   })
 })
