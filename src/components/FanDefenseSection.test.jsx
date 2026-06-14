@@ -55,7 +55,7 @@ describe('FanDefenseSection', () => {
 
     expect(screen.getByText('Fan challenge')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /fan defense/i })).toBeInTheDocument()
-    expect(screen.getByText('only most recent losses are here, to look at all results go to full schedule. fan defense updates after standings refresh')).toBeInTheDocument()
+    expect(screen.getByText('only most recent losses are here, to look at all results go to full schedule. fan defense updates after standings refresh')).toHaveClass('rounded', 'bg-white/10', 'ring-1')
     expect(screen.queryByText(/latest losses, defended/i)).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /south africa/i })).toBeInTheDocument()
     expect(screen.getByText('lost 2-1 to Mexico')).toBeInTheDocument()

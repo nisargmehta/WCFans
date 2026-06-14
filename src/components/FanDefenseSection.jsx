@@ -72,10 +72,10 @@ export function FanDefenseSection({ matches, copyText = copyShareText, browserNa
         <h2 id="fan-defense-heading" className="mt-1 text-xl font-black sm:text-2xl">
           Fan defense
         </h2>
-        <p className="mt-2 max-w-2xl text-xs font-bold leading-snug text-eggshell-600">
-          only most recent losses are here, to look at all results go to full schedule. fan defense updates after standings refresh
-        </p>
       </div>
+      <p className="mt-4 rounded bg-white/10 px-3 py-2 text-xs font-bold text-eggshell-600 ring-1 ring-white/15 dark:text-eggshell-700">
+        only most recent losses are here, to look at all results go to full schedule. fan defense updates after standings refresh
+      </p>
 
       <div className="mt-4 grid gap-3 sm:mt-5 md:grid-cols-2 xl:grid-cols-4">
         {fanDefenseMatches.map((match) => {
