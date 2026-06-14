@@ -53,7 +53,7 @@ describe('FanDefenseSection', () => {
 
     render(<FanDefenseSection matches={matches} copyText={copyText} browserNavigator={{}} />)
 
-    expect(screen.getByText('Fan challenge')).toBeInTheDocument()
+    expect(screen.getByText('Fan ritual')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /fan defense/i })).toBeInTheDocument()
     expect(screen.getByText('only most recent losses are here, to look at all results go to full schedule. fan defense updates after standings refresh')).toHaveClass('rounded', 'bg-white/10', 'ring-1')
     expect(screen.queryByText(/latest losses, defended/i)).not.toBeInTheDocument()

@@ -49,7 +49,7 @@ export function HaircutTracker({ teams, copyText = copyShareText }) {
     <section className="rounded-lg bg-twilight_indigo p-4 text-eggshell shadow-panel dark:bg-twilight_indigo-200 dark:ring-1 dark:ring-white/10 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase text-apricot_cream dark:text-apricot_cream-600 sm:text-sm">Fan challenge</p>
+          <p className="text-xs font-bold uppercase text-apricot_cream dark:text-apricot_cream-600 sm:text-sm">Fan ritual</p>
           <h2 className="mt-1 text-xl font-black sm:text-2xl">Haircut tracker</h2>
         </div>
         {hasTeams ? (
