@@ -2,6 +2,7 @@ import { CalendarDays, ChevronDown, Moon, Sun, Trophy } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { CLICK_EVENTS, trackAppLaunch, trackClick } from './client/analytics'
 import { fetchDashboardData } from './client/api'
+import { FanDefenseSection } from './components/FanDefenseSection'
 import { HaircutTracker } from './components/HaircutTracker'
 import { LiveScoresTicker } from './components/LiveScoresTicker'
 import { MatchCard } from './components/MatchCard'
@@ -163,6 +164,7 @@ function App() {
 
       <main className="mx-auto max-w-7xl space-y-7 px-4 py-5 sm:space-y-10 sm:px-6 sm:py-8 lg:px-8">
         <HaircutTracker teams={dashboard.haircutTracker} />
+        <FanDefenseSection matches={dashboard.scheduleMatches} />
 
         <section aria-labelledby="matches-heading">
           <div className="flex flex-wrap items-end justify-between gap-3">

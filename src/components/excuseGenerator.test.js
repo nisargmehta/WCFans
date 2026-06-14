@@ -48,9 +48,9 @@ describe('excuseGenerator', () => {
     expect(excuses).toContain('The ref was biased and everyone watching knows it.')
   })
 
-  it('formats share copy with the matchup and excuse', () => {
+  it('formats share copy with the excuse, matchup hashtag, and web app link', () => {
     expect(buildExcuseShareText(baseMatch, 'away', 'The ref was biased.')).toBe(
-      'Paraguay vs United States (2-1): The ref was biased. #WCFans',
+      'The ref was biased. #ParVsUSA. https://wc-fans.vercel.app',
     )
   })
 })

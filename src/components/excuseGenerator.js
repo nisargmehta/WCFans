@@ -37,6 +37,7 @@ const CORNER_GAP = 3
 const SHOT_GAP = 4
 const FOUL_GAP = 4
 const HIGH_SAVES = 5
+export const WCFANS_URL = 'https://wc-fans.vercel.app'
 
 export function getLosingSide(match) {
   if (match?.status !== 'Final') {
@@ -75,10 +76,16 @@ export function buildExcuseOptions(match, teamSide) {
 export function buildExcuseShareText(match, teamSide, excuse) {
   const team = match?.[teamSide]
   const opponent = match?.[teamSide === 'home' ? 'away' : 'home']
-  const score = formatScore(match?.score)
-  const matchup = team?.name && opponent?.name ? `${team.name} vs ${opponent.name}` : 'that match'
+  const hashtag = buildMatchupHashtag(team, opponent)
 
-  return `${matchup}${score ? ` (${score})` : ''}: ${excuse} #WCFans`
+  return `${excuse} #${hashtag}. ${WCFANS_URL}`
+}
+
+export function buildMatchupHashtag(team, opponent) {
+  const teamLabel = getHashtagTeamLabel(team)
+  const opponentLabel = getHashtagTeamLabel(opponent)
+
+  return `${teamLabel}Vs${opponentLabel}`
 }
 
 function getPossessionExcuse(team, opponent, teamStats, opponentStats) {
@@ -154,13 +161,6 @@ function getRedCardExcuse(teamStats) {
   return null
 }
 
-function formatScore(score) {
-  const homeScore = toNumber(score?.home)
-  const awayScore = toNumber(score?.away)
-
-  return homeScore === null || awayScore === null ? null : `${homeScore}-${awayScore}`
-}
-
 function toNumber(value) {
   if (typeof value === 'number') {
     return value
@@ -172,4 +172,19 @@ function toNumber(value) {
   }
 
   return null
+}
+
+function getHashtagTeamLabel(team) {
+  const rawLabel = team?.code || team?.name || 'Team'
+  const compactLabel = String(rawLabel).replace(/[^a-z0-9]/gi, '')
+
+  if (!compactLabel) {
+    return 'Team'
+  }
+
+  if (compactLabel === compactLabel.toUpperCase() && compactLabel.length <= 3) {
+    return compactLabel === 'USA' ? 'USA' : `${compactLabel[0]}${compactLabel.slice(1).toLowerCase()}`
+  }
+
+  return `${compactLabel[0].toUpperCase()}${compactLabel.slice(1)}`
 }
