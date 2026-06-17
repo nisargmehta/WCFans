@@ -14,13 +14,15 @@ begin
       'sync-match-details-when-active',
       'sync-fixture-previews-every-6-hours',
       'sync-standings-daily',
-      'sync-standings-every-10-minutes'
+      'sync-standings-every-10-minutes',
+      'cleanup-news-articles-daily'
     )
     or command like '%/functions/v1/sync-rss-news%'
     or command like '%/functions/v1/sync-fixtures%'
     or command like '%/functions/v1/sync-match-details%'
     or command like '%/functions/v1/sync-fixture-previews%'
     or command like '%/functions/v1/sync-standings%'
+    or command like '%delete from public.news_articles%'
   loop
     perform cron.unschedule(job.jobid);
   end loop;
