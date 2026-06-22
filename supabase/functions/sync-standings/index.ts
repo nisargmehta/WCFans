@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { firstEnv, jsonResponse, requireEnv } from '../_shared/http.ts'
+import { getCurrentWinStreak } from '../_shared/haircutTracker.ts'
 
 const FOOTBALL_DATA_BASE_URL = 'https://api.football-data.org/v4'
 const DEFAULT_COMPETITION_CODE = 'WC'
@@ -86,25 +87,6 @@ const numberEnv = (name: string, defaultValue: string) => {
   }
 
   return value
-}
-
-const getCurrentWinStreak = (form: string | null) => {
-  if (!form) {
-    return 0
-  }
-
-  const results = form.toUpperCase().replace(/[^WDL]/g, '').split('')
-  let streak = 0
-
-  for (let index = results.length - 1; index >= 0; index -= 1) {
-    if (results[index] !== 'W') {
-      break
-    }
-
-    streak += 1
-  }
-
-  return streak
 }
 
 const toGroupName = (group: unknown) => {
