@@ -1,27 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { firstEnv, jsonResponse, requireEnv } from '../_shared/http.ts'
+import { getMatchDetailsDueReason } from '../_shared/matchDetailsSchedule.ts'
+import type { FixtureRow } from '../_shared/matchDetailsSchedule.ts'
 
 const FOOTBALL_DATA_BASE_URL = 'https://api.football-data.org/v4'
-const PREMATCH_REFRESH_MINUTES = [55, 30]
-const PREMATCH_LINEUP_WINDOW_MINUTES = 60
-const PREMATCH_LINEUP_REFRESH_INTERVAL_MS = 5 * 60 * 1000
 const DEFAULT_LIVE_WINDOW_MINUTES = 180
+const DEFAULT_INTERRUPTED_MATCH_RECOVERY_WINDOW_MINUTES = 48 * 60
 const DEFAULT_TERMINAL_SCORE_WINDOW_MINUTES = 24 * 60
-const LIVE_REFRESH_INTERVAL_MS = 60 * 1000
-const TERMINAL_SCORE_REFRESH_INTERVAL_MS = 5 * 60 * 1000
-const TERMINAL_STATUSES = new Set(['FINISHED', 'AWARDED', 'CANCELLED', 'CANCELED', 'POSTPONED', 'SUSPENDED'])
-
-type FixtureRow = {
-  match_id: string
-  kickoff_at: string
-  status: string | null
-  football_data_match_id: number | null
-  match_details_last_checked_at: string | null
-  home_lineup: unknown[] | null
-  away_lineup: unknown[] | null
-  home_score: number | null
-  away_score: number | null
-}
 
 type DueFixture = FixtureRow & {
   reason: string
@@ -70,15 +55,6 @@ const invokeSyncStandings = async (supabaseUrl: string, serviceRoleKey: string) 
   return payload
 }
 
-const asDate = (value: string | null) => {
-  if (!value) {
-    return null
-  }
-
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? null : date
-}
-
 const getLiveWindowMinutes = () => {
   const configuredMinutes = Number(Deno.env.get('MATCH_DETAILS_LIVE_WINDOW_MINUTES') ?? DEFAULT_LIVE_WINDOW_MINUTES)
   return Number.isFinite(configuredMinutes) && configuredMinutes > 0 ? configuredMinutes : DEFAULT_LIVE_WINDOW_MINUTES
@@ -89,70 +65,13 @@ const getTerminalScoreWindowMinutes = () => {
   return Number.isFinite(configuredMinutes) && configuredMinutes > 0 ? configuredMinutes : DEFAULT_TERMINAL_SCORE_WINDOW_MINUTES
 }
 
-const isTerminalStatus = (status: string | null) => Boolean(status && TERMINAL_STATUSES.has(status))
-
-const isFinishedStatus = (status: string | null) => status === 'FINISHED'
-
-const hasPublishedLineups = (fixture: FixtureRow) =>
-  (Array.isArray(fixture.home_lineup) && fixture.home_lineup.length > 0) ||
-  (Array.isArray(fixture.away_lineup) && fixture.away_lineup.length > 0)
-
-const hasFullTimeScore = (fixture: FixtureRow) =>
-  typeof fixture.home_score === 'number' && typeof fixture.away_score === 'number'
-
-const getDueReason = (fixture: FixtureRow, now: Date, liveWindowMinutes: number, terminalScoreWindowMinutes: number) => {
-  if (!fixture.football_data_match_id) {
-    return null
-  }
-
-  const kickoffAt = asDate(fixture.kickoff_at)
-  if (!kickoffAt) {
-    return null
-  }
-
-  const lastCheckedAt = asDate(fixture.match_details_last_checked_at)
-  const lastCheckedTime = lastCheckedAt?.getTime() ?? 0
-  const nowTime = now.getTime()
-  const kickoffTime = kickoffAt.getTime()
-
-  if (isTerminalStatus(fixture.status)) {
-    if (!isFinishedStatus(fixture.status) || hasFullTimeScore(fixture)) {
-      return null
-    }
-
-    const terminalScoreWindowEndsAt = kickoffTime + terminalScoreWindowMinutes * 60 * 1000
-    if (nowTime > terminalScoreWindowEndsAt) {
-      return null
-    }
-
-    return nowTime - lastCheckedTime >= TERMINAL_SCORE_REFRESH_INTERVAL_MS ? 'terminal-score' : null
-  }
-
-  if (nowTime < kickoffTime) {
-    const lineupWindowStart = kickoffTime - PREMATCH_LINEUP_WINDOW_MINUTES * 60 * 1000
-    if (!hasPublishedLineups(fixture) && nowTime >= lineupWindowStart) {
-      const hasNeverChecked = lastCheckedTime === 0
-      const refreshIntervalElapsed = nowTime - lastCheckedTime >= PREMATCH_LINEUP_REFRESH_INTERVAL_MS
-
-      if (hasNeverChecked || refreshIntervalElapsed) {
-        return 'prematch-lineups'
-      }
-    }
-
-    const duePrematchRefresh = PREMATCH_REFRESH_MINUTES.some((minutesBeforeKickoff) => {
-      const targetTime = kickoffTime - minutesBeforeKickoff * 60 * 1000
-      return nowTime >= targetTime && lastCheckedTime < targetTime
-    })
-
-    return duePrematchRefresh ? 'prematch' : null
-  }
-
-  const liveWindowEndsAt = kickoffTime + liveWindowMinutes * 60 * 1000
-  if (nowTime > liveWindowEndsAt) {
-    return null
-  }
-
-  return nowTime - lastCheckedTime >= LIVE_REFRESH_INTERVAL_MS ? 'live' : null
+const getInterruptedMatchRecoveryWindowMinutes = () => {
+  const configuredMinutes = Number(
+    Deno.env.get('MATCH_DETAILS_INTERRUPTED_RECOVERY_WINDOW_MINUTES') ?? DEFAULT_INTERRUPTED_MATCH_RECOVERY_WINDOW_MINUTES,
+  )
+  return Number.isFinite(configuredMinutes) && configuredMinutes > 0
+    ? configuredMinutes
+    : DEFAULT_INTERRUPTED_MATCH_RECOVERY_WINDOW_MINUTES
 }
 
 const toFixtureDetailUpdate = (match: Record<string, any>, syncedAt: string) => {
@@ -206,8 +125,9 @@ Deno.serve(async () => {
     const apiKey = requireEnv('FOOTBALL_DATA_API_KEY')
     const now = new Date(syncedAt)
     const liveWindowMinutes = getLiveWindowMinutes()
+    const interruptedMatchRecoveryWindowMinutes = getInterruptedMatchRecoveryWindowMinutes()
     const terminalScoreWindowMinutes = getTerminalScoreWindowMinutes()
-    const lowerBoundMinutes = Math.max(liveWindowMinutes, terminalScoreWindowMinutes)
+    const lowerBoundMinutes = Math.max(liveWindowMinutes, interruptedMatchRecoveryWindowMinutes, terminalScoreWindowMinutes)
     const lowerBound = new Date(now.getTime() - lowerBoundMinutes * 60 * 1000).toISOString()
     const upperBound = new Date(now.getTime() + 56 * 60 * 1000).toISOString()
 
@@ -224,7 +144,11 @@ Deno.serve(async () => {
     }
 
     const dueFixtures = ((fixtures ?? []) as FixtureRow[]).reduce<DueFixture[]>((records, fixture) => {
-      const reason = getDueReason(fixture, now, liveWindowMinutes, terminalScoreWindowMinutes)
+      const reason = getMatchDetailsDueReason(fixture, now, {
+        liveWindowMinutes,
+        interruptedMatchRecoveryWindowMinutes,
+        terminalScoreWindowMinutes,
+      })
       return reason ? [...records, { ...fixture, reason }] : records
     }, [])
 

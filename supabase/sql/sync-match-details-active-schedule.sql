@@ -10,6 +10,7 @@ declare
   existing_command text;
   guarded_command text;
   old_guard text;
+  current_guard text;
   new_guard text;
   job record;
 begin
@@ -39,7 +40,7 @@ begin
   );
 $old$;
 
-  new_guard := $new$
+  current_guard := $current$
   where exists (
     select 1
     from public.fixtures
@@ -56,12 +57,38 @@ $old$;
         )
       )
   );
+$current$;
+
+  new_guard := $new$
+  where exists (
+    select 1
+    from public.fixtures
+    where football_data_match_id is not null
+      and (
+        (
+          coalesce(status, '') not in ('FINISHED', 'AWARDED', 'CANCELLED', 'CANCELED', 'POSTPONED', 'SUSPENDED')
+          and kickoff_at between now() - interval '180 minutes' and now() + interval '60 minutes'
+        )
+        or (
+          status in ('IN_PLAY', 'PAUSED', 'SUSPENDED')
+          and kickoff_at between now() - interval '48 hours' and now()
+        )
+        or (
+          status = 'FINISHED'
+          and (home_score is null or away_score is null)
+          and kickoff_at between now() - interval '24 hours' and now()
+        )
+      )
+  );
 $new$;
 
-  if existing_command ilike '%status = ''FINISHED''%'
-    and existing_command ilike '%home_score is null or away_score is null%'
+  if existing_command ilike '%interval ''48 hours''%'
   then
     guarded_command := existing_command;
+  elsif existing_command ilike '%status = ''FINISHED''%'
+    and existing_command ilike '%home_score is null or away_score is null%'
+  then
+    guarded_command := replace(existing_command, current_guard, new_guard);
   elsif existing_command ilike '%football_data_match_id is not null%'
     and existing_command ilike '%kickoff_at between now()%'
   then

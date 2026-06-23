@@ -69,6 +69,10 @@ select cron.schedule(
           and kickoff_at between now() - interval '180 minutes' and now() + interval '60 minutes'
         )
         or (
+          status in ('IN_PLAY', 'PAUSED', 'SUSPENDED')
+          and kickoff_at between now() - interval '48 hours' and now()
+        )
+        or (
           status = 'FINISHED'
           and (home_score is null or away_score is null)
           and kickoff_at between now() - interval '24 hours' and now()
