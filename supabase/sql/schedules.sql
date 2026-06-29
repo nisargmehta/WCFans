@@ -94,7 +94,7 @@ select cron.schedule(
 
 select cron.schedule(
   'sync-fixtures-knockout-refresh',
-  '0 5 * * *',
+  '0 5,23 * * *',
   $$
   select net.http_post(
     url := 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-fixtures',
