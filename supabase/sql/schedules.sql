@@ -14,6 +14,7 @@ begin
     from cron.job
     where jobname in (
       'sync-rss-news-every-3-hours',
+      'sync-fixtures-knockout-refresh',
       'sync-match-details-every-minute',
       'sync-match-details-when-active',
       'sync-fixture-previews-every-6-hours',
@@ -92,6 +93,22 @@ select cron.schedule(
 );
 
 select cron.schedule(
+  'sync-fixtures-knockout-refresh',
+  '10 8 * * *',
+  $$
+  select net.http_post(
+    url := 'https://qhkglztddsowhgjqskqz.supabase.co/functions/v1/sync-fixtures',
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer YOUR_SUPABASE_FUNCTION_JWT',
+      'Content-Type', 'application/json'
+    ),
+    body := '{}'::jsonb
+  )
+  where now() >= timestamptz '2026-06-27 00:00:00+00';
+  $$
+);
+
+select cron.schedule(
   'sync-standings-every-10-minutes',
   '*/10 * * * *',
   $$
@@ -110,6 +127,7 @@ select jobid, jobname, schedule
 from cron.job
 where jobname in (
   'sync-rss-news-every-3-hours',
+  'sync-fixtures-knockout-refresh',
   'sync-match-details-when-active',
   'sync-standings-every-10-minutes',
   'cleanup-news-articles-daily'

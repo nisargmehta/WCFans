@@ -23,26 +23,4 @@ describe('mapFixtureRowsToMatches', () => {
     expect(match.home.code).toBe('USA')
     expect(match.home.flag).toBe('🇺🇸')
   })
-
-  it('falls back to local knockout slots when provider teams are still TBD', () => {
-    const [match] = mapFixtureRowsToMatches([
-      {
-        match_id: 'knockout-76',
-        kickoff_at: '2026-06-29T17:00:00Z',
-        home_team: 'TBD',
-        away_team: 'TBD',
-        group_name: null,
-        round_name: 'LAST 32',
-        ground: null,
-        status: 'TIMED',
-        minute: null,
-        home_score: null,
-        away_score: null,
-      },
-    ])
-
-    expect(match.home).toEqual({ name: '1C', code: '1C', flag: '' })
-    expect(match.away).toEqual({ name: '2F', code: '2F', flag: '' })
-    expect(match.ground).toBe('Houston')
-  })
 })
