@@ -17,6 +17,11 @@ const fallbackGroundByTeams = new Map(
   ]),
 )
 
+const resultOverridesByMatchId = new Map([
+  ['537415', { winner: 'AWAY_TEAM', duration: 'PENALTY_SHOOTOUT' }],
+  ['537418', { winner: 'AWAY_TEAM', duration: 'PENALTY_SHOOTOUT' }],
+])
+
 const getTeam = (name) => {
   const team = teamMetaByName.get(normalizeTeamName(name))
 
@@ -42,6 +47,9 @@ const toMatchStatus = (status) => {
 export const mapFixtureRowsToMatches = (fixtures) =>
   fixtures.map((fixture) => {
     const kickoff = new Date(fixture.kickoff_at)
+    const resultOverride = resultOverridesByMatchId.get(String(fixture.match_id))
+    const scoreWinner = resultOverride?.winner ?? fixture.score_winner ?? fixture.score_detail?.winner ?? fixture.raw_payload?.score?.winner ?? null
+    const scoreDuration = resultOverride?.duration ?? fixture.score_detail?.duration
 
     return {
       id: fixture.match_id,
@@ -55,7 +63,14 @@ export const mapFixtureRowsToMatches = (fixtures) =>
       status: toMatchStatus(fixture.status),
       home: getTeam(fixture.home_team),
       away: getTeam(fixture.away_team),
-      score: { home: fixture.home_score, away: fixture.away_score },
+      winner: scoreWinner,
+      score: {
+        home: fixture.home_score,
+        away: fixture.away_score,
+        winner: scoreWinner,
+        duration: scoreDuration,
+        penalties: fixture.score_detail?.penalties,
+      },
       details: {
         syncedAt: fixture.match_details_synced_at,
         homeFormation: fixture.home_formation,

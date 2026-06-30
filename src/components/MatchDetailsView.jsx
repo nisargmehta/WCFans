@@ -1,12 +1,14 @@
 import { ArrowLeft, Clock, Copy, MapPin, MessageCircle, RefreshCcw, Share2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { CLICK_EVENTS, trackClick } from '../client/analytics'
+import { getResultSummary } from '../server/matchResult'
 import { buildExcuseOptions, buildExcuseShareText, getLosingSide } from './excuseGenerator'
 import { MatchDetails } from './MatchDetails'
 
 export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
   const isLive = match.status === 'Live'
   const losingSide = getLosingSide(match)
+  const resultSummary = getResultSummary(match)
   const excuseOptions = useMemo(
     () => (losingSide ? buildExcuseOptions(match, losingSide) : []),
     [losingSide, match],
@@ -101,7 +103,12 @@ export function MatchDetailsView({ match, onBack, backLabel = 'Match hub' }) {
             onGenerateExcuse={losingSide === 'home' ? openExcuseGenerator : null}
           />
           <div className="rounded bg-twilight_indigo px-3 py-2 text-center text-xl font-black text-eggshell dark:bg-burnt_peach-500 dark:text-twilight_indigo-100">
-            {formatScore(match)}
+            <span>{formatScore(match)}</span>
+            {resultSummary ? (
+              <span className="mt-1 block max-w-32 text-[0.65rem] font-black uppercase leading-tight text-eggshell-600 dark:text-twilight_indigo-300">
+                {resultSummary}
+              </span>
+            ) : null}
           </div>
           <TeamHeading
             team={match.away}

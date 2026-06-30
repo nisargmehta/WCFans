@@ -17,6 +17,8 @@ const fixture = (overrides: Partial<FixtureRow> = {}): FixtureRow => ({
   away_lineup: [],
   home_score: 1,
   away_score: 0,
+  score_winner: 'HOME_TEAM',
+  score_detail: { duration: 'REGULAR' },
   ...overrides,
 })
 
@@ -59,6 +61,39 @@ describe('getMatchDetailsDueReason', () => {
       getMatchDetailsDueReason(
         fixture({ match_details_last_checked_at: '2026-06-23T11:57:00.000Z' }),
         new Date('2026-06-23T12:00:00.000Z'),
+        options,
+      ),
+    ).toBeNull()
+  })
+
+  it('keeps refreshing tied shootout finals until a team winner arrives', () => {
+    expect(
+      getMatchDetailsDueReason(
+        fixture({
+          status: 'FINISHED',
+          home_score: 1,
+          away_score: 1,
+          score_winner: 'DRAW',
+          score_detail: { duration: 'PENALTY_SHOOTOUT' },
+          match_details_last_checked_at: '2026-06-22T14:55:00.000Z',
+        }),
+        new Date('2026-06-22T15:01:00.000Z'),
+        options,
+      ),
+    ).toBe('terminal-score')
+  })
+
+  it('does not refresh ordinary tied regular-time finals', () => {
+    expect(
+      getMatchDetailsDueReason(
+        fixture({
+          status: 'FINISHED',
+          home_score: 1,
+          away_score: 1,
+          score_winner: 'DRAW',
+          score_detail: { duration: 'REGULAR' },
+        }),
+        new Date('2026-06-22T15:01:00.000Z'),
         options,
       ),
     ).toBeNull()

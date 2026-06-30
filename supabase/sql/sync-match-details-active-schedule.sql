@@ -52,7 +52,15 @@ $old$;
         )
         or (
           status = 'FINISHED'
-          and (home_score is null or away_score is null)
+          and (
+            home_score is null
+            or away_score is null
+            or (
+              home_score = away_score
+              and coalesce(score_winner, '') not in ('HOME_TEAM', 'AWAY_TEAM')
+              and coalesce(score_detail->>'duration', '') <> 'REGULAR'
+            )
+          )
           and kickoff_at between now() - interval '24 hours' and now()
         )
       )
@@ -75,7 +83,15 @@ $current$;
         )
         or (
           status = 'FINISHED'
-          and (home_score is null or away_score is null)
+          and (
+            home_score is null
+            or away_score is null
+            or (
+              home_score = away_score
+              and coalesce(score_winner, '') not in ('HOME_TEAM', 'AWAY_TEAM')
+              and coalesce(score_detail->>'duration', '') <> 'REGULAR'
+            )
+          )
           and kickoff_at between now() - interval '24 hours' and now()
         )
       )

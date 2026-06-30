@@ -133,7 +133,7 @@ Deno.serve(async () => {
 
     const { data: fixtures, error } = await supabase
       .from('fixtures')
-      .select('match_id,kickoff_at,status,football_data_match_id,match_details_last_checked_at,home_lineup,away_lineup,home_score,away_score')
+      .select('match_id,kickoff_at,status,football_data_match_id,match_details_last_checked_at,home_lineup,away_lineup,home_score,away_score,score_winner,score_detail')
       .not('football_data_match_id', 'is', null)
       .gte('kickoff_at', lowerBound)
       .lte('kickoff_at', upperBound)

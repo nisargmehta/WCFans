@@ -109,6 +109,53 @@ describe('MatchCard', () => {
     expect(screen.queryByText('Mexico City')).not.toBeInTheDocument()
   })
 
+  it('shows the penalty winner for tied knockout finals', () => {
+    render(
+      <MatchCard
+        match={{
+          ...match,
+          status: 'Final',
+          group: 'Last 32',
+          round: 'Last 32',
+          home: { name: 'Germany', code: 'GER', flag: '🇩🇪' },
+          away: { name: 'Paraguay', code: 'PAR', flag: '🇵🇾' },
+          score: {
+            home: 5,
+            away: 5,
+            duration: 'PENALTY_SHOOTOUT',
+            penalties: { home: 4, away: 5 },
+          },
+        }}
+      />,
+    )
+
+    expect(screen.getByText('5 - 5')).toBeInTheDocument()
+    expect(screen.getByText('PAR wins 5-4 on pens')).toBeInTheDocument()
+  })
+
+  it('omits impossible equal shootout totals from the winner label', () => {
+    render(
+      <MatchCard
+        match={{
+          ...match,
+          status: 'Final',
+          home: { name: 'Germany', code: 'GER', flag: '🇩🇪' },
+          away: { name: 'Paraguay', code: 'PAR', flag: '🇵🇾' },
+          score: {
+            home: 5,
+            away: 5,
+            winner: 'AWAY_TEAM',
+            duration: 'PENALTY_SHOOTOUT',
+            penalties: { home: 4, away: 4 },
+          },
+        }}
+      />,
+    )
+
+    expect(screen.getByText('PAR wins on pens')).toBeInTheDocument()
+    expect(screen.queryByText('PAR wins 4-4 on pens')).not.toBeInTheDocument()
+  })
+
   it('collapses equivalent knockout stage and round labels', () => {
     const { container } = render(
       <MatchCard

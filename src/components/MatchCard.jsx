@@ -1,9 +1,11 @@
 import { Clock } from 'lucide-react'
 import { hasMatchFeedData } from '../server/matchDetails'
+import { getResultSummary } from '../server/matchResult'
 
 export function MatchCard({ match, onMatchSelect }) {
   const hasScore = match.status === 'Live' || match.status === 'Final'
   const canOpenDetails = (hasScore || hasMatchFeedData(match)) && onMatchSelect
+  const resultSummary = getResultSummary(match)
   const Summary = canOpenDetails ? 'button' : 'div'
   const summaryProps = canOpenDetails
     ? {
@@ -35,7 +37,12 @@ export function MatchCard({ match, onMatchSelect }) {
           <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:mt-3 sm:gap-3">
             <TeamBlock team={match.home} align="left" />
             <div className="rounded bg-twilight_indigo px-2 py-1.5 text-center text-sm font-black text-eggshell dark:bg-burnt_peach-500 dark:text-twilight_indigo-100 sm:px-3 sm:py-2 sm:text-lg">
-              {hasScore ? formatScore(match.score) : 'vs'}
+              <span>{hasScore ? formatScore(match.score) : 'vs'}</span>
+              {resultSummary ? (
+                <span className="mt-0.5 block max-w-24 text-[0.55rem] font-black uppercase leading-tight text-eggshell-600 dark:text-twilight_indigo-300 sm:max-w-28 sm:text-[0.65rem]">
+                  {resultSummary}
+                </span>
+              ) : null}
             </div>
             <TeamBlock team={match.away} align="right" />
           </div>

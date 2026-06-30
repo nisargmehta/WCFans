@@ -17,6 +17,8 @@ export type FixtureRow = {
   away_lineup: unknown[] | null
   home_score: number | null
   away_score: number | null
+  score_winner: string | null
+  score_detail: Record<string, unknown> | null
 }
 
 type ScheduleOptions = {
@@ -41,6 +43,27 @@ const hasPublishedLineups = (fixture: FixtureRow) =>
 const hasFullTimeScore = (fixture: FixtureRow) =>
   typeof fixture.home_score === 'number' && typeof fixture.away_score === 'number'
 
+const hasTeamWinner = (fixture: FixtureRow) =>
+  fixture.score_winner === 'HOME_TEAM' || fixture.score_winner === 'AWAY_TEAM'
+
+const getScoreDuration = (fixture: FixtureRow) => {
+  const duration = fixture.score_detail?.duration
+
+  return typeof duration === 'string' ? duration.toUpperCase() : null
+}
+
+const hasCompleteFinalResult = (fixture: FixtureRow) => {
+  if (!hasFullTimeScore(fixture)) {
+    return false
+  }
+
+  if (fixture.home_score !== fixture.away_score || hasTeamWinner(fixture)) {
+    return true
+  }
+
+  return getScoreDuration(fixture) === 'REGULAR'
+}
+
 export const getMatchDetailsDueReason = (fixture: FixtureRow, now: Date, options: ScheduleOptions) => {
   if (!fixture.football_data_match_id) {
     return null
@@ -57,7 +80,7 @@ export const getMatchDetailsDueReason = (fixture: FixtureRow, now: Date, options
   const kickoffTime = kickoffAt.getTime()
 
   if (fixture.status && TERMINAL_STATUSES.has(fixture.status)) {
-    if (fixture.status !== 'FINISHED' || hasFullTimeScore(fixture)) {
+    if (fixture.status !== 'FINISHED' || hasCompleteFinalResult(fixture)) {
       return null
     }
 

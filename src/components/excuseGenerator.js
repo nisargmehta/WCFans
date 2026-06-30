@@ -1,3 +1,5 @@
+import { getWinnerSide } from '../server/matchResult'
+
 const GENERIC_EXCUSES = [
   'The ref was biased and everyone watching knows it.',
   'The weather ruined the rhythm before the match could breathe.',
@@ -44,14 +46,12 @@ export function getLosingSide(match) {
     return null
   }
 
-  const homeScore = toNumber(match.score?.home)
-  const awayScore = toNumber(match.score?.away)
-
-  if (homeScore === null || awayScore === null || homeScore === awayScore) {
+  const winnerSide = getWinnerSide(match)
+  if (!winnerSide) {
     return null
   }
 
-  return homeScore < awayScore ? 'home' : 'away'
+  return winnerSide === 'home' ? 'away' : 'home'
 }
 
 export function buildExcuseOptions(match, teamSide) {

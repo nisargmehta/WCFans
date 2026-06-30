@@ -37,6 +37,32 @@ describe('FanDefenseSection', () => {
     expect(getRecentFanDefenseMatches(matches).map((match) => match.id)).toEqual(['newest', 'fourth', 'third', 'second'])
   })
 
+  it('surfaces teams that lose tied finals on penalties', () => {
+    const matches = [
+      {
+        ...finalMatch({
+          id: 'ned-mar-pens',
+          kickoffAt: '2026-06-30T01:00:00Z',
+          home: team('Netherlands', 'NED', '🇳🇱'),
+          away: team('Morocco', 'MAR', '🇲🇦'),
+          homeScore: 1,
+          awayScore: 1,
+        }),
+        score: {
+          home: 1,
+          away: 1,
+          duration: 'PENALTY_SHOOTOUT',
+          penalties: { home: 3, away: 4 },
+        },
+      },
+    ]
+
+    render(<FanDefenseSection matches={matches} browserNavigator={{}} />)
+
+    expect(screen.getByRole('heading', { name: /netherlands/i })).toBeInTheDocument()
+    expect(screen.getByText('lost 1-1 (4-3 pens) to Morocco')).toBeInTheDocument()
+  })
+
   it('starts with losing team copy and reveals regenerate and share after generation', async () => {
     const user = userEvent.setup()
     const copyText = vi.fn().mockResolvedValue(undefined)

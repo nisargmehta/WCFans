@@ -52,4 +52,23 @@ describe('MatchDetailsView', () => {
     expect(screen.getByText(/scores and match events may be delayed/i)).toBeInTheDocument()
     expect(screen.queryByText(/lineups, events, stats, and final data/i)).not.toBeInTheDocument()
   })
+
+  it('shows penalty winners and fan defense for the shootout loser', () => {
+    render(
+      <MatchDetailsView
+        match={{
+          ...finalParaguayLoss,
+          home: { name: 'Germany', code: 'GER', flag: '🇩🇪' },
+          away: { name: 'Paraguay', code: 'PAR', flag: '🇵🇾' },
+          winner: 'AWAY_TEAM',
+          score: { home: 5, away: 5, winner: 'AWAY_TEAM', duration: 'PENALTY_SHOOTOUT' },
+        }}
+        onBack={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('PAR wins on pens')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /generate fan defense for germany/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /generate fan defense for paraguay/i })).not.toBeInTheDocument()
+  })
 })

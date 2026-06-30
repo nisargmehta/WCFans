@@ -22,6 +22,18 @@ describe('excuseGenerator', () => {
     expect(getLosingSide({ ...baseMatch, score: { home: 1, away: 1 } })).toBeNull()
   })
 
+  it('uses the provider winner for final matches decided on penalties', () => {
+    const penaltyMatch = {
+      ...baseMatch,
+      home: { name: 'Netherlands', code: 'NED', flag: '🇳🇱' },
+      away: { name: 'Morocco', code: 'MAR', flag: '🇲🇦' },
+      winner: 'AWAY_TEAM',
+      score: { home: 1, away: 1, winner: 'AWAY_TEAM', duration: 'PENALTY_SHOOTOUT' },
+    }
+
+    expect(getLosingSide(penaltyMatch)).toBe('home')
+  })
+
   it('prioritizes possession-based excuses when the losing team dominated the ball', () => {
     const excuses = buildExcuseOptions(baseMatch, 'away')
 

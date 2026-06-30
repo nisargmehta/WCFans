@@ -10,6 +10,7 @@ import { MatchDetailsView } from './components/MatchDetailsView'
 import { NewsFeed } from './components/NewsFeed'
 import { ScheduleView } from './components/ScheduleView'
 import { StandingsView } from './components/StandingsView'
+import { hasCompleteFinalResult } from './server/matchResult'
 
 const DASHBOARD_LIVE_POLL_MS = 30 * 1000
 const ACTIVE_MATCH_POLL_BEFORE_MS = 60 * 60 * 1000
@@ -311,7 +312,7 @@ function shouldPollDashboard(data) {
   return data.scheduleMatches.some((match) => {
     const hasScore = typeof match.score?.home === 'number' && typeof match.score?.away === 'number'
 
-    if (match.status === 'Final' && hasScore) {
+    if (match.status === 'Final' && hasScore && hasCompleteFinalResult(match)) {
       return false
     }
 

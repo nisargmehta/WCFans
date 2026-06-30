@@ -1,6 +1,7 @@
 import { MessageCircle, RefreshCcw, Share2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { CLICK_EVENTS, trackClick } from '../client/analytics'
+import { getPenaltyShootoutScore, isPenaltyShootoutResult } from '../server/matchResult'
 import { buildExcuseOptions, buildExcuseShareText } from './excuseGenerator'
 import { getRecentFanDefenseMatches } from './fanDefenseMatches'
 
@@ -158,8 +159,30 @@ export function FanDefenseSection({ matches, copyText = copyShareText, browserNa
 }
 
 function formatLossScore(match) {
+  if (isPenaltyShootoutResult(match)) {
+    const penaltyScore = getPenaltyShootoutScore(match)
+    const fullTimeScore = formatFullTimeScore(match)
+
+    if (penaltyScore && penaltyScore.home !== penaltyScore.away) {
+      return `${fullTimeScore} (${formatPenaltyScore(match, penaltyScore)} pens)`
+    }
+
+    return `${fullTimeScore} on pens`
+  }
+
   const losingScore = match.score[match.losingSide]
   const opponentScore = match.score[match.losingSide === 'home' ? 'away' : 'home']
+
+  return `${opponentScore}-${losingScore}`
+}
+
+function formatFullTimeScore(match) {
+  return `${match.score.home}-${match.score.away}`
+}
+
+function formatPenaltyScore(match, penaltyScore) {
+  const losingScore = penaltyScore[match.losingSide]
+  const opponentScore = penaltyScore[match.losingSide === 'home' ? 'away' : 'home']
 
   return `${opponentScore}-${losingScore}`
 }
