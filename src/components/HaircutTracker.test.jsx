@@ -5,12 +5,12 @@ import { HaircutTracker } from './HaircutTracker'
 import { getHaircutPunchline } from './haircutTrackerCopy'
 
 describe('HaircutTracker', () => {
-  it('shows a no-data state until standings streaks are available', () => {
+  it('shows a no-data state until result streaks are available', () => {
     render(<HaircutTracker teams={[]} />)
 
     expect(screen.getByText('Haircut tracker')).toBeInTheDocument()
     expect(screen.getByText('No streak data')).toBeInTheDocument()
-    expect(screen.getByText(/haircut streaks update after standings refresh/i)).toBeInTheDocument()
+    expect(screen.getByText(/haircut streaks update after final match results refresh/i)).toBeInTheDocument()
     expect(screen.queryByText(/until then/i)).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /show all/i })).not.toBeInTheDocument()
   })

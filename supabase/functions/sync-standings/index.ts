@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { firstEnv, jsonResponse, requireEnv } from '../_shared/http.ts'
-import { getCurrentWinStreak } from '../_shared/haircutTracker.ts'
+import { buildTeamResultForms, getCurrentWinStreak } from '../_shared/haircutTracker.ts'
 
 const FOOTBALL_DATA_BASE_URL = 'https://api.football-data.org/v4'
 const DEFAULT_COMPETITION_CODE = 'WC'
@@ -162,9 +162,14 @@ const toStandingRows = (
   )
 }
 
-const toHaircutTrackerRows = (standings: StandingRow[], fetchedAt: string): HaircutTrackerRow[] =>
+const toHaircutTrackerRows = (
+  standings: StandingRow[],
+  fetchedAt: string,
+  resultFormsByTeam: Map<number, string>,
+): HaircutTrackerRow[] =>
   standings.map((standing) => {
-    const winsInARow = getCurrentWinStreak(standing.form)
+    const form = resultFormsByTeam.get(standing.team_id) ?? standing.form
+    const winsInARow = getCurrentWinStreak(form)
 
     return {
       league_id: standing.league_id,
@@ -173,7 +178,7 @@ const toHaircutTrackerRows = (standings: StandingRow[], fetchedAt: string): Hair
       team_name: standing.team_name,
       team_logo: standing.team_logo,
       group_name: standing.group_name,
-      form: standing.form,
+      form,
       wins_in_a_row: winsInARow,
       can_cut_hair: winsInARow >= 5,
       fetched_at: fetchedAt,
@@ -197,6 +202,7 @@ Deno.serve(async () => {
     const data = await fetchFootballData(endpoint, apiKey)
     const matchesData = await fetchFootballData(matchesEndpoint, apiKey)
     const teamGroupMap = toTeamGroupMap(matchesData)
+    const resultFormsByTeam = buildTeamResultForms(matchesData.matches ?? [])
     const rows = uniqueStandingRows(
       toStandingRows(data, leagueId, season, fetchedAt, teamGroupMap).filter((row) => row.team_id && row.team_name),
     )
@@ -218,7 +224,7 @@ Deno.serve(async () => {
         throw new Error(`haircut tracker cleanup failed: ${errorMessage(trackerDeleteError)}`)
       }
 
-      const trackerRows = toHaircutTrackerRows(rows.filter((row) => (row.all_played ?? 0) > 0), fetchedAt)
+      const trackerRows = toHaircutTrackerRows(rows.filter((row) => (row.all_played ?? 0) > 0), fetchedAt, resultFormsByTeam)
 
       if (trackerRows.length > 0) {
         const { error: trackerError } = await supabase
